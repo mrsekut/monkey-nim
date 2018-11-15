@@ -1,27 +1,27 @@
 type TokenType* = string
 
 type Token* = ref object of RootObj
-    Type: TokenType
-    Literal: string
+    Type*: TokenType
+    Literal*: string
 
 const
-    ILLEGAL* = "ILLEGAL"
-    EOF = "EOF"
+    # ILLEGAL* = "ILLEGAL"
+    EOF* = "EOF"
 
-    IDENT = "IDENT"
-    INT = "INT"
+    # IDENT = "IDENT"
+    # INT = "INT"
 
     ASSIGN* = "="
-    PLUS = "+"
+    PLUS* = "+"
 
-    COMMA = ","
-    SEMICOLON = ";"
+    COMMA* = ","
+    SEMICOLON* = ";"
 
-    LPAREN = "("
-    RPAREN = ")"
-    LBRACE = "{"
-    RBRASE = "}"
+    LPAREN* = "("
+    RPAREN* = ")"
+    LBRACE* = "{"
+    RBRACE* = "}"
 
-    FUNCTION = "FUNCTION"
-    LET = "LET"
+    # FUNCTION = "FUNCTION"
+    # LET = "LET"
 

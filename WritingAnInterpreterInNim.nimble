@@ -10,3 +10,4 @@ bin           = @["WritingAnInterpreterInNim"]
 # Dependencies
 
 requires "nim >= 0.18.0"
+skipDirs = @["tests"]
