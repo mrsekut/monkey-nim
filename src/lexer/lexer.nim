@@ -1,3 +1,5 @@
+import token
+
 type Lexer = ref object of RootObj
     input: string
     position: int
@@ -19,6 +21,19 @@ proc newLexer(input: string): Lexer =
     l.readNextChar()
     return l
 
+proc newToken(tokenType: token.TokenType, ch: char):token.Token =
+    return token.Token(Type: tokenType, Literal: ch)
+
+proc nextToken(this: Lexer): token.Token =
+    var tok: token.Token
+
+    case this.ch
+    of '=':
+        tok = newToken(token.ASSIGN, l.ch)
+
+    this.readNextChar()
+    return tok
+
 
 
 
@@ -29,8 +44,7 @@ proc main() =
   block:
     var l = newLexer("let test = 2")
     echo l.ch
-    l.readNextChar()
-    echo l.ch
+    echo l.nextToken()
 
 
 when isMainModule:
