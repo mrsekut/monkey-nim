@@ -1,3 +1,4 @@
+import tables
 type TokenType* = string
 
 type Token* = ref object of RootObj
@@ -5,11 +6,11 @@ type Token* = ref object of RootObj
     Literal*: string
 
 const
-    # ILLEGAL* = "ILLEGAL"
+    ILLEGAL* = "ILLEGAL"
     EOF* = "EOF"
 
-    # IDENT = "IDENT"
-    # INT = "INT"
+    IDENT* = "IDENT"
+    INT* = "INT"
 
     ASSIGN* = "="
     PLUS* = "+"
@@ -22,6 +23,19 @@ const
     LBRACE* = "{"
     RBRACE* = "}"
 
-    # FUNCTION = "FUNCTION"
-    # LET = "LET"
+    PROC* = "PROC"
+    LET* = "LET"
 
+
+var keywords = {
+    "proc": PROC,
+    "let": LET
+    }.newTable
+
+# proc keywords(ident) =
+
+
+proc LookUpIdent*(ident: string): TokenType =
+    if keywords.hasKey(ident):
+        return string(LET)
+    return IDENT
