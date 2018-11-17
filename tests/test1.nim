@@ -8,6 +8,11 @@ suite "Lexer":
       =+(){},:
       !-/*5
       5 < 10 > 5
+
+      if 5 > 10:
+        return true
+      else:
+        return false
     """
 
     let test = @[
@@ -29,7 +34,19 @@ suite "Lexer":
         ( token.INT, "10" ),
         ( token.GT, ">" ),
         ( token.INT, "5" ),
-        # ( token.EOF, "" ),
+
+        ( token.IF, "if" ),
+        ( token.INT, "5" ),
+        ( token.GT, ">" ),
+        ( token.INT, "10" ),
+        ( token.COLON, ":" ),
+        ( token.RETURN, "return" ),
+        ( token.TRUE, "true" ),
+        ( token.ELSE, "else" ),
+        ( token.COLON, ":" ),
+        ( token.RETURN, "return" ),
+        ( token.FALSE, "false" ),
+        # # ( token.EOF, "" ),
     ]
 
     var l = lexer.newLexer(input)
@@ -39,6 +56,7 @@ suite "Lexer":
         check(i[0] == tok.Type)
         check(i[1] == tok.Literal)
 
+  # NOTE: あとでテストマージしよう
   test "it analysis simple code":
     let input: string = """
       let five = 5

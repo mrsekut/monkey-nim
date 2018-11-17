@@ -32,11 +32,21 @@ const
 
     PROC* = "PROC"
     LET* = "LET"
+    TRUE* = "TRUE"
+    FALSE* = "FALSE"
+    IF* = "IF"
+    ELSE* = "ELSE"
+    RETURN* = "RETURN"
 
 
 var keywords = {
     "proc": PROC,
-    "let": LET
+    "let": LET,
+    "true": TRUE,
+    "false": FALSE,
+    "if": IF,
+    "else": ELSE,
+    "return": RETURN
     }.newTable
 
 
