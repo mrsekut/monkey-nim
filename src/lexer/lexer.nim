@@ -1,6 +1,6 @@
 import token
 
-type Lexer = ref object of RootObj
+type Lexer* = ref object of RootObj
     input: string
     position: int
     readPosition: int
@@ -16,7 +16,7 @@ proc readNextChar(this: Lexer) =
     this.readPosition += 1
 
 
-proc newLexer(input: string): Lexer =
+proc newLexer*(input: string): Lexer =
     var l = Lexer(input: input)
     l.readNextChar()
     return l
@@ -24,7 +24,7 @@ proc newLexer(input: string): Lexer =
 proc newToken(tokenType: token.TokenType, ch: char):token.Token =
     return token.Token(Type: tokenType, Literal: $ch)
 
-proc nextToken(this: Lexer): token.Token =
+proc nextToken*(this: Lexer): token.Token =
     var tok: token.Token
 
     case this.ch
@@ -55,25 +55,7 @@ import unittest
 
 proc main() =
   block:
-    let input: string = "=+(){},;"
-
-    let test = @[
-        ( token.ASSiGN, "=" ),
-        ( token.PLUS, "+" ),
-        ( token.LPAREN, "(" ),
-        ( token.RPAREN, ")" ),
-        ( token.LBRACE, "{" ),
-        ( token.RBRACE, "}"),
-        ( token.COMMA, "," ),
-        ( token.SEMICOLON, ";" ),
-        # ( token.EOF, "" ),
-    ]
-
-    var l = newLexer(input)
-
-    for i in test:
-        let tok = l.nextToken()
-        check(i[1] == tok.Literal)
+    echo "hello"
 
 when isMainModule:
   main()
