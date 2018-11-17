@@ -2,50 +2,53 @@ import tables
 type TokenType* = string
 
 type Token* = ref object of RootObj
-    Type*: TokenType
+    Type*:    TokenType
     Literal*: string
 
 const
-    ILLEGAL* = "ILLEGAL"
-    EOF* = "EOF"
+    ILLEGAL*  = "ILLEGAL"
+    EOF*      = "EOF"
 
-    IDENT* = "IDENT"
-    INT* = "INT"
+    IDENT*    = "IDENT"
+    INT*      = "INT"
 
-    ASSIGN* = "="
-    PLUS* = "+"
-    MINUS* = "-"
-    BANG* = "!"
+    ASSIGN*   = "="
+    PLUS*     = "+"
+    MINUS*    = "-"
+    BANG*     = "!"
     ASTERISC* = "*"
-    SLASH* = "/"
+    SLASH*    = "/"
 
-    LT* = "<"
-    GT* =" >"
+    LT*       = "<"
+    GT*       =" >"
 
-    COMMA* = ","
-    COLON* = ":"
+    COMMA*    = ","
+    COLON*    = ":"
 
-    LPAREN* = "("
-    RPAREN* = ")"
-    LBRACE* = "{"
-    RBRACE* = "}"
+    LPAREN*   = "("
+    RPAREN*   = ")"
+    LBRACE*   = "{"
+    RBRACE*   = "}"
 
-    PROC* = "PROC"
-    LET* = "LET"
-    TRUE* = "TRUE"
-    FALSE* = "FALSE"
-    IF* = "IF"
-    ELSE* = "ELSE"
-    RETURN* = "RETURN"
+    PROC*     = "PROC"
+    LET*      = "LET"
+    TRUE*     = "TRUE"
+    FALSE*    = "FALSE"
+    IF*       = "IF"
+    ELSE*     = "ELSE"
+    RETURN*   = "RETURN"
+
+    EQ*       = "=="
+    NOT_EQ*   = "!="
 
 
 var keywords = {
-    "proc": PROC,
-    "let": LET,
-    "true": TRUE,
-    "false": FALSE,
-    "if": IF,
-    "else": ELSE,
+    "proc":   PROC,
+    "let":    LET,
+    "true":   TRUE,
+    "false":  FALSE,
+    "if":     IF,
+    "else":   ELSE,
     "return": RETURN
     }.newTable
 

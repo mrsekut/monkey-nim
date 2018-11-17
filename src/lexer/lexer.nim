@@ -48,13 +48,25 @@ method readNumber(this: Lexer): string  {.base.} =
 
     return this.input[position..this.position-1]
 
+method peekChar(this: Lexer): char =
+    if this.readPosition >= len(this.input):
+        return ' '
+    else:
+        return this.input[this.readPosition]
+
 method nextToken*(this: Lexer): token.Token  {.base.} =
     var tok: token.Token
     this.skipWhiteSpace()
 
     case this.ch
     of '=':
-        tok = newToken(ASSIGN, this.ch)
+        if this.peekChar() == '=':
+            let ch = this.ch
+            this.readNextChar()
+            let l = $ch & $this.ch
+            tok = Token(Type: EQ, Literal: l)
+        else:
+            tok = newToken(ASSIGN, this.ch)
     of ':':
         tok = newToken(COLON, this.ch)
     of '(':
@@ -68,7 +80,13 @@ method nextToken*(this: Lexer): token.Token  {.base.} =
     of '-':
         tok = newToken(MINUS, this.ch)
     of '!':
-        tok = newToken(BANG, this.ch)
+        if this.peekChar() == '=':
+            let ch = this.ch
+            this.readNextChar()
+            let l = $ch & $this.ch
+            tok = Token(Type: NOT_EQ, Literal: l)
+        else:
+            tok = newToken(BANG, this.ch)
     of '*':
         tok = newToken(ASTERISC, this.ch)
     of '/':
@@ -100,10 +118,12 @@ method nextToken*(this: Lexer): token.Token  {.base.} =
 
 proc main() =
   block:
-    let l = newLexer("10")
-    echo $isDigit('1')
-    # let b = l.nextToken()
-    # echo $b.Literal
+
+    let b:char = 'b'
+    let c:char = 'c'
+
+    let l = $b & $c
+    echo l
 
 
 
