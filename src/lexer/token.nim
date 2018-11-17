@@ -14,6 +14,13 @@ const
 
     ASSIGN* = "="
     PLUS* = "+"
+    MINUS* = "-"
+    BANG* = "!"
+    ASTERISC* = "*"
+    SLASH* = "/"
+
+    LT* = "<"
+    GT* =" >"
 
     COMMA* = ","
     COLON* = ":"
@@ -32,10 +39,8 @@ var keywords = {
     "let": LET
     }.newTable
 
-# proc keywords(ident) =
-
 
 proc LookUpIdent*(ident: string): TokenType =
     if keywords.hasKey(ident):
-        return string(LET)
+        return keywords[ident]
     return IDENT

@@ -4,7 +4,11 @@ import lexer/token
 
 suite "Lexer":
   # test "it analysis simple token":
-  #   let input: string = "=+(){},:"
+  #   let input: string = """
+  #     =+(){},:
+  #     !-/*5
+  #     5 < 10 > 5
+  #   """
 
   #   let test = @[
   #       ( token.ASSiGN, "=" ),
@@ -15,6 +19,16 @@ suite "Lexer":
   #       ( token.RBRACE, "}"),
   #       ( token.COMMA, "," ),
   #       ( token.COLON, ":" ),
+  #       # ( token.BANG, "!" ),
+  #       # ( token.MINUS, "-" ),
+  #       # ( token.SLASH, "/" ),
+  #       # ( token.ASTERISC, "*" ),
+  #       # ( token.INT, "5" ),
+  #       # ( token.INT, "5" ),
+  #       # ( token.LT, "<" ),
+  #       # ( token.INT, "10" ),
+  #       # ( token.GT, ">" ),
+  #       # ( token.INT, "5" ),
   #       # ( token.EOF, "" ),
   #   ]
 
@@ -22,16 +36,18 @@ suite "Lexer":
 
   #   for i in test:
   #       let tok = l.nextToken()
+  #       check(i[0] == tok.Type)
   #       check(i[1] == tok.Literal)
 
   test "it analysis simple code":
-    let input: string = """let five = 5
-    let ten = 10
+    let input: string = """
+      let five = 5
+      let ten = 10
 
-    proc add(x, y) =
-      x + y
+      proc add(x, y) =
+        x + y
 
-    let result = add(five, ten)
+      let result = add(five, ten)
     """
 
     let test = @[
@@ -60,7 +76,7 @@ suite "Lexer":
         ( token.IDENT, "add" ),
         ( token.LPAREN, "(" ),
         ( token.IDENT, "five" ),
-        ( token.COLON, "," ),
+        ( token.COMMA, "," ),
         ( token.IDENT, "ten" ),
         ( token.RPAREN, ")" ),
         # ( token.EOF, "" ),
@@ -70,4 +86,5 @@ suite "Lexer":
 
     for i in test:
         let tok = l.nextToken()
+        check(i[0] == tok.Type)
         check(i[1] == tok.Literal)
