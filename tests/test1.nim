@@ -4,7 +4,7 @@ import lexer/token
 
 suite "Lexer":
    test "it analysis simple token":
-    let input: string = "=+(){},;"
+    let input: string = "=+(){},:"
 
     let test = @[
         ( token.ASSiGN, "=" ),
@@ -14,7 +14,7 @@ suite "Lexer":
         ( token.LBRACE, "{" ),
         ( token.RBRACE, "}"),
         ( token.COMMA, "," ),
-        ( token.SEMICOLON, ";" ),
+        ( token.COLON, ":" ),
         # ( token.EOF, "" ),
     ]
 

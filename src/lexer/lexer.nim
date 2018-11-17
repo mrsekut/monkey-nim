@@ -30,8 +30,8 @@ proc nextToken*(this: Lexer): token.Token =
     case this.ch
     of '=':
         tok = newToken(token.ASSIGN, this.ch)
-    of ';':
-        tok = newToken(token.SEMICOLON, this.ch)
+    of ':':
+        tok = newToken(token.COLON, this.ch)
     of '(':
         tok = newToken(token.LPAREN, this.ch)
     of ')':
