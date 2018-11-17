@@ -3,41 +3,41 @@ import lexer/lexer
 import lexer/token
 
 suite "Lexer":
-  # test "it analysis simple token":
-  #   let input: string = """
-  #     =+(){},:
-  #     !-/*5
-  #     5 < 10 > 5
-  #   """
+  test "it analysis simple token":
+    let input: string = """
+      =+(){},:
+      !-/*5
+      5 < 10 > 5
+    """
 
-  #   let test = @[
-  #       ( token.ASSiGN, "=" ),
-  #       ( token.PLUS, "+" ),
-  #       ( token.LPAREN, "(" ),
-  #       ( token.RPAREN, ")" ),
-  #       ( token.LBRACE, "{" ),
-  #       ( token.RBRACE, "}"),
-  #       ( token.COMMA, "," ),
-  #       ( token.COLON, ":" ),
-  #       # ( token.BANG, "!" ),
-  #       # ( token.MINUS, "-" ),
-  #       # ( token.SLASH, "/" ),
-  #       # ( token.ASTERISC, "*" ),
-  #       # ( token.INT, "5" ),
-  #       # ( token.INT, "5" ),
-  #       # ( token.LT, "<" ),
-  #       # ( token.INT, "10" ),
-  #       # ( token.GT, ">" ),
-  #       # ( token.INT, "5" ),
-  #       # ( token.EOF, "" ),
-  #   ]
+    let test = @[
+        ( token.ASSiGN, "=" ),
+        ( token.PLUS, "+" ),
+        ( token.LPAREN, "(" ),
+        ( token.RPAREN, ")" ),
+        ( token.LBRACE, "{" ),
+        ( token.RBRACE, "}"),
+        ( token.COMMA, "," ),
+        ( token.COLON, ":" ),
+        ( token.BANG, "!" ),
+        ( token.MINUS, "-" ),
+        ( token.SLASH, "/" ),
+        ( token.ASTERISC, "*" ),
+        ( token.INT, "5" ),
+        ( token.INT, "5" ),
+        ( token.LT, "<" ),
+        ( token.INT, "10" ),
+        ( token.GT, ">" ),
+        ( token.INT, "5" ),
+        # ( token.EOF, "" ),
+    ]
 
-  #   var l = lexer.newLexer(input)
+    var l = lexer.newLexer(input)
 
-  #   for i in test:
-  #       let tok = l.nextToken()
-  #       check(i[0] == tok.Type)
-  #       check(i[1] == tok.Literal)
+    for i in test:
+        let tok = l.nextToken()
+        check(i[0] == tok.Type)
+        check(i[1] == tok.Literal)
 
   test "it analysis simple code":
     let input: string = """

@@ -65,10 +65,23 @@ method nextToken*(this: Lexer): token.Token  {.base.} =
         tok = newToken(COMMA, this.ch)
     of '+':
         tok = newToken(PLUS, this.ch)
+    of '-':
+        tok = newToken(MINUS, this.ch)
+    of '!':
+        tok = newToken(BANG, this.ch)
+    of '*':
+        tok = newToken(ASTERISC, this.ch)
+    of '/':
+        tok = newToken(SLASH, this.ch)
+    of '<':
+        tok = newToken(LT, this.ch)
+    of '>':
+        tok = newToken(GT, this.ch)
     of '{':
         tok = newToken(LBRACE, this.ch)
     of '}':
         tok = newToken(RBRACE, this.ch)
+
     else:
         if isLetter(this.ch):
             let l = this.readIdentifier()
