@@ -1,9 +1,10 @@
 import tables
-type TokenType* = string
+type
+    TokenType* = string
 
-type Token* = ref object of RootObj
-    Type*:    TokenType
-    Literal*: string
+    Token* = ref object of RootObj
+        Type*:    TokenType
+        Literal*: string
 
 const
     ILLEGAL*  = "ILLEGAL"

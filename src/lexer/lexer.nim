@@ -6,115 +6,112 @@ type Lexer* = ref object of RootObj
     readPosition: int
     ch: char
 
-
-method readNextChar(this: Lexer)  {.base.} =
-    if this.readPosition >= len(this.input):
-        this.ch = ' '
+proc readNextChar(self: Lexer) =
+    if self.readPosition >= len(self.input):
+        self.ch = ' '
     else:
-        this.ch = this.input[this.readPosition]
-    this.position = this.readPosition
-    this.readPosition += 1
+        self.ch = self.input[self.readPosition]
+    self.position = self.readPosition
+    self.readPosition += 1
 
 
 proc newLexer*(input: string): Lexer =
     var l = Lexer(input: input)
     l.readNextChar()
-    return l
+    l
 
 proc newToken(tokenType: TokenType, ch: char): Token =
-    return Token(Type: tokenType, Literal: $ch)
+    Token(Type: tokenType, Literal: $ch)
 
 proc isLetter(ch: char): bool =
-    return ('a' <= ch and ch <= 'z') or ('A' <= ch and ch <= 'Z') or ch == '_'
+    ('a' <= ch and ch <= 'z') or ('A' <= ch and ch <= 'Z') or ch == '_'
 
 proc isDigit(ch: char): bool =
-    return '0' <= ch and ch <= '9'
+    '0' <= ch and ch <= '9'
 
-method readIdentifier(this: Lexer): string {.base.} =
-    let position = this.position
-    while isLetter(this.ch):
-        this.readNextChar()
+proc readIdentifier(self: Lexer): string =
+    let position = self.position
+    while isLetter(self.ch):
+        self.readNextChar()
 
-    return this.input[position..this.position-1]
+    self.input[position..self.position-1]
 
-method skipWhiteSpace(this: Lexer)  {.base.} =
-    while this.ch == ' ' or this.ch == '\t' or this.ch == '\n':
-        this.readNextChar()
+proc skipWhiteSpace(self: Lexer) =
+    while self.ch == ' ' or self.ch == '\t' or self.ch == '\n':
+        self.readNextChar()
 
-method readNumber(this: Lexer): string  {.base.} =
-    let position = this.position
-    while isDigit(this.ch):
-        this.readNextChar()
+proc readNumber(self: Lexer): string =
+    let position = self.position
+    while isDigit(self.ch):
+        self.readNextChar()
 
-    return this.input[position..this.position-1]
+    self.input[position..self.position-1]
 
-method peekChar(this: Lexer): char =
-    if this.readPosition >= len(this.input):
+proc peekChar(self: Lexer): char =
+    if self.readPosition >= len(self.input):
         return ' '
     else:
-        return this.input[this.readPosition]
+        return self.input[self.readPosition]
 
-method nextToken*(this: Lexer): token.Token  {.base.} =
+proc nextToken*(self: Lexer): token.Token =
     var tok: token.Token
-    this.skipWhiteSpace()
+    self.skipWhiteSpace()
 
-    case this.ch
+    case self.ch
     of '=':
-        if this.peekChar() == '=':
-            let ch = this.ch
-            this.readNextChar()
-            let l = $ch & $this.ch
+        if self.peekChar() == '=':
+            let ch = self.ch
+            self.readNextChar()
+            let l = $ch & $self.ch
             tok = Token(Type: EQ, Literal: l)
         else:
-            tok = newToken(ASSIGN, this.ch)
+            tok = newToken(ASSIGN, self.ch)
     of ':':
-        tok = newToken(COLON, this.ch)
+        tok = newToken(COLON, self.ch)
     of '(':
-        tok = newToken(LPAREN, this.ch)
+        tok = newToken(LPAREN, self.ch)
     of ')':
-        tok = newToken(RPAREN, this.ch)
+        tok = newToken(RPAREN, self.ch)
     of ',':
-        tok = newToken(COMMA, this.ch)
+        tok = newToken(COMMA, self.ch)
     of '+':
-        tok = newToken(PLUS, this.ch)
+        tok = newToken(PLUS, self.ch)
     of '-':
-        tok = newToken(MINUS, this.ch)
+        tok = newToken(MINUS, self.ch)
     of '!':
-        if this.peekChar() == '=':
-            let ch = this.ch
-            this.readNextChar()
-            let l = $ch & $this.ch
+        if self.peekChar() == '=':
+            let ch = self.ch
+            self.readNextChar()
+            let l = $ch & $self.ch
             tok = Token(Type: NOT_EQ, Literal: l)
         else:
-            tok = newToken(BANG, this.ch)
+            tok = newToken(BANG, self.ch)
     of '*':
-        tok = newToken(ASTERISC, this.ch)
+        tok = newToken(ASTERISC, self.ch)
     of '/':
-        tok = newToken(SLASH, this.ch)
+        tok = newToken(SLASH, self.ch)
     of '<':
-        tok = newToken(LT, this.ch)
+        tok = newToken(LT, self.ch)
     of '>':
-        tok = newToken(GT, this.ch)
+        tok = newToken(GT, self.ch)
     of '{':
-        tok = newToken(LBRACE, this.ch)
+        tok = newToken(LBRACE, self.ch)
     of '}':
-        tok = newToken(RBRACE, this.ch)
-
+        tok = newToken(RBRACE, self.ch)
     else:
-        if isLetter(this.ch):
-            let l = this.readIdentifier()
+        if isLetter(self.ch):
+            let l = self.readIdentifier()
             let t = LookUpIdent(l)
             return Token(Type: t, Literal: l)
-        elif isDigit(this.ch):
+        elif isDigit(self.ch):
             let t = token.INT
-            let l = this.readNumber()
+            let l = self.readNumber()
             return Token(Type: t, Literal: l)
         else:
-            tok = newToken(token.ILLEGAL, this.ch)
+            tok = newToken(token.ILLEGAL, self.ch)
 
-    this.readNextChar()
-    return tok
-
+    self.readNextChar()
+    tok
 
 proc main() =
   block:
@@ -124,9 +121,6 @@ proc main() =
 
     let l = $b & $c
     echo l
-
-
-
 
 when isMainModule:
   main()
