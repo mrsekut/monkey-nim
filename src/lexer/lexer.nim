@@ -26,8 +26,7 @@ proc newToken(tokenType: TokenType, ch: char): Token =
 proc isLetter(ch: char): bool =
     ('a' <= ch and ch <= 'z') or ('A' <= ch and ch <= 'Z') or ch == '_'
 
-proc isDigit(ch: char): bool =
-    '0' <= ch and ch <= '9'
+proc isDigit(ch: char): bool = '0' <= ch and ch <= '9'
 
 proc readIdentifier(self: Lexer): string =
     let position = self.position
