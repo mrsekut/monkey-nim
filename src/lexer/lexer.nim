@@ -1,5 +1,13 @@
 import token
 
+proc newToken(tokenType: TokenType, ch: char): Token =
+    Token(Type: tokenType, Literal: $ch)
+
+proc isLetter(ch: char): bool =
+    ('a' <= ch and ch <= 'z') or ('A' <= ch and ch <= 'Z') or ch == '_'
+
+proc isDigit(ch: char): bool = '0' <= ch and ch <= '9'
+
 type Lexer* = ref object of RootObj
     input: string
     position: int
@@ -14,19 +22,10 @@ proc readNextChar(self: Lexer) =
     self.position = self.readPosition
     self.readPosition += 1
 
-
 proc newLexer*(input: string): Lexer =
-    var l = Lexer(input: input)
+    let l = Lexer(input: input)
     l.readNextChar()
     l
-
-proc newToken(tokenType: TokenType, ch: char): Token =
-    Token(Type: tokenType, Literal: $ch)
-
-proc isLetter(ch: char): bool =
-    ('a' <= ch and ch <= 'z') or ('A' <= ch and ch <= 'Z') or ch == '_'
-
-proc isDigit(ch: char): bool = '0' <= ch and ch <= '9'
 
 proc readIdentifier(self: Lexer): string =
     let position = self.position
@@ -112,14 +111,7 @@ proc nextToken*(self: Lexer): token.Token =
     self.readNextChar()
     tok
 
-proc main() =
-  block:
-
-    let b:char = 'b'
-    let c:char = 'c'
-
-    let l = $b & $c
-    echo l
+proc main() = discard
 
 when isMainModule:
   main()
