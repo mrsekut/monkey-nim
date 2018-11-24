@@ -1,6 +1,6 @@
 import unittest
-import lexer/lexer
-import lexer/token
+import ../src/lexer/lexer
+import ../src/lexer/token
 
 suite "Lexer":
   test "it analysis simple code":
