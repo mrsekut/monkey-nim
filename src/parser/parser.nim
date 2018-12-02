@@ -11,7 +11,8 @@ proc nextToken(self: Parser) =
     self.curToken = self.peekToken
     self.peekToken = self.l.nextToken()
 
-proc parserProgram(self: Parser): ast.Program = nil
+proc parserProgram(self: Parser): Program = nil
+
 
 proc newParser*(self: Parser, l: Lexer): Parser =
     let p = Parser(l: l) # NOTE: newとか合ってる？

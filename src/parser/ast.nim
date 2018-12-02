@@ -14,7 +14,7 @@ type Expression = concept
 
 
 type Program* = object of RootObj
-    statements: seq[string] # TODO:
+    statements: seq[Statement] # TODO:
 
 proc tokenLiteral[Statement](self: Statement): string =
     if self.statements.len > 0:
