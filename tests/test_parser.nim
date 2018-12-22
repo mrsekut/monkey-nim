@@ -1,7 +1,16 @@
-import unittest
+import unittest, strformat
 import ../src/parser/ast
 import ../src/parser/parser
 import ../src/lexer/lexer
+
+# NOTE: 仮 p.43
+proc checkParserError(self: Parser): void=
+    let errors = self.error()
+    if errors.len == 0: return
+    echo fmt"parser has {errors.len} errors"
+    return
+
+
 
 suite "Parser":
     test "it should parse letStatements":
@@ -15,6 +24,7 @@ suite "Parser":
         let p = newParser(l)
 
         let program = p.parseProgram()
+        checkParserError(p)
         check(program.statements != nil)
         check(program.statements.len == 3)
 

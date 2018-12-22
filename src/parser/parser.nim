@@ -1,10 +1,10 @@
 import ast
 import ../lexer/lexer
 import ../lexer/token
-import sequtils, strformat, typetraits
+import sequtils, strformat
 
 
-type Parser = ref object of RootObj
+type Parser* = ref object of RootObj
     l: Lexer
     curToken: Token
     peekToken: Token
@@ -69,7 +69,7 @@ proc parseProgram*(self: Parser): Program =
 
     program
 
-proc error(self: Parser): seq[string] = self.errors
+proc error*(self: Parser): seq[string] = self.errors
 
 proc newParser*(l: Lexer): Parser =
     let p = Parser(l: l, errors: newSeq[string]())
