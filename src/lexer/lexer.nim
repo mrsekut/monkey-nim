@@ -68,6 +68,8 @@ proc nextToken*(self: Lexer): token.Token =
         tok = newToken(COLON, self.ch)
     of ';':
         tok = newToken(SEMICOLON, self.ch)
+    of '\\': # 仮
+        tok = newToken(EOF, self.ch)
     of '(':
         tok = newToken(LPAREN, self.ch)
     of ')':

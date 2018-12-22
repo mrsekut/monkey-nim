@@ -1,7 +1,8 @@
 import ast
 import ../lexer/lexer
 import ../lexer/token
-import sequtils, strformat
+import sequtils, strformat, typetraits
+
 
 type Parser = ref object of RootObj
     l: Lexer
@@ -57,7 +58,7 @@ proc parseStatement(self: Parser): LetStatement =
         return nil
 
 # create AST Root Node
-proc parserProgram(self: Parser): Program =
+proc parseProgram*(self: Parser): Program =
     var program = Program()
     program.statements = newSeq[LetStatement]()
 
@@ -70,10 +71,13 @@ proc parserProgram(self: Parser): Program =
 
 proc error(self: Parser): seq[string] = self.errors
 
-
-
 proc newParser*(l: Lexer): Parser =
     let p = Parser(l: l, errors: newSeq[string]())
     p.nextToken()
     p.nextToken()
     p
+
+proc main() = discard
+
+when isMainModule:
+    main()
