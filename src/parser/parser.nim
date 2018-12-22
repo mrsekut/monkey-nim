@@ -18,6 +18,5 @@ proc newParser*(self: Parser, l: Lexer): Parser =
     let p = Parser(l: l) # NOTE: newとか合ってる？
     p.nextToken()
     p.nextToken()
-
     p
 
