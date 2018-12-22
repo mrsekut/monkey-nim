@@ -25,6 +25,7 @@ const
 
     COMMA*    = ","
     COLON*    = ":"
+    SEMICOLON*    = ";"
 
     LPAREN*   = "("
     RPAREN*   = ")"
