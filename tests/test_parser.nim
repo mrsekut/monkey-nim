@@ -46,3 +46,26 @@ suite "Parser":
 
     #     let l = newLexer(input)
     #     let p = newParser(l)
+
+    test "it should parse returnStatements":
+        let input: string = """
+            return 5;
+            return 10;
+            return 838383;\0
+        """
+
+        let l = newLexer(input)
+        let p = newParser(l)
+
+        let program = p.parseProgram()
+        checkParserError(p)
+        check(program.statements != nil)
+        check(program.statements.len == 3)
+
+        let expects = @["x", "y", "foobar"]
+
+        for i in 0..<program.statements.len:
+            let statement = program.statements[i].ReturnStatement
+            check(statement.Name.Value == expects[i])
+
+

@@ -2,6 +2,7 @@ import ast
 import ../lexer/lexer
 import ../lexer/token
 import sequtils, strformat
+# NOTE: やっぱ`method`にしようぜ
 
 
 type Parser* = ref object of RootObj
@@ -30,18 +31,28 @@ proc expectPeek(self: Parser, t: token.TokenType): bool =
         return false
 
 
-proc parseLetStatement(self: Parser): LetStatement =
-    var statement = LetStatement(Token: self.curToken)
+proc parseLetStatement(self: Parser): auto =
+    var statement = Statement(kind: LetStatement, Token: self.curToken)
 
     # ident
-    if not self.expectPeek(token.IDENT): return nil
+    # if not self.expectPeek(token.IDENT): return nil
     statement.Name = Identifier(
                         Token: self.curToken,
                         Value: self.curToken.Literal
                      )
 
     # =
-    if not self.expectPeek(token.ASSIGN): return nil
+    # if not self.expectPeek(token.ASSIGN): return nil
+
+    # ~ ;
+    while not self.curTokenIs(token.SEMICOLON):
+        self.nextToken()
+
+    statement
+
+proc parseReturnStatement(self: Parser): auto =
+    var statement = Statement(kind: ReturnStatement, Token: self.curToken)
+    self.nextToken()
 
     # ~ ;
     while not self.curTokenIs(token.SEMICOLON):
@@ -50,21 +61,24 @@ proc parseLetStatement(self: Parser): LetStatement =
     statement
 
 
-proc parseStatement(self: Parser): LetStatement =
+proc parseStatement(self: Parser): Statement =
     case self.curToken.Type
     of token.LET:
         return self.parseLetStatement()
-    else:
-        return nil
+    of token.RETURN:
+        return self.parseReturnStatement()
+    # else:
+    #     return cast[None](0)
 
 # create AST Root Node
 proc parseProgram*(self: Parser): Program =
     var program = Program()
-    program.statements = newSeq[LetStatement]()
+    program.statements = newSeq[Statement]()
 
     while self.curToken.Type != token.EOF:
         let statement = self.parseStatement()
-        if statement != nil: program.statements.add(statement)
+        # if statement != nil:
+        program.statements.add(statement)
         self.nextToken()
 
     program
