@@ -31,18 +31,18 @@ proc expectPeek(self: Parser, t: token.TokenType): bool =
         return false
 
 
-proc parseLetStatement(self: Parser): auto =
+proc parseLetStatement(self: Parser): Statement =
     var statement = Statement(kind: LetStatement, Token: self.curToken)
 
     # ident
-    # if not self.expectPeek(token.IDENT): return nil
+    if not self.expectPeek(token.IDENT): return Statement(kind: Nil)
     statement.Name = Identifier(
                         Token: self.curToken,
                         Value: self.curToken.Literal
                      )
 
     # =
-    # if not self.expectPeek(token.ASSIGN): return nil
+    if not self.expectPeek(token.ASSIGN): return Statement(kind: Nil)
 
     # ~ ;
     while not self.curTokenIs(token.SEMICOLON):
@@ -50,7 +50,7 @@ proc parseLetStatement(self: Parser): auto =
 
     statement
 
-proc parseReturnStatement(self: Parser): auto =
+proc parseReturnStatement(self: Parser): Statement =
     var statement = Statement(kind: ReturnStatement, Token: self.curToken)
     self.nextToken()
 
@@ -77,8 +77,8 @@ proc parseProgram*(self: Parser): Program =
 
     while self.curToken.Type != token.EOF:
         let statement = self.parseStatement()
-        # if statement != nil:
-        program.statements.add(statement)
+        if statement.kind != Nil:
+            program.statements.add(statement)
         self.nextToken()
 
     program

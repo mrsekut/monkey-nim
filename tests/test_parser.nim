@@ -25,7 +25,6 @@ suite "Parser":
 
         let program = p.parseProgram()
         checkParserError(p)
-        check(program.statements != nil)
         check(program.statements.len == 3)
 
         let expects = @["x", "y", "foobar"]
@@ -34,18 +33,6 @@ suite "Parser":
             let statement = program.statements[i]
             check(statement.Name.Value == expects[i])
 
-
-
-    # # NOTE: わからん p.38
-    # test "it should parse letStatement":
-    #     let input: string = """
-    #         let x = 5;
-    #         let y = 10;
-    #         let foobar = 838383;\0
-    #     """
-
-    #     let l = newLexer(input)
-    #     let p = newParser(l)
 
     test "it should parse returnStatements":
         let input: string = """
@@ -59,13 +46,10 @@ suite "Parser":
 
         let program = p.parseProgram()
         checkParserError(p)
-        check(program.statements != nil)
         check(program.statements.len == 3)
 
-        let expects = @["x", "y", "foobar"]
-
         for i in 0..<program.statements.len:
-            let statement = program.statements[i].ReturnStatement
-            check(statement.Name.Value == expects[i])
+            let statement = program.statements[i].Token.Literal
+            check(statement == "return")
 
 
