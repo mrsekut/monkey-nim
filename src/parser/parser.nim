@@ -82,6 +82,20 @@ method parseProgram*(self: Parser): Program =
 
     program
 
+method str(self: Parser): string =
+    # let o =
+    discard
+
+method str(self: Statement): string =
+    if self.kind == LetStatement:
+        return "let"
+
+    elif self.kind == ReturnStatement:
+        return "return"
+
+    elif self.kind == ExpressionStatement:
+        return "express"
+
 
 method error*(self: Parser): seq[string] = self.errors
 

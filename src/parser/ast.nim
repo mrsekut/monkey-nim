@@ -8,7 +8,7 @@ proc expressionNode(self: Identifier) = discard
 proc tokenLiteral(self: Identifier): string = self.Token.Literal
 
 type
-    TStatement* = enum LetStatement, ReturnStatement, Nil
+    TStatement* = enum LetStatement, ReturnStatement, ExpressionStatement, Nil
 
     Statement* = object of RootObj
         Token*: token.Token
@@ -19,6 +19,9 @@ type
             Value: string
         of ReturnStatement:
             ReturnValue: string
+        of ExpressionStatement:
+            discard
+            # Expression: expression
         of Nil:
             nil
 
