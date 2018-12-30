@@ -6,7 +6,7 @@ type Identifier* = ref object of RootObj
 
 proc expressionNode(self: Identifier) = discard
 proc tokenLiteral(self: Identifier): string = self.Token.Literal
-proc str(self: Identifier): string = self.Value
+proc astToString(self: Identifier): string = self.Value
 
 type
     TStatement* = enum LetStatement, ReturnStatement, ExpressionStatement, Nil
@@ -17,11 +17,11 @@ type
         case kind*: TStatement
         of LetStatement:
             Name*: Identifier
-            Value*: string # NOTE: 仮 Expression
+            Value*: Identifier # NOTE: 仮 Expression
         of ReturnStatement:
-            ReturnValue*: string # NOTE: 仮 Expression
+            ReturnValue*: Identifier # NOTE: 仮 Expression
         of ExpressionStatement:
-            Expression*: string # NOTE: 仮 Expression
+            Expression*: Identifier # NOTE: 仮 Expression
         of Nil:
             nil
 

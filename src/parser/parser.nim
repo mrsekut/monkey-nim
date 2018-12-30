@@ -91,12 +91,13 @@ proc newParser*(l: Lexer): Parser =
 
 # = debug ===============
 
-# proc astToString(self: Program): string =
-#     var o: string
-#     for statement in self.statements:
-#         o = o & statement.astToString()
+proc astToString*(self: Program): string =
+    var o: string
+    for statement in self.statements:
+        # o = o & statement.astToString()
+        discard
 
-#     return o
+    return o
 
 
 # proc astToString(self: Statement): string =
