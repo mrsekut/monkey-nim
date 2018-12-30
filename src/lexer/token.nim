@@ -1,4 +1,5 @@
 import tables
+# TODO: 合ってるか？
 type
     TokenType* = string
 

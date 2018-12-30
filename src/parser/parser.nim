@@ -10,18 +10,18 @@ type Parser* = ref object of RootObj
     peekToken: Token
     errors: seq[string]
 
-method nextToken(self: Parser) =
+proc nextToken(self: Parser) =
         self.curToken = self.peekToken
         self.peekToken = self.l.nextToken()
 
-method curTokenIs(self: Parser, t: TokenType): bool = self.curToken.Type == t
-method peekTokenIs(self: Parser, t: TokenType): bool = self.peekToken.Type == t
+proc curTokenIs(self: Parser, t: TokenType): bool = self.curToken.Type == t
+proc peekTokenIs(self: Parser, t: TokenType): bool = self.peekToken.Type == t
 
-method peekError(self: Parser, t: token.TokenType) =
+proc peekError(self: Parser, t: token.TokenType) =
     let msg = fmt"expected next tokent to be {t}, got {self.peekToken.Type} instead"
     self.errors.add(msg)
 
-method expectPeek(self: Parser, t: token.TokenType): bool =
+proc expectPeek(self: Parser, t: token.TokenType): bool =
     if self.peekTokenIs(t):
         self.nextToken()
         return true
@@ -30,7 +30,7 @@ method expectPeek(self: Parser, t: token.TokenType): bool =
         return false
 
 
-method parseLetStatement(self: Parser): Statement =
+proc parseLetStatement(self: Parser): Statement =
     var statement = Statement(kind: LetStatement, Token: self.curToken)
 
     # ident
@@ -49,7 +49,7 @@ method parseLetStatement(self: Parser): Statement =
 
     statement
 
-method parseReturnStatement(self: Parser): Statement =
+proc parseReturnStatement(self: Parser): Statement =
     var statement = Statement(kind: ReturnStatement, Token: self.curToken)
     self.nextToken()
 
@@ -60,7 +60,7 @@ method parseReturnStatement(self: Parser): Statement =
     statement
 
 
-method parseStatement(self: Parser): Statement =
+proc parseStatement(self: Parser): Statement =
     case self.curToken.Type
     of token.LET:
         return self.parseLetStatement()
@@ -70,7 +70,7 @@ method parseStatement(self: Parser): Statement =
     #     return cast[None](0)
 
 # create AST Root Node
-method parseProgram*(self: Parser): Program =
+proc parseProgram*(self: Parser): Program =
     var program = Program()
     program.statements = newSeq[Statement]()
 
@@ -82,28 +82,48 @@ method parseProgram*(self: Parser): Program =
 
     program
 
-method str(self: Parser): string =
-    # let o =
-    discard
-
-method str(self: Statement): string =
-    if self.kind == LetStatement:
-        return "let"
-
-    elif self.kind == ReturnStatement:
-        return "return"
-
-    elif self.kind == ExpressionStatement:
-        return "express"
-
-
-method error*(self: Parser): seq[string] = self.errors
-
-method newParser*(l: Lexer): Parser =
+proc newParser*(l: Lexer): Parser =
     let p = Parser(l: l, errors: newSeq[string]())
     p.nextToken()
     p.nextToken()
     p
+
+
+# = debug ===============
+
+# proc astToString(self: Program): string =
+#     var o: string
+#     for statement in self.statements:
+#         o = o & statement.astToString()
+
+#     return o
+
+
+# proc astToString(self: Statement): string =
+#     var o: string
+#     if self.kind == LetStatement:
+#         # let name = <expression>;
+#         o = self.tokenLiteral() & " " & self.Name.Value & "="
+#         # o = fmt"{self.tokenLiteral()} {self.Name.astToString()} = "
+#         return o
+
+#     elif self.kind == ReturnStatement:
+#         # return hoge;
+#         o = self.tokenLiteral() & " "
+#         self.ReturnValue.astToString()
+#         o = o & ";"
+#         # o = fmt"{self.tokenLiteral()}  "
+#         return o
+
+#     elif self.kind == ExpressionStatement:
+#         # if self.Exception
+#         return self.Expression.astToString()
+#         # return ""
+
+
+
+proc error*(self: Parser): seq[string] = self.errors
+
 
 proc main() = discard
 
