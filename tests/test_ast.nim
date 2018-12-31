@@ -5,7 +5,7 @@ import ../src/lexer/lexer
 import ../src/lexer/token
 
 suite "AST":
-    test "it should": # TODO:
+    test "it should parse index letStatement":
         let program = Program(
             statements: @[
                 Statement(
@@ -16,7 +16,7 @@ suite "AST":
                         Value: "myVar"
                     ),
                     Value: Identifier(
-                        Token: Token(Type: token.IDENT, Literal: "anothoerVar"),
+                        Token: Token(Type: token.IDENT, Literal: "anotherVar"),
                         Value: "anotherVar"
                     )
                 )

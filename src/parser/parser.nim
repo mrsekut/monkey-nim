@@ -1,7 +1,6 @@
-import ast
+import ast, sequtils, strformat
 import ../lexer/lexer
 import ../lexer/token
-import sequtils, strformat
 
 
 type Parser* = ref object of RootObj
@@ -67,7 +66,7 @@ proc parseStatement(self: Parser): Statement =
     of token.RETURN:
         return self.parseReturnStatement()
     # else:
-    #     return cast[None](0)
+        # return cast[None](0)
 
 # create AST Root Node
 proc parseProgram*(self: Parser): Program =
@@ -89,44 +88,10 @@ proc newParser*(l: Lexer): Parser =
     p
 
 
-# = debug ===============
-
-proc astToString*(self: Program): string =
-    var o: string
-    for statement in self.statements:
-        # o = o & statement.astToString()
-        discard
-
-    return o
-
-
-# proc astToString(self: Statement): string =
-#     var o: string
-#     if self.kind == LetStatement:
-#         # let name = <expression>;
-#         o = self.tokenLiteral() & " " & self.Name.Value & "="
-#         # o = fmt"{self.tokenLiteral()} {self.Name.astToString()} = "
-#         return o
-
-#     elif self.kind == ReturnStatement:
-#         # return hoge;
-#         o = self.tokenLiteral() & " "
-#         self.ReturnValue.astToString()
-#         o = o & ";"
-#         # o = fmt"{self.tokenLiteral()}  "
-#         return o
-
-#     elif self.kind == ExpressionStatement:
-#         # if self.Exception
-#         return self.Expression.astToString()
-#         # return ""
-
-
-
 proc error*(self: Parser): seq[string] = self.errors
 
 
-proc main() = discard
+proc main() =  discard
 
 when isMainModule:
     main()
