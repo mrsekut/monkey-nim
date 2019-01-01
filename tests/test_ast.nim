@@ -12,12 +12,14 @@ suite "AST":
                     kind: LetStatement,
                     Token: Token(Type: token.LET, Literal: "let"),
                     Name: Identifier(
+                        kind: TIdentifier.Ident,
                         Token: Token(Type: token.IDENT, Literal: "myVar"),
-                        Value: "myVar"
+                        IdentValue: "myVar"
                     ),
                     Value: Identifier(
+                        kind: TIdentifier.Ident,
                         Token: Token(Type: token.IDENT, Literal: "anotherVar"),
-                        Value: "anotherVar"
+                        IdentValue: "anotherVar"
                     )
                 )
             ]

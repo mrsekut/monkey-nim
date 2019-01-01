@@ -31,7 +31,7 @@ suite "Parser":
 
         for i in 0..<program.statements.len:
             let statement = program.statements[i]
-            check(statement.Name.Value == expects[i])
+            check(statement.Name.IdentValue == expects[i])
 
 
     test "it should parse returnStatements":
@@ -64,7 +64,7 @@ suite "Parser":
         let statement = program.statements[0]
         # check(statement.kind == ExpressionStatement)
 
-        let value = statement.Expression.Value
+        let value = statement.Expression.IdentValue
         check(value == "foobar")
         let literal = statement.Expression.Token.Literal
         check(literal == "foobar")
@@ -81,8 +81,7 @@ suite "Parser":
         let statement = program.statements[0]
         # check(statement.kind == ExpressionStatement)
 
-        # NOTE: p.61
-        let value = statement.Expression.Value
+        let value = statement.Expression.IntValue
         check(value == 5)
         let literal = statement.Expression.Token.Literal
-        check(literal == 5)
+        check(literal == "5")
