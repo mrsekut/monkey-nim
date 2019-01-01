@@ -1,6 +1,12 @@
-import ast, sequtils, strformat
+import ast, sequtils, strformat, typetraits, tables
 import ../lexer/lexer
 import ../lexer/token
+
+# type
+#     PrefixParseFn =  proc(): Identifier
+#     InfixParseFn = proc(x: Identifier): Identifier
+
+
 
 
 type Parser* = ref object of RootObj
@@ -9,9 +15,23 @@ type Parser* = ref object of RootObj
     peekToken: Token
     errors: seq[string]
 
+    # prefixParseFns: Table[Token, PrefixParseFn]
+    # infixParseFns: Table[Token, InfixParseFn]
+
+type Precedence = enum
+    LOWEST
+    # EQUALS,
+    # LESSGREATER,
+    # SUM,
+    # PRODUCT,
+    # PREFIX,
+    # CALL
+
+
+
 proc nextToken(self: Parser) =
-        self.curToken = self.peekToken
-        self.peekToken = self.l.nextToken()
+    self.curToken = self.peekToken
+    self.peekToken = self.l.nextToken()
 
 proc curTokenIs(self: Parser, t: TokenType): bool = self.curToken.Type == t
 proc peekTokenIs(self: Parser, t: TokenType): bool = self.peekToken.Type == t
@@ -49,6 +69,7 @@ proc parseLetStatement(self: Parser): Statement =
     statement
 
 proc parseReturnStatement(self: Parser): Statement =
+
     var statement = Statement(kind: ReturnStatement, Token: self.curToken)
     self.nextToken()
 
@@ -58,15 +79,32 @@ proc parseReturnStatement(self: Parser): Statement =
 
     statement
 
+proc parseIdentifier(self: Parser): Identifier =
+    Identifier(Token: self.curToken, Value: self.curToken.Literal)
+
+proc parseExpression(self: Parser, precedence: Precedence): auto =
+# proc parseExpression(self: Parser, precedence: Precedence): Statement =
+    # TODO: p.59
+    case precedence
+    of LOWEST:
+        return self.parseIdentifier()
+
+proc parseExpressionStatement(self: Parser): Statement =
+    var statement = Statement(kind: ExpressionStatement, Token: self.curToken)
+    statement.Expression = self.parseExpression(LOWEST)
+
+    # ~ ;
+    if self.peekTokenIs(token.SEMICOLON):
+        self.nextToken()
+
+    statement
+
 
 proc parseStatement(self: Parser): Statement =
     case self.curToken.Type
-    of token.LET:
-        return self.parseLetStatement()
-    of token.RETURN:
-        return self.parseReturnStatement()
-    # else:
-        # return cast[None](0)
+    of token.LET: return self.parseLetStatement()
+    of token.RETURN: return self.parseReturnStatement()
+    else: return self.parseExpressionStatement()
 
 # create AST Root Node
 proc parseProgram*(self: Parser): Program =
@@ -77,21 +115,27 @@ proc parseProgram*(self: Parser): Program =
         let statement = self.parseStatement()
         if statement.kind != Nil:
             program.statements.add(statement)
+
         self.nextToken()
 
     program
 
 proc newParser*(l: Lexer): Parser =
     let p = Parser(l: l, errors: newSeq[string]())
+
     p.nextToken()
     p.nextToken()
     p
+
+# proc regiserPrefix(self: Parser, tokenType: TokenType, fn: PrefixParseFn) =
+#     self.prefixParseFns[tokenType] = fn
+
 
 
 proc error*(self: Parser): seq[string] = self.errors
 
 
-proc main() =  discard
+proc main() = discard
 
 when isMainModule:
     main()

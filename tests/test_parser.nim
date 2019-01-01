@@ -1,4 +1,4 @@
-import unittest, strformat
+import unittest, strformat, typetraits
 import ../src/parser/ast
 import ../src/parser/parser
 import ../src/lexer/lexer
@@ -52,4 +52,19 @@ suite "Parser":
             let statement = program.statements[i].Token.Literal
             check(statement == "return")
 
+    test "it should parse ident expression":
+        let input = """foobar;\0"""
 
+        let l = newLexer(input)
+        let p = newParser(l)
+        let program = p.parseProgram()
+        checkParserError(p)
+        check(program.statements.len == 1)
+
+        let statement = program.statements[0]
+        # check(statement.kind == ExpressionStatement)
+
+        let value = statement.Expression.Value
+        check(value == "foobar")
+        let literal = statement.Expression.Token.Literal
+        check(literal == "foobar")
