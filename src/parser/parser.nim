@@ -1,4 +1,4 @@
-import ast, sequtils, strformat, typetraits, tables
+import ast, sequtils, strformat, typetraits, tables, strutils
 import ../lexer/lexer
 import ../lexer/token
 
@@ -55,8 +55,9 @@ proc parseLetStatement(self: Parser): Statement =
     # ident
     if not self.expectPeek(token.IDENT): return Statement(kind: Nil)
     statement.Name = Identifier(
+                        kind: TIdentifier.Ident,
                         Token: self.curToken,
-                        Value: self.curToken.Literal
+                        IdentValue: self.curToken.Literal
                      )
 
     # =
@@ -80,14 +81,17 @@ proc parseReturnStatement(self: Parser): Statement =
     statement
 
 proc parseIdentifier(self: Parser): Identifier =
-    Identifier(Token: self.curToken, Value: self.curToken.Literal)
+    Identifier(kind: TIdentifier.Ident, Token: self.curToken, IdentValue: self.curToken.Literal)
 
-proc parseExpression(self: Parser, precedence: Precedence): auto =
-# proc parseExpression(self: Parser, precedence: Precedence): Statement =
+proc parseIntegerLiteral(self: Parser): Identifier =
+    Identifier(kind: TIdentifier.IntegerLiteral, Token: self.curToken, IntValue: self.curToken.Literal.parseInt)
+
+proc parseExpression(self: Parser, precedence: Precedence): Identifier =
     # TODO: p.59
-    case precedence
-    of LOWEST:
-        return self.parseIdentifier()
+    case self.curToken.Token.Type
+    of token.IDENT: return self.parseIdentifier()
+    of token.INT: return self.parseIntegerLiteral()
+    else: discard
 
 proc parseExpressionStatement(self: Parser): Statement =
     var statement = Statement(kind: ExpressionStatement, Token: self.curToken)

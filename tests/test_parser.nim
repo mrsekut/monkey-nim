@@ -68,3 +68,21 @@ suite "Parser":
         check(value == "foobar")
         let literal = statement.Expression.Token.Literal
         check(literal == "foobar")
+
+    test "it should parse int expression":
+        let input = """5;\0"""
+
+        let l = newLexer(input)
+        let p = newParser(l)
+        let program = p.parseProgram()
+        checkParserError(p)
+        check(program.statements.len == 1)
+
+        let statement = program.statements[0]
+        # check(statement.kind == ExpressionStatement)
+
+        # NOTE: p.61
+        let value = statement.Expression.Value
+        check(value == 5)
+        let literal = statement.Expression.Token.Literal
+        check(literal == 5)
