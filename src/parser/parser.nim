@@ -97,23 +97,26 @@ proc parseIdentifier(self: Parser): Identifier =
 proc parseIntegerLiteral(self: Parser): Identifier =
     Identifier(kind: TIdentifier.IntegerLiteral, Token: self.curToken, IntValue: self.curToken.Literal.parseInt)
 
+# Identifier or PrefixExpression
+proc parseExpression(self: Parser, precedence: Precedence): Identifier|PrefixExpression
+
+# NOTE: 登場人物
+# PrefixExpression
 proc parsePrefixExpression(self: Parser): PrefixExpression =
     var t = self.curToken
 
     self.nextToken()
 
-    # let right = self.parseExpression(PREFIX)
-
-    return Prefixexpression(
+    Prefixexpression(
         Token: t,
-        # Right: right
+        Right: self.parseExpression(PREFIX) # Identifier
     )
 
-
-
-
-proc parseExpression(self: Parser, precedence: Precedence): Identifier =
+# NOTE: 登場人物
+# Identifier or PrefixExpression
+proc parseExpression(self: Parser, precedence: Precedence): Identifier|PrefixExpression =
     # TODO: p.59
+    # Identifier or PrefixExpression
     case self.curToken.Token.Type
     of token.IDENT: return self.parseIdentifier()
     of token.INT: return self.parseIntegerLiteral()
@@ -124,9 +127,10 @@ proc parseExpression(self: Parser, precedence: Precedence): Identifier =
         return Identifier(kind: TIdentifier.IdentNil)
 
 
+# NOTE: 登場人物
 proc parseExpressionStatement(self: Parser): Statement =
     var statement = Statement(kind: ExpressionStatement, Token: self.curToken)
-    statement.Expression = self.parseExpression(LOWEST)
+    statement.Expression = self.parseExpression(LOWEST) # Identifier
 
     # ~ ;
     if self.peekTokenIs(token.SEMICOLON):

@@ -2,6 +2,13 @@ import strformat, typetraits
 import ../lexer/token
 
 type
+    Expression* = concept x
+        Token: token.Token
+        expressionNode(x)
+        tokenLiteral(x)
+        astToString(x)
+
+type
     TIdentifier* = enum Ident, IntegerLiteral, IdentNil
 
     Identifier* = object of RootObj
