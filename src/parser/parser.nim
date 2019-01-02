@@ -3,26 +3,19 @@ import ../lexer/lexer
 import ../lexer/token
 
 
-# type
-#     PrefixParseFn =  proc(): Identifier
-#     InfixParseFn = proc(x: Identifier): Identifier
+type
+    Parser* = ref object of RootObj
+        l: Lexer
+        curToken: Token
+        peekToken: Token
+        errors: seq[string]
 
+        prefixParseFns: Table[TokenType, proc(self: Parser): Identifier]
+        # prefixParseFns: Table[TokenType, PrefixParseFn]
+        # infixParseFns: Table[TokenType, InfixParseFn]
 
-
-
-type Parser* = ref object of RootObj
-    l: Lexer
-    curToken: Token
-    peekToken: Token
-    errors: seq[string]
-
-    # prefixParseFns: Table[Token, PrefixParseFn]
-    # infixParseFns: Table[Token, InfixParseFn]
-
-# type PrefixType = enum
-#     # PLUS,
-#     MINUS,
-#     NOT
+    PrefixParseFn =  proc(self: Parser): Identifier
+    # InfixParseFn = proc(x: Identifier): Identifier
 
 type Precedence = enum
     LOWEST
@@ -33,6 +26,10 @@ type Precedence = enum
     PREFIX,
     # CALL
 
+# type PrefixType = enum
+#     # PLUS,
+#     MINUS,
+#     NOT
 
 proc error*(self: Parser): seq[string] = self.errors
 
@@ -94,34 +91,43 @@ proc parseReturnStatement(self: Parser): Statement =
 proc parseIdentifier(self: Parser): Identifier =
     Identifier(kind: TIdentifier.Ident, Token: self.curToken, IdentValue: self.curToken.Literal)
 
-proc parseIntegerLiteral(self: Parser): Identifier =
-    Identifier(kind: TIdentifier.IntegerLiteral, Token: self.curToken, IntValue: self.curToken.Literal.parseInt)
+# proc parseIntegerLiteral(self: Parser): Identifier =
+#     Identifier(kind: TIdentifier.IntegerLiteral, Token: self.curToken, IntValue: self.curToken.Literal.parseInt)
 
-proc parsePrefixExpression(self: Parser): PrefixExpression =
-    var t = self.curToken
+# proc parsePrefixExpression(self: Parser): PrefixExpression =
+#     var t = self.curToken
 
-    self.nextToken()
+#     self.nextToken()
 
-    # let right = self.parseExpression(PREFIX)
+#     # let right = self.parseExpression(PREFIX)
 
-    return Prefixexpression(
-        Token: t,
-        # Right: right
-    )
+#     return Prefixexpression(
+#         Token: t,
+#         # Right: right
+#     )
 
 
 
 
 proc parseExpression(self: Parser, precedence: Precedence): Identifier =
+    let prefix = self.prefixParseFns[self.curToken.Type](self)
+
+    # NOTE: nil判定 p.59
+
+    let leftExp = prefix
+    # return Identifier(kind: IdentNil)
+    return leftExp
+
+
     # TODO: p.59
-    case self.curToken.Token.Type
-    of token.IDENT: return self.parseIdentifier()
-    of token.INT: return self.parseIntegerLiteral()
-    of token.BANG: return self.parsePrefixExpression()
-    of token.MINUS: return self.parsePrefixExpression()
-    else:
-        self.noPrefixParseError()
-        return Identifier(kind: TIdentifier.IdentNil)
+    # case self.curToken.Token.Type
+    # of token.IDENT: return self.parseIdentifier()
+    # of token.INT: return self.parseIntegerLiteral()
+    # # of token.BANG: return self.parsePrefixExpression()
+    # # of token.MINUS: return self.parsePrefixExpression()
+    # else:
+    #     self.noPrefixParseError()
+    #     return Identifier(kind: TIdentifier.IdentNil)
 
 
 proc parseExpressionStatement(self: Parser): Statement =
@@ -155,22 +161,41 @@ proc parseProgram*(self: Parser): Program =
 
     program
 
+proc regiserPrefix(self: Parser, tokenType: TokenType, fn: proc(self: Parser): Identifier) =
+    self.prefixParseFns[tokenType] = fn
+
+# proc registerInfix(self: Parser, tokenType: TokenType, fn: PrefixParseFn) =
+#     self.prefixParseFns[tokenType] = fn
+
 proc newParser*(l: Lexer): Parser =
     let p = Parser(l: l, errors: newSeq[string]())
+
+    p.prefixParseFns = initTable[TokenType, proc(self: Parser): Identifier]()
+    p.regiserPrefix(token.IDENT, parseIdentifier)
 
     p.nextToken()
     p.nextToken()
     p
 
-# proc regiserPrefix(self: Parser, tokenType: TokenType, fn: PrefixParseFn) =
-#     self.prefixParseFns[tokenType] = fn
 
 
 
 
 
+proc main() = # discard
+    let input = """foobar;\0"""
 
-proc main() = discard
+    let l = newLexer(input)
+    let p = newParser(l)
+    let program = p.parseProgram()
 
+    let statement = program.statements[0]
+    echo statement
+
+    let value = statement.Expression.IdentValue
+    let literal = statement.Expression.Token.Literal
+
+    echo value
+    echo literal
 when isMainModule:
     main()

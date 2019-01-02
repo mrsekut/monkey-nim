@@ -12,7 +12,7 @@ type
         of IntegerLiteral:
             IntValue*: int
         of IdentNil:
-            discard
+            nil
 
 proc expressionNode(self: Identifier) = discard
 proc tokenLiteral(self: Identifier): string = self.Token.Literal
