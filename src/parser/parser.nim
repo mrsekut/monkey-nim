@@ -1,7 +1,6 @@
 import ast, sequtils, strformat, typetraits, tables, strutils
-import ../lexer/lexer
 import ../lexer/token
-
+import ../lexer/lexer
 
 type
     Parser* = ref object of RootObj
@@ -10,7 +9,8 @@ type
         peekToken: Token
         errors: seq[string]
 
-        prefixParseFns: Table[TokenType, proc(self: Parser): Identifier]
+        prefixParseFns: Table[TokenType, PrefixParseFn]
+        # prefixParseFns: Table[TokenType, proc(self: Parser): Identifier]
         # infixParseFns: Table[TokenType, InfixParseFn]
 
     PrefixParseFn =  proc(self: Parser): Identifier
@@ -87,27 +87,6 @@ proc parseReturnStatement(self: Parser): Statement =
 
     statement
 
-proc parseIdentifier(self: Parser): Identifier =
-    Identifier(kind: TIdentifier.Ident, Token: self.curToken, IdentValue: self.curToken.Literal)
-
-proc parseIntegerLiteral(self: Parser): Identifier =
-    Identifier(kind: TIdentifier.IntegerLiteral, Token: self.curToken, IntValue: self.curToken.Literal.parseInt)
-
-# proc parsePrefixExpression(self: Parser): PrefixExpression =
-#     var t = self.curToken
-
-#     self.nextToken()
-
-#     # let right = self.parseExpression(PREFIX)
-
-#     return Prefixexpression(
-#         Token: t,
-#         # Right: right
-#     )
-
-
-
-
 proc parseExpression(self: Parser, precedence: Precedence): Identifier =
     let prefix = self.prefixParseFns[self.curToken.Type](self)
 
@@ -118,15 +97,23 @@ proc parseExpression(self: Parser, precedence: Precedence): Identifier =
     return leftExp
 
 
-    # TODO: p.59
-    # case self.curToken.Token.Type
-    # of token.IDENT: return self.parseIdentifier()
-    # of token.INT: return self.parseIntegerLiteral()
-    # # of token.BANG: return self.parsePrefixExpression()
-    # # of token.MINUS: return self.parsePrefixExpression()
-    # else:
-    #     self.noPrefixParseError()
-    #     return Identifier(kind: TIdentifier.IdentNil)
+proc parseIdentifier(self: Parser): Identifier =
+    Identifier(kind: TIdentifier.Ident, Token: self.curToken, IdentValue: self.curToken.Literal)
+
+proc parseIntegerLiteral(self: Parser): Identifier =
+    Identifier(kind: TIdentifier.IntegerLiteral, Token: self.curToken, IntValue: self.curToken.Literal.parseInt)
+
+proc parsePrefixExpression(self: Parser): PrefixExpression =
+    echo "in parse prefix expression"
+    var t = self.curToken
+
+    self.nextToken()
+    let right = self.parseExpression(PREFIX)
+
+    return Prefixexpression(
+        Token: t,
+        Right: right
+    )
 
 
 proc parseExpressionStatement(self: Parser): Statement =
@@ -160,7 +147,7 @@ proc parseProgram*(self: Parser): Program =
 
     program
 
-proc regiserPrefix(self: Parser, tokenType: TokenType, fn: proc(self: Parser): Identifier) =
+proc regiserPrefix(self: Parser, tokenType: TokenType, fn: PrefixParseFn) =
     self.prefixParseFns[tokenType] = fn
 
 # proc registerInfix(self: Parser, tokenType: TokenType, fn: PrefixParseFn) =
@@ -169,15 +156,39 @@ proc regiserPrefix(self: Parser, tokenType: TokenType, fn: proc(self: Parser): I
 proc newParser*(l: Lexer): Parser =
     let p = Parser(l: l, errors: newSeq[string]())
 
-    p.prefixParseFns = initTable[TokenType, proc(self: Parser): Identifier]()
+    p.prefixParseFns = initTable[TokenType, PrefixParseFn]()
     p.regiserPrefix(token.IDENT, parseIdentifier)
     p.regiserPrefix(token.INT, parseIntegerLiteral)
+    p.regiserPrefix(token.BANG, parsePrefixExpression)
+    p.regiserPrefix(token.MINUS, parsePrefixExpression)
 
     p.nextToken()
     p.nextToken()
     p
 
 
-proc main() = discard
+proc main() = # discard
+    echo " kore"
+
+    type Test = object
+        input: string
+        operator: string
+        integerValue: int
+
+    let testInputs = @[
+        Test(input: "!5", operator: "!", integerValue: 5),
+        Test(input: "-15", operator: "-", integerValue: 15)
+    ]
+
+
+    for i in testInputs:
+        let l = newLexer(i.input)
+        let p = newParser(l)
+        let program = p.parseProgram()
+
+        # let exp = program.statements[0].Expression
+        # echo exp
+        # # NOTE:
+
 when isMainModule:
     main()

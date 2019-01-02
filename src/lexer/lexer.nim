@@ -115,7 +115,6 @@ proc nextToken*(self: Lexer): token.Token =
     self.readNextChar()
     tok
 
-proc main() = discard
-
-when isMainModule:
-  main()
+# proc main() = discard
+# when isMainModule:
+#   main()
