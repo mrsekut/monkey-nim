@@ -11,7 +11,6 @@ type
         errors: seq[string]
 
         prefixParseFns: Table[TokenType, proc(self: Parser): Identifier]
-        # prefixParseFns: Table[TokenType, PrefixParseFn]
         # infixParseFns: Table[TokenType, InfixParseFn]
 
     PrefixParseFn =  proc(self: Parser): Identifier
@@ -91,8 +90,8 @@ proc parseReturnStatement(self: Parser): Statement =
 proc parseIdentifier(self: Parser): Identifier =
     Identifier(kind: TIdentifier.Ident, Token: self.curToken, IdentValue: self.curToken.Literal)
 
-# proc parseIntegerLiteral(self: Parser): Identifier =
-#     Identifier(kind: TIdentifier.IntegerLiteral, Token: self.curToken, IntValue: self.curToken.Literal.parseInt)
+proc parseIntegerLiteral(self: Parser): Identifier =
+    Identifier(kind: TIdentifier.IntegerLiteral, Token: self.curToken, IntValue: self.curToken.Literal.parseInt)
 
 # proc parsePrefixExpression(self: Parser): PrefixExpression =
 #     var t = self.curToken
@@ -172,30 +171,13 @@ proc newParser*(l: Lexer): Parser =
 
     p.prefixParseFns = initTable[TokenType, proc(self: Parser): Identifier]()
     p.regiserPrefix(token.IDENT, parseIdentifier)
+    p.regiserPrefix(token.INT, parseIntegerLiteral)
 
     p.nextToken()
     p.nextToken()
     p
 
 
-
-
-
-
-proc main() = # discard
-    let input = """foobar;\0"""
-
-    let l = newLexer(input)
-    let p = newParser(l)
-    let program = p.parseProgram()
-
-    let statement = program.statements[0]
-    echo statement
-
-    let value = statement.Expression.IdentValue
-    let literal = statement.Expression.Token.Literal
-
-    echo value
-    echo literal
+proc main() = discard
 when isMainModule:
     main()

@@ -74,22 +74,22 @@ suite "Parser":
         let literal = statement.Expression.Token.Literal
         check(literal == "foobar")
 
-    # test "it should parse int expression":
-    #     let input = """5;\0"""
+    test "it should parse int expression":
+        let input = """5;\0"""
 
-    #     let l = newLexer(input)
-    #     let p = newParser(l)
-    #     let program = p.parseProgram()
-    #     checkParserError(p)
-    #     check(program.statements.len == 1)
+        let l = newLexer(input)
+        let p = newParser(l)
+        let program = p.parseProgram()
+        checkParserError(p)
+        check(program.statements.len == 1)
 
-    #     let statement = program.statements[0]
-    #     # check(statement.kind == ExpressionStatement)
+        let statement = program.statements[0]
+        # check(statement.kind == ExpressionStatement)
 
-    #     let value = statement.Expression.IntValue
-    #     check(value == 5)
-    #     let literal = statement.Expression.Token.Literal
-    #     check(literal == "5")
+        let value = statement.Expression.IntValue
+        check(value == 5)
+        let literal = statement.Expression.Token.Literal
+        check(literal == "5")
 
     # test "it should parse prefixExpressions":
 
