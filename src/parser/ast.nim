@@ -2,7 +2,7 @@ import strformat, typetraits
 import ../lexer/token
 
 type
-    TIdentifier* = enum Ident, IntegerLiteral
+    TIdentifier* = enum Ident, IntegerLiteral, IdentNil
 
     Identifier* = object of RootObj
         Token*: token.Token
@@ -11,6 +11,8 @@ type
             IdentValue*: string
         of IntegerLiteral:
             IntValue*: int
+        of IdentNil:
+            discard
 
 proc expressionNode(self: Identifier) = discard
 proc tokenLiteral(self: Identifier): string = self.Token.Literal
@@ -20,6 +22,17 @@ proc astToString(self: Identifier): string =
         return self.IdentValue
     of IntegerLiteral:
         return self.Token.Literal
+    else: discard
+
+type PrefixExpression* = object of RootObj
+    Token*: token.Token
+    Right*: Identifier
+
+proc expressionNode(self: PrefixExpression) = discard
+proc tokenLiteral(self: PrefixExpression): string = self.Token.Literal
+proc astToString(self: PrefixExpression): string =
+    fmt"({self.Token.Literal}{self.Right.astToString()})"
+
 
 
 # Statement

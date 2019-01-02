@@ -2,6 +2,7 @@ import ast, sequtils, strformat, typetraits, tables, strutils
 import ../lexer/lexer
 import ../lexer/token
 
+
 # type
 #     PrefixParseFn =  proc(): Identifier
 #     InfixParseFn = proc(x: Identifier): Identifier
@@ -18,15 +19,25 @@ type Parser* = ref object of RootObj
     # prefixParseFns: Table[Token, PrefixParseFn]
     # infixParseFns: Table[Token, InfixParseFn]
 
+# type PrefixType = enum
+#     # PLUS,
+#     MINUS,
+#     NOT
+
 type Precedence = enum
     LOWEST
     # EQUALS,
-    # LESSGREATER,
+    # LESSGREATER,j
     # SUM,
     # PRODUCT,
-    # PREFIX,
+    PREFIX,
     # CALL
 
+
+proc error*(self: Parser): seq[string] = self.errors
+
+proc noPrefixParseError(self: Parser) =
+    self.errors.add(fmt"no prefix parse function for {self.curToken.Type}")
 
 
 proc nextToken(self: Parser) =
@@ -86,12 +97,32 @@ proc parseIdentifier(self: Parser): Identifier =
 proc parseIntegerLiteral(self: Parser): Identifier =
     Identifier(kind: TIdentifier.IntegerLiteral, Token: self.curToken, IntValue: self.curToken.Literal.parseInt)
 
+proc parsePrefixExpression(self: Parser): PrefixExpression =
+    var t = self.curToken
+
+    self.nextToken()
+
+    # let right = self.parseExpression(PREFIX)
+
+    return Prefixexpression(
+        Token: t,
+        # Right: right
+    )
+
+
+
+
 proc parseExpression(self: Parser, precedence: Precedence): Identifier =
     # TODO: p.59
     case self.curToken.Token.Type
     of token.IDENT: return self.parseIdentifier()
     of token.INT: return self.parseIntegerLiteral()
-    else: discard
+    of token.BANG: return self.parsePrefixExpression()
+    of token.MINUS: return self.parsePrefixExpression()
+    else:
+        self.noPrefixParseError()
+        return Identifier(kind: TIdentifier.IdentNil)
+
 
 proc parseExpressionStatement(self: Parser): Statement =
     var statement = Statement(kind: ExpressionStatement, Token: self.curToken)
@@ -136,7 +167,7 @@ proc newParser*(l: Lexer): Parser =
 
 
 
-proc error*(self: Parser): seq[string] = self.errors
+
 
 
 proc main() = discard

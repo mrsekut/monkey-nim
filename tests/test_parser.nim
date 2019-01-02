@@ -4,11 +4,16 @@ import ../src/parser/parser
 import ../src/lexer/lexer
 
 # NOTE: 仮 p.43
-proc checkParserError(self: Parser): void=
+proc checkParserError(self: Parser): void =
     let errors = self.error()
     if errors.len == 0: return
     echo fmt"parser has {errors.len} errors"
     return
+
+# NOTE: わからん
+proc testIntegerLiteral(il: auto, value: int): bool =
+    # let integ = il.IntegerLiteral
+    return true
 
 
 
@@ -85,3 +90,28 @@ suite "Parser":
         check(value == 5)
         let literal = statement.Expression.Token.Literal
         check(literal == "5")
+
+    test "it should parse prefixExpressions":
+
+        type Test = object
+            input: string
+            operator: string
+            integerValue: int
+
+        let testInputs = @[
+            Test(input: "!5", operator: "!", integerValue: 5),
+            Test(input: "-15", operator: "-", integerValue: 15)
+        ]
+
+        for i in testInputs:
+            let l = newLexer(i.input)
+            let p = newParser(l)
+            let program = p.parseProgram()
+            checkParserError(p)
+
+            check(program.statements.len == 1)
+
+            let exp = program.statements[0].Expression
+            check(exp.Token.Literal == i.operator)
+            # NOTE:
+            testIntegerLiteral(exp.Right, i.integerValue)
