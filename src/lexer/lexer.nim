@@ -1,20 +1,42 @@
 import token
 
+const
+    chars: set[char] = {'a'..'z', 'A'..'Z', '_'}
+    nums: set[char] = {'0'..'9'}
+
+proc isLetter(ch: char): bool = ch in chars
+proc isDigit(num: char): bool = num in nums
+
 proc newToken(tokenType: TokenType, ch: char): Token =
-    Token(Type: tokenType, Literal: $ch)
+    new result
+    result.Type = tokenType
+    result.Literal = $ch
 
-proc isLetter(ch: char): bool =
-    ('a' <= ch and ch <= 'z') or ('A' <= ch and ch <= 'Z') or ch == '_'
 
-proc isDigit(ch: char): bool = '0' <= ch and ch <= '9'
-
+# Lexer
+# ================
 type Lexer* = ref object of RootObj
     input: string
     position: int
     readPosition: int
     ch: char
 
-proc readNextChar(self: Lexer) =
+proc newLexer*(input: string): Lexer
+proc readNextChar(self: var Lexer)
+proc readIdentifier(self: var Lexer): string
+proc skipWhiteSpace(self: var Lexer)
+proc readNumber(self: var Lexer): string
+proc peekChar(self: var Lexer): char
+proc nextToken*(self: var Lexer): token.Token
+
+# implementation
+
+proc newLexer*(input: string): Lexer =
+    new result
+    result.input = input
+    result.readNextChar()
+
+proc readNextChar(self: var Lexer) =
     if self.readPosition >= len(self.input):
         self.ch = ' '
     else:
@@ -22,36 +44,31 @@ proc readNextChar(self: Lexer) =
     self.position = self.readPosition
     self.readPosition += 1
 
-proc newLexer*(input: string): Lexer =
-    let l = Lexer(input: input)
-    l.readNextChar()
-    l
-
-proc readIdentifier(self: Lexer): string =
+proc readIdentifier(self: var Lexer): string =
     let position = self.position
     while isLetter(self.ch):
         self.readNextChar()
 
     self.input[position..self.position-1]
 
-proc skipWhiteSpace(self: Lexer) =
+proc skipWhiteSpace(self: var Lexer) =
     while self.ch == ' ' or self.ch == '\t' or self.ch == '\n':
         self.readNextChar()
 
-proc readNumber(self: Lexer): string =
+proc readNumber(self: var Lexer): string =
     let position = self.position
     while isDigit(self.ch):
         self.readNextChar()
 
     self.input[position..self.position-1]
 
-proc peekChar(self: Lexer): char =
+proc peekChar(self: var Lexer): char =
     if self.readPosition >= len(self.input):
         return ' '
     else:
         return self.input[self.readPosition]
 
-proc nextToken*(self: Lexer): token.Token =
+proc nextToken*(self: var Lexer): token.Token =
     var tok: token.Token
     self.skipWhiteSpace()
 
@@ -115,6 +132,6 @@ proc nextToken*(self: Lexer): token.Token =
     self.readNextChar()
     tok
 
-# proc main() = discard
-# when isMainModule:
-#   main()
+proc main() = discard
+when isMainModule:
+  main()

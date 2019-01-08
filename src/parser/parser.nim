@@ -159,8 +159,8 @@ proc newParser*(l: Lexer): Parser =
     p.prefixParseFns = initTable[TokenType, PrefixParseFn]()
     p.regiserPrefix(token.IDENT, parseIdentifier)
     p.regiserPrefix(token.INT, parseIntegerLiteral)
-    p.regiserPrefix(token.BANG, parsePrefixExpression)
-    p.regiserPrefix(token.MINUS, parsePrefixExpression)
+    # p.regiserPrefix(token.BANG, parsePrefixExpression)
+    # p.regiserPrefix(token.MINUS, parsePrefixExpression)
 
     p.nextToken()
     p.nextToken()

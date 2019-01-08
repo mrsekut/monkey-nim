@@ -7,6 +7,7 @@ type
         Type*:    TokenType
         Literal*: string
 
+# NOTE: enum
 const
     ILLEGAL*  = "ILLEGAL"
     EOF*      = "EOF"
