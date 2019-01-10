@@ -1,5 +1,6 @@
-import strformat, typetraits
-import ../lexer/token
+import
+    strformat, typetraits,
+    ../lexer/token
 
 type
     Expression* = concept x
