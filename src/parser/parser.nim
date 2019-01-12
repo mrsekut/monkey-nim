@@ -1,20 +1,14 @@
 import
     ast, sequtils, strformat, typetraits, tables, strutils,
-    ../lexer/lexer,
-    ../lexer/token
+    ../lexer/lexer, ../lexer/token
 
-
-# type
-#     PrefixParseFn =  proc(): PNode
-#     InfixParseFn = proc(x: PNode): PNode
-
-
-# type PrefixType = enum
-#     # PLUS,
-#     MINUS,
-#     NOT
 
 type
+    PrefixType = enum
+        # PLUS,
+        MINUS,
+        NOT
+
     Precedence = enum
         LOWEST
         # EQUALS,
@@ -31,11 +25,8 @@ type
         peekToken: Token
         errors: seq[string]
 
-        # prefixParseFns: Table[Token, PrefixParseFn]
-        # infixParseFns: Table[Token, InfixParseFn]
 
 proc newParser*(l: Lexer): Parser
-proc noPrefixParseError(self: Parser)
 proc nextToken(self: Parser)
 proc curTokenIs(self: Parser, t: TokenType): bool
 proc peekTokenIs(self: Parser, t: TokenType): bool
@@ -46,12 +37,13 @@ proc parseLetStatement(self: Parser): PNode
 proc parseReturnStatement(self: Parser): PNode
 proc parseIdentifier(self: Parser): PNode
 proc parseIntegerLiteral(self: Parser): PNode
-# proc parsePrefixExpression(self: Parser): PrefixExpression
-proc parseExpressionStatement(self: Parser): PNode
+proc parsePrefixExpression(self: Parser): PNode
+proc parseExpressionStatement(self: Parser, precedence: Precedence): PNode
 proc parseStatement(self: Parser): PNode
 
 proc parseProgram*(self: Parser): Program
 proc error*(self: Parser): seq[string]
+proc noPrefixParseError(self: Parser)
 
 # implementation
 
@@ -120,39 +112,37 @@ proc parseIntegerLiteral(self: Parser): PNode =
         Token: self.curToken,
         IntValue: self.curToken.Literal.parseInt)
 
-# # Identifier or PrefixExpression
-# proc parseExpression(self: Parser, precedence: Precedence): Identifier|PrefixExpression
+proc parsePrefixExpression(self: Parser): PNode =
+    let prefix = self.curToken.Token
+    # var prefix: PrefixType
+    # case self.curToken.Token.Type
+    # of token.BANG: prefix = PrefixType.NOT
+    # of token.MINUS: prefix = PrefixType.MINUS
+    # else: discard
 
-# NOTE: 登場人物
-# # PrefixExpression
-# proc parsePrefixExpression(self: Parser): PNode =
-#     var t = self.curToken
+    self.nextToken()
 
-#     self.nextToken()
+    let right = self.parseExpressionStatement(PREFIX)
+    PNode(
+        kind: nkPrefixExpression,
+        Token: prefix,
+        Right: right
+    )
 
-#     PNode(
-#         Token: t,
-#         Right: self.parseExpression(PREFIX) # Identifier
-#     )
-
-# Identifier or PrefixExpression
-proc parseExpressionStatement(self: Parser): PNode =
+proc parseExpressionStatement(self: Parser, precedence: Precedence): PNode =
     case self.curToken.Token.Type
     of token.IDENT: return self.parseIdentifier()
     of token.INT: return self.parseIntegerLiteral()
-    # of token.BANG: return self.parsePrefixExpression()
-    # of token.MINUS: return self.parsePrefixExpression()
-    # else:
-    #     self.noPrefixParseError()
-    #     return Identifier(kind: TIdentifier.IdentNil)
-    else: discard
+    of token.BANG: return self.parsePrefixExpression()
+    of token.MINUS: return self.parsePrefixExpression()
+    else: self.noPrefixParseError()
 
 
 proc parseStatement(self: Parser): PNode =
     case self.curToken.Type
     of token.LET: return self.parseLetStatement()
     of token.RETURN: return self.parseReturnStatement()
-    else: return self.parseExpressionStatement()
+    else: return self.parseExpressionStatement(LOWEST)
 
 # create AST Root Node
 proc parseProgram*(self: Parser): Program =
@@ -165,15 +155,9 @@ proc parseProgram*(self: Parser): Program =
         self.nextToken()
 
 
-# # proc regiserPrefix(self: Parser, tokenType: TokenType, fn: PrefixParseFn) =
-# #     self.prefixParseFns[tokenType] = fn
-
-
 proc error*(self: Parser): seq[string] = self.errors
 proc noPrefixParseError(self: Parser) =
     self.errors.add(fmt"no prefix parse function for {self.curToken.Type}")
-
-
 
 
 proc main() = discard

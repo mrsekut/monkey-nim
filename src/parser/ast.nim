@@ -39,7 +39,7 @@ type
         of nkExpressionStatement:
             Expression*: PNode
         of nkPrefixExpression:
-            Right: TNodeSeq
+            Right*: PNode
         of Nil:
             discard
         else:
@@ -64,15 +64,9 @@ proc astToString(self: PNode): string =
         # let name = <expression>;
         result = fmt"{self.tokenLiteral()} {self.Name.Token.Literal} = {self.Value.Token.Literal};"
 
-        # NOTE: nilあり版
-        # o = fmt"{self.tokenLiteral()} {self.Name.astToString()} = "
-        # if self.Value != nil:
-        #     o = o & self.Value.astToString()
-        # result = o & ";"
-
     of nkReturnStatement:
-#         # return hoge;
-#         # NOTE: 仮 p.53
+        # return hoge;
+        # NOTE: 仮 p.53
         result = fmt"{self.tokenLiteral()}  returnValueString;"
 
 #         # self.ReturnValue.astToString()
