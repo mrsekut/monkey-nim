@@ -41,7 +41,7 @@ proc peekTokenIs(self: Parser, t: TokenType): bool
 proc peekError(self: Parser, t: token.TokenType)
 # proc expectPeek(self: Parser, t: token.TokenType): bool
 proc parseLetStatement(self: Parser): PNode
-# proc parseReturnStatement(self: Parser): Statement
+proc parseReturnStatement(self: Parser): PNode
 # proc parseIdentifier(self: Parser): Identifier
 # proc parseIntegerLiteral(self: Parser): Identifier
 # proc parseExpression(self: Parser, precedence: Precedence): Identifier|PrefixExpression
@@ -55,12 +55,9 @@ proc error*(self: Parser): seq[string]
 # implementation
 
 proc newParser*(l: Lexer): Parser =
-    let p = Parser(l: l, errors: newSeq[string]())
-
-    p.nextToken()
-    p.nextToken()
-    p
-
+    result = Parser(l: l, errors: newSeq[string]())
+    result.nextToken()
+    result.nextToken()
 
 proc nextToken(self: Parser) =
     self.curToken = self.peekToken
@@ -83,15 +80,15 @@ proc expectPeek(self: Parser, t: token.TokenType): bool =
 
 
 proc parseLetStatement(self: Parser): PNode =
-    var statement = PNode(kind: nkLetStatement, Token: self.curToken)
+    result = PNode(kind: nkLetStatement, Token: self.curToken)
 
     # ident
     if not self.expectPeek(token.IDENT): return PNode(kind: Nil)
-    statement.Name = PNode(
-                        kind: nkIdent,
-                        Token: self.curToken,
-                        IdentValue: self.curToken.Literal
-                     )
+    result.Name = PNode(
+                    kind: nkIdent,
+                    Token: self.curToken,
+                    IdentValue: self.curToken.Literal
+                  )
 
     # =
     if not self.expectPeek(token.ASSIGN): return PNode(kind: Nil)
@@ -100,18 +97,15 @@ proc parseLetStatement(self: Parser): PNode =
     while not self.curTokenIs(token.SEMICOLON):
         self.nextToken()
 
-    statement
 
-# proc parseReturnStatement(self: Parser): Statement =
+proc parseReturnStatement(self: Parser): PNode =
+    result = PNode(kind: nkReturnStatement, Token: self.curToken)
+    self.nextToken()
 
-#     var statement = Statement(kind: ReturnStatement, Token: self.curToken)
-#     self.nextToken()
+    # ~ ;
+    while not self.curTokenIs(token.SEMICOLON):
+        self.nextToken()
 
-#     # ~ ;
-#     while not self.curTokenIs(token.SEMICOLON):
-#         self.nextToken()
-
-#     statement
 
 # proc parseIdentifier(self: Parser): Identifier =
 #     Identifier(
@@ -170,7 +164,7 @@ proc parseLetStatement(self: Parser): PNode =
 proc parseStatement(self: Parser): PNode =
     case self.curToken.Type
     of token.LET: return self.parseLetStatement()
-    # of token.RETURN: return self.parseReturnStatement()
+    of token.RETURN: return self.parseReturnStatement()
     # else: return self.parseExpressionStatement()
     else: discard
 

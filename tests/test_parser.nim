@@ -38,23 +38,23 @@ suite "Parser":
             check(statement.Name.IdentValue == expects[i])
 
 
-    # test "it should parse returnStatements":
-    #     let input: string = """
-    #         return 5;
-    #         return 10;
-    #         return 838383;\0
-    #     """
+    test "it should parse returnStatements":
+        let input: string = """
+            return 5;
+            return 10;
+            return 838383;\0
+        """
 
-    #     let l = newLexer(input)
-    #     let p = newParser(l)
+        let l = newLexer(input)
+        let p = newParser(l)
 
-    #     let program = p.parseProgram()
-    #     checkParserError(p)
-    #     check(program.statements.len == 3)
+        let program = p.parseProgram()
+        checkParserError(p)
+        check(program.statements.len == 3)
 
-    #     for i in 0..<program.statements.len:
-    #         let statement = program.statements[i].Token.Literal
-    #         check(statement == "return")
+        for i in 0..<program.statements.len:
+            let statement = program.statements[i].Token.Literal
+            check(statement == "return")
 
     # test "it should parse ident expression":
     #     let input = """foobar;\0"""
