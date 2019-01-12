@@ -38,7 +38,7 @@ proc newParser*(l: Lexer): Parser
 proc nextToken(self: Parser)
 proc curTokenIs(self: Parser, t: TokenType): bool
 proc peekTokenIs(self: Parser, t: TokenType): bool
-# proc peekError(self: Parser, t: token.TokenType)
+proc peekError(self: Parser, t: token.TokenType)
 # proc expectPeek(self: Parser, t: token.TokenType): bool
 proc parseLetStatement(self: Parser): PNode
 # proc parseReturnStatement(self: Parser): Statement
@@ -50,7 +50,7 @@ proc parseLetStatement(self: Parser): PNode
 # proc parseExpressionStatement(self: Parser): Statement
 proc parseStatement(self: Parser): PNode
 proc parseProgram*(self: Parser): Program
-# proc error*(self: Parser): seq[string]
+proc error*(self: Parser): seq[string]
 
 # implementation
 
@@ -69,16 +69,16 @@ proc nextToken(self: Parser) =
 proc curTokenIs(self: Parser, t: TokenType): bool = self.curToken.Type == t
 proc peekTokenIs(self: Parser, t: TokenType): bool = self.peekToken.Type == t
 
-# proc peekError(self: Parser, t: token.TokenType) =
-#     let msg = fmt"expected next tokent to be {t}, got {self.peekToken.Type} instead"
-#     self.errors.add(msg)
+proc peekError(self: Parser, t: token.TokenType) =
+    let msg = fmt"expected next tokent to be {t}, got {self.peekToken.Type} instead"
+    self.errors.add(msg)
 
 proc expectPeek(self: Parser, t: token.TokenType): bool =
     if self.peekTokenIs(t):
         self.nextToken()
         return true
     else:
-        # self.peekError(t)
+        self.peekError(t)
         return false
 
 
@@ -191,7 +191,7 @@ proc parseProgram*(self: Parser): Program =
 
 
 
-# proc error*(self: Parser): seq[string] = self.errors
+proc error*(self: Parser): seq[string] = self.errors
 # proc noPrefixParseError(self: Parser) =
 #     self.errors.add(fmt"no prefix parse function for {self.curToken.Type}")
 
