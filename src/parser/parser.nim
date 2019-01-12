@@ -40,15 +40,16 @@ proc nextToken(self: Parser)
 proc curTokenIs(self: Parser, t: TokenType): bool
 proc peekTokenIs(self: Parser, t: TokenType): bool
 proc peekError(self: Parser, t: token.TokenType)
-# proc expectPeek(self: Parser, t: token.TokenType): bool
+proc expectPeek(self: Parser, t: token.TokenType): bool
+
 proc parseLetStatement(self: Parser): PNode
 proc parseReturnStatement(self: Parser): PNode
 proc parseIdentifier(self: Parser): PNode
-# proc parseIntegerLiteral(self: Parser): Identifier
+proc parseIntegerLiteral(self: Parser): PNode
 # proc parsePrefixExpression(self: Parser): PrefixExpression
-proc parseExpression(self: Parser): PNode
-# proc parseExpressionStatement(self: Parser): PNode
+proc parseExpressionStatement(self: Parser): PNode
 proc parseStatement(self: Parser): PNode
+
 proc parseProgram*(self: Parser): Program
 proc error*(self: Parser): seq[string]
 
@@ -63,8 +64,10 @@ proc nextToken(self: Parser) =
     self.curToken = self.peekToken
     self.peekToken = self.l.nextToken()
 
-proc curTokenIs(self: Parser, t: TokenType): bool = self.curToken.Type == t
-proc peekTokenIs(self: Parser, t: TokenType): bool = self.peekToken.Type == t
+proc curTokenIs(self: Parser, t: TokenType): bool =
+    self.curToken.Type == t
+proc peekTokenIs(self: Parser, t: TokenType): bool =
+    self.peekToken.Type == t
 
 proc peekError(self: Parser, t: token.TokenType) =
     let msg = fmt"expected next tokent to be {t}, got {self.peekToken.Type} instead"
@@ -111,11 +114,11 @@ proc parseIdentifier(self: Parser): PNode =
         Token: self.curToken,
         IdentValue: self.curToken.Literal)
 
-# proc parseIntegerLiteral(self: Parser): Identifier =
-#     Identifier(
-#         kind: TIdentifier.IntegerLiteral,
-#         Token: self.curToken,
-#         IntValue: self.curToken.Literal.parseInt)
+proc parseIntegerLiteral(self: Parser): PNode =
+    PNode(
+        kind: nkIntegerLiteral,
+        Token: self.curToken,
+        IntValue: self.curToken.Literal.parseInt)
 
 # # Identifier or PrefixExpression
 # proc parseExpression(self: Parser, precedence: Precedence): Identifier|PrefixExpression
@@ -133,10 +136,10 @@ proc parseIdentifier(self: Parser): PNode =
 #     )
 
 # Identifier or PrefixExpression
-proc parseExpression(self: Parser): PNode =
+proc parseExpressionStatement(self: Parser): PNode =
     case self.curToken.Token.Type
     of token.IDENT: return self.parseIdentifier()
-    # of token.INT: return self.parseIntegerLiteral()
+    of token.INT: return self.parseIntegerLiteral()
     # of token.BANG: return self.parsePrefixExpression()
     # of token.MINUS: return self.parsePrefixExpression()
     # else:
@@ -145,21 +148,11 @@ proc parseExpression(self: Parser): PNode =
     else: discard
 
 
-# proc parseExpressionStatement(self: Parser): PNode =
-#     result = PNode(kind: nkExpressionStatement, Token: self.curToken)
-#     result.Expression = self.parseExpression(LOWEST) # Identifier
-#     # ~ ;
-#     if self.peekTokenIs(token.SEMICOLON):
-#         self.nextToken()
-
-
-
 proc parseStatement(self: Parser): PNode =
     case self.curToken.Type
     of token.LET: return self.parseLetStatement()
     of token.RETURN: return self.parseReturnStatement()
-    else: return self.parseExpression()
-    # else: return self.parseExpressionStatement()
+    else: return self.parseExpressionStatement()
 
 # create AST Root Node
 proc parseProgram*(self: Parser): Program =
