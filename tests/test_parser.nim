@@ -56,22 +56,21 @@ suite "Parser":
             let statement = program.statements[i].Token.Literal
             check(statement == "return")
 
-    # test "it should parse ident expression":
-    #     let input = """foobar;\0"""
+    test "it should parse ident expression":
+        let input = """foobar;\0"""
 
-    #     let l = newLexer(input)
-    #     let p = newParser(l)
-    #     let program = p.parseProgram()
-    #     checkParserError(p)
-    #     check(program.statements.len == 1)
+        let l = newLexer(input)
+        let p = newParser(l)
+        let program = p.parseProgram()
+        checkParserError(p)
+        # check(program.statements.len == 1)
 
-    #     let statement = program.statements[0]
-    #     # check(statement.kind == ExpressionStatement)
+        let statement = program.statements[0]
 
-    #     let value = statement.Expression.IdentValue
-    #     check(value == "foobar")
-    #     let literal = statement.Expression.Token.Literal
-    #     check(literal == "foobar")
+        let value = statement.IdentValue
+        check(value == "foobar")
+        let literal = statement.Token.Literal
+        check(literal == "foobar")
 
     # test "it should parse int expression":
     #     let input = """5;\0"""
