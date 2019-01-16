@@ -110,3 +110,35 @@ suite "Parser":
             let exp = program.statements[0]
             check(exp.Token.Type == i.operator)
             check(testIntegerLiteral(exp.Right.IntValue, i.integerValue))
+
+    test "it should parse infixExpressions":
+
+        type Test = object
+            input: string
+            leftValue: int
+            operator: string
+            rightValue: int
+
+        let testInputs = @[
+            Test(input: """5 + 5\0""", leftValue: 5, operator: "+", rightValue: 5),
+            Test(input: """5 - 5\0""", leftValue: 5, operator: "-", rightValue: 5),
+            Test(input: """5 * 5\0""", leftValue: 5, operator: "*", rightValue: 5),
+            Test(input: """5 / 5\0""", leftValue: 5, operator: "/", rightValue: 5),
+            Test(input: """5 > 5\0""", leftValue: 5, operator: ">", rightValue: 5),
+            Test(input: """5 < 5\0""", leftValue: 5, operator: "<", rightValue: 5),
+            Test(input: """5 == 5\0""", leftValue: 5, operator: "==", rightValue: 5),
+            Test(input: """5 != 5\0""", leftValue: 5, operator: "!=", rightValue: 5)
+        ]
+
+        for i in testInputs:
+            let l = newLexer(i.input)
+            let p = newParser(l)
+            let program = p.parseProgram()
+            checkParserError(p)
+
+            # check(program.statements.len == 1)
+
+            let exp = program.statements[0]
+            check(testIntegerLiteral(exp.InLeft.IntValue, i.leftValue)) # TODO: Left
+            check(exp.Token.Type == i.operator)
+            check(testIntegerLiteral(exp.InRight.IntValue, i.rightValue))

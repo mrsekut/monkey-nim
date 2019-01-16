@@ -3,6 +3,32 @@ import
     ../lexer/token
 
 type
+    PrefixTypes* = enum
+        PrPlus,
+        PrMinus,
+        PrNot
+
+    InfixTypes* = enum
+        InPlus,
+        InMinus,
+        InDivide,
+        InMultiply,
+        InEq,
+        InNot_Eq,
+        InGt,
+        InLT
+
+
+    Precedence* = enum
+        Lowest,
+        Equals,
+        Lg,
+        Sum,
+        Product,
+        Prefix,
+        Call
+
+type
     TNodeKind* = enum
         # Identifier
         nkIdent
@@ -15,6 +41,7 @@ type
 
         # PrefixExpression
         nkPrefixExpression
+        nkInfixExpression
 
         Nil # TODO: 最終的に消す
 
@@ -39,7 +66,11 @@ type
         of nkExpressionStatement:
             Expression*: PNode
         of nkPrefixExpression:
-            Right*: PNode
+            Right*: PNode # TODO: name
+        of nkInfixExpression:
+            InLeft*: PNode
+            # Operator*: PNode
+            InRight*: PNode # TODO: name
         of Nil:
             discard
         else:
@@ -79,6 +110,7 @@ proc astToString(self: PNode): string =
 #     #     result = fmt"({self.Token.Literal}{self.Right.astToString()})"
 #         # result = fmt"({self.Token.Literal}{self.Right.astToString()})"
 
+#     # of nkInfixExpression:
     else:
         result = "仮astToString"
 
