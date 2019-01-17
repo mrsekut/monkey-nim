@@ -95,11 +95,11 @@ proc expectPeek(self: Parser, t: token.TokenType): bool =
         self.peekError(t)
         return false
 
-proc peekPrecedence(self: Parser): Precedence =
-    result = tokenToPrecedence(self.curToken)
-
 proc curPrecedence(self: Parser): Precedence =
     result = tokenToPrecedence(self.curToken)
+
+proc peekPrecedence(self: Parser): Precedence =
+    result = tokenToPrecedence(self.peekToken)
 
 # parse
 proc parseLetStatement(self: Parser): PNode =
@@ -173,7 +173,11 @@ proc parseInfixExpression(self: Parser, left: PNode): PNode =
     # of LT: infix = InfixTypes.LT
     # else: discard
 
-    echo "in C ", left.Token.Literal
+
+    let operator = self.curToken.Type
+    echo "in C"
+    echo operator
+
 
     let p = self.curPrecedence()
     self.nextToken()
@@ -183,13 +187,13 @@ proc parseInfixExpression(self: Parser, left: PNode): PNode =
         kind: nkInfixExpression,
         # Token: infix, TODO:
         Token: self.curToken,
+        Operator: operator,
         InLeft: left,
         InRight: right
     )
 
 # NOTE: A
 proc parseExpression(self: Parser, precedence: Precedence): PNode =
-    echo "in A 1"
     # prefix
     var left: PNode
     case self.curToken.Token.Type
@@ -197,23 +201,17 @@ proc parseExpression(self: Parser, precedence: Precedence): PNode =
     of INT: left = self.parseIntegerLiteral()
     of BANG, MINUS: left = self.parsePrefixExpression()
     else:
-        left = nil
         self.noPrefixParseError()
+        left = nil
 
-    echo "in A ", repr(left)
 
     # infix
-    # TODO: この辺だ。
-    while not self.peekTokenIs(SEMICOLON) and precedence < self.peekPrecedence():
-        echo "in while 1"
-        case self.curToken.Type
-        # case self.peekToken.Type
+    while (not self.peekTokenIs(SEMICOLON)) and precedence < self.peekPrecedence():
+        case self.peekToken.Type
         of PLUS, MINUS, SLASH, ASTERISC, EQ, NOT_EQ, LT, GT:
-            echo "in while 2"
             self.nextToken()
-            left = self.parseInfixExpression(left) # `+`をparseするときに引数のleftがnilになっている
+            left = self.parseInfixExpression(left)
         else:
-            echo "else"
             return left
 
     left
@@ -224,7 +222,6 @@ proc parseExpressionStatement(self: Parser): PNode =
     # if self.parseExpression(Precedence.Lowest).type.name == "PNode":
     if self.peekTokenIs(SEMICOLON):
         self.nextToken()
-    echo "in S ", repr(statement)
     return statement
 
 
@@ -242,7 +239,6 @@ proc parseProgram*(self: Parser): Program =
 
     while self.curToken.Type != token.EOF:
         let statement = self.parseStatement()
-        # echo repr( statement ) NOTE:
         result.statements.add(statement)
         self.nextToken()
 
@@ -257,36 +253,7 @@ proc peekError(self: Parser, t: token.TokenType) =
     self.errors.add(msg)
 
 
-proc main() = #discard
-
-    type Test = object
-        input: string
-        leftValue: int
-        operator: string
-        rightValue: int
-
-    let testInputs = @[
-        Test(input: """6 + 5\0""", leftValue: 5, operator: "+", rightValue: 5),
-        # Test(input: """5 - 5\0""", leftValue: 5, operator: "-", rightValue: 5),
-        # Test(input: """5 * 5\0""", leftValue: 5, operator: "*", rightValue: 5),
-        # Test(input: """5 / 5\0""", leftValue: 5, operator: "/", rightValue: 5),
-        # Test(input: """5 > 5\0""", leftValue: 5, operator: ">", rightValue: 5),
-        # Test(input: """5 < 5\0""", leftValue: 5, operator: "<", rightValue: 5),
-        # Test(input: """5 == 5\0""", leftValue: 5, operator: "==", rightValue: 5),
-        # Test(input: """5 != 5\0""", leftValue: 5, operator: "!=", rightValue: 5)
-    ]
-
-    for i in testInputs:
-        let l = newLexer(i.input)
-        let p = newParser(l)
-        let program = p.parseProgram()
-
-        echo program.statements.len
-
-        let exp = program.statements[0]
-        # check(testIntegerLiteral(exp.InLeft.IntValue, i.leftValue)) # TODO: Left
-        # check(exp.Token.Type == i.operator)
-        # check(testIntegerLiteral(exp.InRight.IntValue, i.rightValue))
+proc main() = discard
 
 when isMainModule:
     main()

@@ -136,9 +136,9 @@ suite "Parser":
             let program = p.parseProgram()
             checkParserError(p)
 
-            # check(program.statements.len == 1)
+            check(program.statements.len == 1)
 
             let exp = program.statements[0]
-            check(testIntegerLiteral(exp.InLeft.IntValue, i.leftValue)) # TODO: Left
-            check(exp.Token.Type == i.operator)
+            check(testIntegerLiteral(exp.InLeft.IntValue, i.leftValue))
+            check(exp.Operator == i.operator)
             check(testIntegerLiteral(exp.InRight.IntValue, i.rightValue))

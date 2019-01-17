@@ -69,7 +69,7 @@ type
             Right*: PNode # TODO: name
         of nkInfixExpression:
             InLeft*: PNode
-            # Operator*: PNode
+            Operator*: string
             InRight*: PNode # TODO: name
         of Nil:
             discard
