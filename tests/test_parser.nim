@@ -223,6 +223,12 @@ suite "Parser":
 
             Test(input: """!true;\0""", expected: "(!true)"),
             Test(input: """!false;\0""", expected: "(!false)"),
+
+            Test(input: """1 + (2 + 3) + 4\0""", expected: "((1 + (2 + 3)) + 4)"),
+            Test(input: """(5 + 5) * 2\0""", expected: "((5 + 5) * 2)"),
+            Test(input: """2 / (5 + 5);\0""", expected: "(2 / (5 + 5))"),
+            Test(input: """-(5 + 5);\0""", expected: "(-(5 + 5))"),
+            Test(input: """!(true == true);\0""", expected: "(!(true == true))"),
         ]
 
         for i in testInputs:

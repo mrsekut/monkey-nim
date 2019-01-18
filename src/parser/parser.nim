@@ -52,6 +52,7 @@ proc parseReturnStatement(self: Parser): PNode
 proc parseIdentifier(self: Parser): PNode
 proc parseIntegerLiteral(self: Parser): PNode
 proc parseBoolean(self: Parser): PNode
+proc parseGroupedExpression(self: Parser): PNode
 
 proc parsePrefixExpression(self: Parser): PNode
 proc parseInfixExpression(self: Parser, left: PNode): PNode
@@ -149,6 +150,10 @@ proc parseBoolean(self: Parser): PNode =
         Token: self.curToken,
         BlValue: self.curTokenIs(token.TRUE))
 
+proc parseGroupedExpression(self: Parser): PNode =
+    self.nextToken()
+    result = self.parseExpression(Lowest)
+    if not self.expectPeek(RPAREN): return nil
 
 proc parsePrefixExpression(self: Parser): PNode =
     # var prefix: PrefixTypes
@@ -204,6 +209,7 @@ proc parseExpression(self: Parser, precedence: Precedence): PNode =
     of INT: left = self.parseIntegerLiteral()
     of TRUE, FALSE: left = self.parseBoolean()
     of BANG, MINUS: left = self.parsePrefixExpression()
+    of LPAREN: left = self.parseGroupedExpression()
     else:
         self.noPrefixParseError()
         left = nil
