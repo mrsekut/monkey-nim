@@ -51,7 +51,7 @@ proc parseReturnStatement(self: Parser): PNode
 proc parseIdentifier(self: Parser): PNode
 proc parseIntegerLiteral(self: Parser): PNode
 proc parsePrefixExpression(self: Parser): PNode
-proc parseInfixExpression(self: Parser, left: PNode): PNode # TODO: type
+proc parseInfixExpression(self: Parser, left: PNode): PNode
 
 proc parseExpressionStatement(self: Parser): PNode
 proc parseStatement(self: Parser): PNode
@@ -140,7 +140,6 @@ proc parseIntegerLiteral(self: Parser): PNode =
         Token: self.curToken,
         IntValue: self.curToken.Literal.parseInt)
 
-# NOTE: B
 proc parsePrefixExpression(self: Parser): PNode =
     # var prefix: PrefixTypes
     # case self.curToken.Token.Type
@@ -156,12 +155,11 @@ proc parsePrefixExpression(self: Parser): PNode =
     let right = self.parseExpression(Precedence.Prefix)
     PNode(
         kind: nkPrefixExpression,
-        Token: prefix, # TODO:
+        Token: prefix,
         PrOperator: operator,
         PrRight: right
     )
 
-# NOTE: C
 proc parseInfixExpression(self: Parser, left: PNode): PNode =
     # var infix: InfixTypes
     # case self.curToken
@@ -182,14 +180,12 @@ proc parseInfixExpression(self: Parser, left: PNode): PNode =
     let right = self.parseExpression(p)
     PNode(
         kind: nkInfixExpression,
-        # Token: infix, TODO:
         Token: self.curToken,
         InOperator: operator,
         InLeft: left,
         InRight: right
     )
 
-# NOTE: A
 proc parseExpression(self: Parser, precedence: Precedence): PNode =
     # prefix
     var left: PNode
@@ -200,7 +196,6 @@ proc parseExpression(self: Parser, precedence: Precedence): PNode =
     else:
         self.noPrefixParseError()
         left = nil
-
 
     # infix
     while (not self.peekTokenIs(SEMICOLON)) and precedence < self.peekPrecedence():
@@ -213,7 +208,6 @@ proc parseExpression(self: Parser, precedence: Precedence): PNode =
 
     left
 
-# NOTE: S
 proc parseExpressionStatement(self: Parser): PNode =
     let statement = self.parseExpression(Precedence.Lowest)
     # if self.parseExpression(Precedence.Lowest).type.name == "PNode":
@@ -222,7 +216,6 @@ proc parseExpressionStatement(self: Parser): PNode =
     return statement
 
 
-# // NOTE: Z
 proc parseStatement(self: Parser): PNode =
     case self.curToken.Type
     of token.LET: return self.parseLetStatement()
