@@ -149,6 +149,7 @@ proc parsePrefixExpression(self: Parser): PNode =
     # else: discard
 
 
+    let operator = self.curToken.Type
     let prefix = self.curToken.Token
     self.nextToken()
 
@@ -156,7 +157,8 @@ proc parsePrefixExpression(self: Parser): PNode =
     PNode(
         kind: nkPrefixExpression,
         Token: prefix, # TODO:
-        Right: right
+        PrOperator: operator,
+        PrRight: right
     )
 
 # NOTE: C
@@ -173,12 +175,7 @@ proc parseInfixExpression(self: Parser, left: PNode): PNode =
     # of LT: infix = InfixTypes.LT
     # else: discard
 
-
     let operator = self.curToken.Type
-    echo "in C"
-    echo operator
-
-
     let p = self.curPrecedence()
     self.nextToken()
 
@@ -187,7 +184,7 @@ proc parseInfixExpression(self: Parser, left: PNode): PNode =
         kind: nkInfixExpression,
         # Token: infix, TODO:
         Token: self.curToken,
-        Operator: operator,
+        InOperator: operator,
         InLeft: left,
         InRight: right
     )
@@ -254,6 +251,5 @@ proc peekError(self: Parser, t: token.TokenType) =
 
 
 proc main() = discard
-
 when isMainModule:
     main()

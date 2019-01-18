@@ -87,16 +87,78 @@ suite "Parser":
         let literal = statement.Token.Literal
         check(literal == "5")
 
-    test "it should parse prefixExpressions":
+    # test "it should parse prefixExpressions":
+
+    #     type Test = object
+    #         input: string
+    #         operator: string
+    #         integerValue: int
+
+    #     let testInputs = @[
+    #         Test(input: """!5\0""", operator: "!", integerValue: 5),
+    #         Test(input: """-15\0""", operator: "-", integerValue: 15)
+    #     ]
+
+    #     for i in testInputs:
+    #         let l = newLexer(i.input)
+    #         let p = newParser(l)
+    #         let program = p.parseProgram()
+    #         checkParserError(p)
+
+    #         # check(program.statements.len == 1)
+
+    #         let exp = program.statements[0]
+    #         check(exp.PrOperator == i.operator)
+    #         check(testIntegerLiteral(exp.PrRight.IntValue, i.integerValue))
+
+    # test "it should parse infixExpressions":
+
+    #     type Test = object
+    #         input: string
+    #         leftValue: int
+    #         operator: string
+    #         rightValue: int
+
+    #     let testInputs = @[
+    #         Test(input: """5 + 5\0""", leftValue: 5, operator: "+", rightValue: 5),
+    #         Test(input: """5 - 5\0""", leftValue: 5, operator: "-", rightValue: 5),
+    #         Test(input: """5 * 5\0""", leftValue: 5, operator: "*", rightValue: 5),
+    #         Test(input: """5 / 5\0""", leftValue: 5, operator: "/", rightValue: 5),
+    #         Test(input: """5 > 5\0""", leftValue: 5, operator: ">", rightValue: 5),
+    #         Test(input: """5 < 5\0""", leftValue: 5, operator: "<", rightValue: 5),
+    #         Test(input: """5 == 5\0""", leftValue: 5, operator: "==", rightValue: 5),
+    #         Test(input: """5 != 5\0""", leftValue: 5, operator: "!=", rightValue: 5)
+    #     ]
+
+    #     for i in testInputs:
+    #         let l = newLexer(i.input)
+    #         let p = newParser(l)
+    #         let program = p.parseProgram()
+    #         checkParserError(p)
+
+    #         check(program.statements.len == 1)
+
+    #         let exp = program.statements[0]
+    #         check(testIntegerLiteral(exp.InLeft.IntValue, i.leftValue))
+    #         check(exp.InOperator == i.operator)
+    #         check(testIntegerLiteral(exp.InRight.IntValue, i.rightValue))
+
+    test "test operator precedenve parsing":
 
         type Test = object
             input: string
-            operator: string
-            integerValue: int
+            expected: string
 
         let testInputs = @[
-            Test(input: """!5\0""", operator: "!", integerValue: 5),
-            Test(input: """-15\0""", operator: "-", integerValue: 15)
+            Test(input: """-a * b\0""", expected: "((-a) * b)"),
+            Test(input: """!-a\0""", expected: "(!(-a))"),
+            Test(input: """a + b + c\0""", expected: "((a + b) + c)"),
+            Test(input: """a * b / c\0""", expected: "((a * b) / c)"),
+            Test(input: """a + b * c + d / e - f\0""", expected: "(((a + (b * c)) + (d / e)) - f)"),
+            Test(input: """3 + 4; -5 * 5\0""", expected: "(3 + 4)((-5) * 5)"),
+            Test(input: """5 > 4 == 3 < 4\0""", expected: "((5 > 4) == (3 < 4))"),
+            Test(input: """5 < 4 != 3 > 4\0""", expected: "((5 < 4) != (3 > 4))"),
+            Test(input: """3 + 4 * 5 == 3 * 1 + 4 * 5\0""", expected: "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"),
         ]
 
         for i in testInputs:
@@ -105,40 +167,5 @@ suite "Parser":
             let program = p.parseProgram()
             checkParserError(p)
 
-            # check(program.statements.len == 1)
-
-            let exp = program.statements[0]
-            check(exp.Token.Type == i.operator)
-            check(testIntegerLiteral(exp.Right.IntValue, i.integerValue))
-
-    test "it should parse infixExpressions":
-
-        type Test = object
-            input: string
-            leftValue: int
-            operator: string
-            rightValue: int
-
-        let testInputs = @[
-            Test(input: """5 + 5\0""", leftValue: 5, operator: "+", rightValue: 5),
-            Test(input: """5 - 5\0""", leftValue: 5, operator: "-", rightValue: 5),
-            Test(input: """5 * 5\0""", leftValue: 5, operator: "*", rightValue: 5),
-            Test(input: """5 / 5\0""", leftValue: 5, operator: "/", rightValue: 5),
-            Test(input: """5 > 5\0""", leftValue: 5, operator: ">", rightValue: 5),
-            Test(input: """5 < 5\0""", leftValue: 5, operator: "<", rightValue: 5),
-            Test(input: """5 == 5\0""", leftValue: 5, operator: "==", rightValue: 5),
-            Test(input: """5 != 5\0""", leftValue: 5, operator: "!=", rightValue: 5)
-        ]
-
-        for i in testInputs:
-            let l = newLexer(i.input)
-            let p = newParser(l)
-            let program = p.parseProgram()
-            checkParserError(p)
-
-            check(program.statements.len == 1)
-
-            let exp = program.statements[0]
-            check(testIntegerLiteral(exp.InLeft.IntValue, i.leftValue))
-            check(exp.Operator == i.operator)
-            check(testIntegerLiteral(exp.InRight.IntValue, i.rightValue))
+            let act = program.astToString()
+            check(act == i.expected)

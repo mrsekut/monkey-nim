@@ -66,10 +66,11 @@ type
         of nkExpressionStatement:
             Expression*: PNode
         of nkPrefixExpression:
-            Right*: PNode # TODO: name
+            PrOperator*: string
+            PrRight*: PNode # TODO: name
         of nkInfixExpression:
             InLeft*: PNode
-            Operator*: string
+            InOperator*: string
             InRight*: PNode # TODO: name
         of Nil:
             discard
@@ -89,30 +90,32 @@ proc tokenLiteral(self: PNode): string = self.Token.Literal
 
 proc astToString(self: PNode): string =
     case self.kind:
-    # of Ident: result =  self.IdentValue
-#     of nkIntegerLiteral: result =  self.Token.Literal
+    of nkIntegerLiteral: result =  self.Token.Literal
     of nkLetStatement:
         # let name = <expression>;
         result = fmt"{self.tokenLiteral()} {self.Name.Token.Literal} = {self.Value.Token.Literal};"
 
-    of nkReturnStatement:
-        # return hoge;
-        # NOTE: 仮 p.53
-        result = fmt"{self.tokenLiteral()}  returnValueString;"
+    of nkReturnStatement: # NOTE: 仮 p.53
+        result = fmt"{self.tokenLiteral()} returnValueString;"
 
-#         # self.ReturnValue.astToString()
-
-    of nkExpressionStatement:
-#         # NOTE: 仮 p.53
+    of nkExpressionStatement: # NOTE: 仮 p.53
         result = "ExpressionStatementString dayo"
 
-#     # of nkPrefixExpression:
-#     #     result = fmt"({self.Token.Literal}{self.Right.astToString()})"
-#         # result = fmt"({self.Token.Literal}{self.Right.astToString()})"
+    of nkPrefixExpression:
+        let
+            operator = self.PrOperator
+            right = self.PrRight.astToString()
+        result = fmt"({operator}{right})"
 
-#     # of nkInfixExpression:
+    of nkInfixExpression:
+        let
+            left = self.InLeft.astToString()
+            operator = self.InOperator
+            right = self.InRight.astToString()
+        result = fmt"({left} {operator} {right})"
+
     else:
-        result = "仮astToString"
+        result = self.Token.Literal
 
 # Program
 type
