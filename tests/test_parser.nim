@@ -9,8 +9,24 @@ proc checkParserError(self: Parser): void =
     if errors.len == 0: return
     echo fmt"parser has {errors.len} errors"
 
-proc testIntegerLiteral(il: int, value: int): bool =
-    il == value
+proc testIntegerLiteral(exp: PNode, value: int): bool =
+    exp.Token.Literal == $value
+
+proc testIdentifier(exp: PNode, value: string): bool =
+    if(exp.kind != nkIdent): return false
+
+    let ident = exp.IdentValue
+    if(ident != value): return false
+    if(exp.Token.Literal != value): return false
+    return true
+
+proc testLiteralExpression(exp: PNode, expected: string): bool =
+    let v = expected.type.name
+    case v
+    # of "int": return testIntegerLiteral(exp, parseint(expected))
+    of "string": return testIdentifier(exp, expected)
+    else: return false
+
 
 
 
@@ -160,6 +176,7 @@ suite "Parser":
             Test(input: """5 < 4 != 3 > 4\0""", expected: "((5 < 4) != (3 > 4))"),
             Test(input: """3 + 4 * 5 == 3 * 1 + 4 * 5\0""", expected: "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"),
         ]
+
 
         for i in testInputs:
             let l = newLexer(i.input)

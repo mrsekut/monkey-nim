@@ -198,7 +198,7 @@ proc parseExpression(self: Parser, precedence: Precedence): PNode =
         left = nil
 
     # infix
-    while (not self.peekTokenIs(SEMICOLON)) and precedence < self.peekPrecedence():
+    while precedence < self.peekPrecedence() and not self.peekTokenIs(SEMICOLON):
         case self.peekToken.Type
         of PLUS, MINUS, SLASH, ASTERISC, EQ, NOT_EQ, LT, GT:
             self.nextToken()
@@ -214,7 +214,6 @@ proc parseExpressionStatement(self: Parser): PNode =
     if self.peekTokenIs(SEMICOLON):
         self.nextToken()
     return statement
-
 
 proc parseStatement(self: Parser): PNode =
     case self.curToken.Type
