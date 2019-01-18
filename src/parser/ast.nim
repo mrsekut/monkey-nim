@@ -33,6 +33,7 @@ type
         # Identifier
         nkIdent
         nkIntegerLiteral
+        nkBoolean
 
         # Statement
         nkLetStatement
@@ -58,6 +59,9 @@ type
             IdentValue*: string
         of nkIntegerLiteral:
             IntValue*: int
+        of nkBoolean:
+            BlValue*: bool
+
         of nkLetStatement:
             Name*: PNode
             Value*:  PNode
@@ -65,6 +69,7 @@ type
             ReturnValue*: PNode
         of nkExpressionStatement:
             Expression*: PNode
+
         of nkPrefixExpression:
             PrOperator*: string
             PrRight*: PNode # TODO: name
@@ -72,10 +77,9 @@ type
             InLeft*: PNode
             InOperator*: string
             InRight*: PNode # TODO: name
-        of Nil:
-            discard
-        else:
-            sons: TNodeSeq
+
+        of Nil: discard
+        else: sons: TNodeSeq
 
 proc expressionNode(self: var PNode)
 proc tokenLiteral(self: PNode): string
@@ -91,6 +95,8 @@ proc tokenLiteral(self: PNode): string = self.Token.Literal
 proc astToString(self: PNode): string =
     case self.kind:
     of nkIntegerLiteral: result =  self.Token.Literal
+    of nkBoolean: result = self.Token.Literal
+
     of nkLetStatement:
         # let name = <expression>;
         result = fmt"{self.tokenLiteral()} {self.Name.Token.Literal} = {self.Value.Token.Literal};"

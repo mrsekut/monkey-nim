@@ -48,8 +48,11 @@ proc curPrecedence(self: Parser): Precedence
 
 proc parseLetStatement(self: Parser): PNode
 proc parseReturnStatement(self: Parser): PNode
+
 proc parseIdentifier(self: Parser): PNode
 proc parseIntegerLiteral(self: Parser): PNode
+proc parseBoolean(self: Parser): PNode
+
 proc parsePrefixExpression(self: Parser): PNode
 proc parseInfixExpression(self: Parser, left: PNode): PNode
 
@@ -140,6 +143,13 @@ proc parseIntegerLiteral(self: Parser): PNode =
         Token: self.curToken,
         IntValue: self.curToken.Literal.parseInt)
 
+proc parseBoolean(self: Parser): PNode =
+    PNode(
+        kind: nkBoolean,
+        Token: self.curToken,
+        BlValue: self.curTokenIs(token.TRUE))
+
+
 proc parsePrefixExpression(self: Parser): PNode =
     # var prefix: PrefixTypes
     # case self.curToken.Token.Type
@@ -192,6 +202,7 @@ proc parseExpression(self: Parser, precedence: Precedence): PNode =
     case self.curToken.Token.Type
     of IDENT: left = self.parseIdentifier()
     of INT: left = self.parseIntegerLiteral()
+    of TRUE, FALSE: left = self.parseBoolean()
     of BANG, MINUS: left = self.parsePrefixExpression()
     else:
         self.noPrefixParseError()

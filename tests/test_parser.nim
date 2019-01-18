@@ -103,6 +103,24 @@ suite "Parser":
         let literal = statement.Token.Literal
         check(literal == "5")
 
+    test "it should parse boolean expression":
+        let input = """true;\0"""
+
+        let l = newLexer(input)
+        let p = newParser(l)
+        let program = p.parseProgram()
+        checkParserError(p)
+        # check(program.statements.len == 1)
+
+        let statement = program.statements[0]
+        # check(statement.kind == ExpressionStatement)
+
+        let value = statement.BlValue
+        check(value == true)
+        let literal = statement.Token.Literal
+        check(literal == "true")
+
+
     # test "it should parse prefixExpressions":
 
     #     type Test = object
@@ -177,6 +195,35 @@ suite "Parser":
             Test(input: """3 + 4 * 5 == 3 * 1 + 4 * 5\0""", expected: "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"),
         ]
 
+
+        for i in testInputs:
+            let l = newLexer(i.input)
+            let p = newParser(l)
+            let program = p.parseProgram()
+            checkParserError(p)
+
+            let act = program.astToString()
+            check(act == i.expected)
+
+    test "test operator precedence parsing":
+
+        type Test = object
+            input: string
+            expected: string
+
+        let testInputs = @[
+            Test(input: """true\0""", expected: "true"),
+            Test(input: """false\0""", expected: "false"),
+            Test(input: """3 < 5 == false\0""", expected: "((3 < 5) == false)"),
+            Test(input: """3 < 5 == true\0""", expected: "((3 < 5) == true)"),
+
+            Test(input: """true == true\0""", expected: "(true == true)"),
+            Test(input: """true != false\0""", expected: "(true != false)"),
+            Test(input: """false == false\0""", expected: "(false == false)"),
+
+            Test(input: """!true;\0""", expected: "(!true)"),
+            Test(input: """!false;\0""", expected: "(!false)"),
+        ]
 
         for i in testInputs:
             let l = newLexer(i.input)
