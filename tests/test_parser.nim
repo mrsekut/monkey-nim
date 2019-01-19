@@ -333,3 +333,48 @@ suite "Parser":
 
             for idx, e in i.expected:
                 check(params[idx].Token.Literal == e)
+
+    test "test callExpressions parging":
+        let input = """add(1, 2 * 3, 4 + 5)\0"""
+
+        let l = newLexer(input)
+        let p = newParser(l)
+        let statement = p.parseProgram().statements[0]
+
+        check(statement.kind == nkCallExpression)
+
+        let fn = statement.Token.Literal
+        check(fn == "add")
+
+        let args = statement.Args
+        check(args[0].Token.Literal == "1")
+        check(args[1].InLeft.Token.Literal == "2")
+        check(args[1].InOperator == "*")
+        check(args[1].InRight.Token.Literal == "3")
+        check(args[2].InLeft.Token.Literal == "4")
+        check(args[2].InOperator == "+")
+        check(args[2].InRight.Token.Literal == "5")
+
+    test "test operator precedence parsing":
+        type Test = object
+            input: string
+            expected: string
+
+        let testInputs = @[
+            Test(input: """a + add(b * c) + d\0""",
+                 expected: """((a + add((b * c))) + d)"""),
+            Test(input: """add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))\0""",
+                 expected: """add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))"""),
+            Test(input: """add(a + b + c * d / f + g)\0""",
+                 expected: """add((((a + b) + ((c * d) / f)) + g))"""),
+        ]
+
+        for i in testInputs:
+            let l = newLexer(i.input)
+            let p = newParser(l)
+            let program = p.parseProgram()
+            checkParserError(p)
+
+            let act = program.astToString()
+            check(act == i.expected)
+

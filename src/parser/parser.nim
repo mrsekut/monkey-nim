@@ -56,6 +56,8 @@ proc parseGroupedExpression(self: Parser): PNode
 proc parseIfExpression(self: Parser): PNode
 proc parseFunctionLiteral(self: Parser): PNode
 proc parseFunctionParameters(self: Parser): seq[PNode]
+proc parseCallExpression(self: Parser, function: PNode): PNode
+proc parseCallArgs(self: Parser): seq[PNode]
 proc parseBlockStatement(self: Parser): BlockStatements
 
 proc parsePrefixExpression(self: Parser): PNode
@@ -78,6 +80,7 @@ proc tokenToPrecedence(tok: Token): Precedence =
     of LT, GT: return Precedence.Lg
     of PLUS, MINUS: return Precedence.Sum
     of SLASH, ASTERISC: return Precedence.Product
+    of LPAREN: return Precedence.Call
     else: return Precedence.Lowest
 
 proc newParser*(l: Lexer): Parser =
@@ -216,9 +219,37 @@ proc parseFunctionParameters(self: Parser): seq[PNode] =
     if not self.expectPeek(RPAREN): return nil
     identifiers
 
+proc parseCallExpression(self: Parser, function: PNode): PNode =
+    result = PNode(
+                kind: nkCallExpression,
+                Token: self.curToken,
+                Function: function,
+                Args: self.parseCallArgs())
+
+proc parseCallArgs(self: Parser): seq[PNode] =
+    var args = newSeq[PNode]()
+
+    if self.peekTokenIs(RPAREN):
+        self.nextToken()
+        return args
+
+    self.nextToken()
+    self.nextToken()
+
+    args.add(self.parseExpression(Lowest))
+
+    while self.peekTokenIs(COMMA):
+        self.nextToken()
+        self.nextToken()
+        args.add(self.parseExpression(Lowest))
+
+    if not self.expectPeek(RPAREN): return nil
+
+    args
+
 proc parseBlockStatement(self: Parser): BlockStatements =
     result = BlockStatements(Token: self.curToken)
-    result.Statements = newSeq[Pnode]()
+    result.Statements = newSeq[PNode]()
 
     self.nextToken()
     while not self.curTokenIs(RBRACE) and not self.curTokenIs(EOF):
@@ -293,6 +324,8 @@ proc parseExpression(self: Parser, precedence: Precedence): PNode =
         of PLUS, MINUS, SLASH, ASTERISC, EQ, NOT_EQ, LT, GT:
             self.nextToken()
             left = self.parseInfixExpression(left)
+        of LPAREN:
+            left  = self.parseCallExpression(left)
         else:
             return left
 

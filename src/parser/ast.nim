@@ -1,5 +1,5 @@
 import
-    strformat, typetraits,
+    strformat, typetraits, sequtils,
     ../lexer/token
 
 type
@@ -43,6 +43,7 @@ type
         # Expression
         nkIFExpression
         nkFunctionLiteral
+        nkCallExpression
         nkBlockStatement
 
         # PrefixExpression
@@ -82,6 +83,9 @@ type
         of nkFunctionLiteral:
             FnParameters*: seq[PNode] # NOTE: 本来は,seq[nkIdent]
             FnBody*: BlockStatements
+        of nkCallExpression:
+            Function*: PNode
+            Args*: seq[PNode]
 
         of nkPrefixExpression:
             PrOperator*: string
@@ -116,7 +120,6 @@ proc astToString(self: PNode): string =
     of nkBoolean: result = self.Token.Literal
 
     of nkLetStatement:
-        # let name = <expression>;
         result = fmt"{self.tokenLiteral()} {self.Name.Token.Literal} = {self.Value.Token.Literal};"
 
     of nkReturnStatement: # TODO: p.53
@@ -130,6 +133,12 @@ proc astToString(self: PNode): string =
 
     of nkFunctionLiteral: # TODO:
         result = "function dayo"
+    of nkCallExpression:
+        var args = newSeq[string]()
+        for arg in self.Args:
+            args.add(arg.astToString())
+
+        result = fmt"{self.Function.Token.Literal}({ args.foldr(a & ',' & ' ' & b) })"
 
     of nkPrefixExpression:
         let
