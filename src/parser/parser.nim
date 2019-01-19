@@ -124,8 +124,12 @@ proc parseLetStatement(self: Parser): PNode =
                     IdentValue: self.curToken.Literal
                   )
 
-    # =
     if not self.expectPeek(token.ASSIGN): return PNode(kind: Nil)
+    self.nextToken()
+
+    result.Value = self.parseExpression(Lowest)
+    if self.peekTokenIs(SEMICOLON):
+        self.nextToken()
 
     # ~ ;
     while not self.curTokenIs(token.SEMICOLON):
@@ -134,8 +138,7 @@ proc parseLetStatement(self: Parser): PNode =
 proc parseReturnStatement(self: Parser): PNode =
     result = PNode(kind: nkReturnStatement, Token: self.curToken)
     self.nextToken()
-
-    # ~ ;
+    result.ReturnValue = self.parseExpression(Lowest)
     while not self.curTokenIs(token.SEMICOLON):
         self.nextToken()
 
