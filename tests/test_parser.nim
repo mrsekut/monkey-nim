@@ -32,7 +32,7 @@ proc testLiteralExpression(exp: PNode, expected: string): bool =
 
 suite "Parser":
     test "it should parse letStatements":
-        let input: string = """
+        let input = """
             let x = 5;
             let y = 10;
             let foobar = 838383;\0
@@ -53,7 +53,7 @@ suite "Parser":
 
 
     test "it should parse returnStatements":
-        let input: string = """
+        let input = """
             return 5;
             return 10;
             return 838383;\0
@@ -239,3 +239,50 @@ suite "Parser":
 
             let act = program.astToString()
             check(act == i.expected)
+
+
+    test "test if expression":
+        let input = """if (x < y){ x }\0"""
+
+        let l = newLexer(input)
+        let p = newParser(l)
+        let program = p.parseProgram()
+        checkParserError(p)
+        check(program.statements.len == 1)
+
+        let act = program.statements[0]
+        check(act.kind == nkIFExpression)
+
+        let condition = act.Condition
+        check(condition.InLeft.Token.Literal == "x")
+        check(condition.InOperator == "<")
+        check(condition.InRight.Token.Literal == "y")
+
+        let consequence = act.Consequence
+        check(consequence.Statements.len == 1)
+        check(consequence.Statements[0].Token.Literal == "x")
+
+    test "test if-else expression":
+        let input = """if (x < y){ x } else { y }\0"""
+
+        let l = newLexer(input)
+        let p = newParser(l)
+        let program = p.parseProgram()
+        checkParserError(p)
+        check(program.statements.len == 1)
+
+        let act = program.statements[0]
+        check(act.kind == nkIFExpression)
+
+        let condition = act.Condition
+        check(condition.InLeft.Token.Literal == "x")
+        check(condition.InOperator == "<")
+        check(condition.InRight.Token.Literal == "y")
+
+        let consequence = act.Consequence
+        check(consequence.Statements.len == 1)
+        check(consequence.Statements[0].Token.Literal == "x")
+
+        let alternative = act.Alternative
+        check(alternative.Statements.len == 1)
+        check(alternative.Statements[0].Token.Literal == "y")

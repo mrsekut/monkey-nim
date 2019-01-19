@@ -40,6 +40,11 @@ type
         nkReturnStatement
         nkExpressionStatement
 
+        # Expression
+        nkIFExpression
+        nkBlockStatement
+
+
         # PrefixExpression
         nkPrefixExpression
         nkInfixExpression
@@ -70,20 +75,30 @@ type
         of nkExpressionStatement:
             Expression*: PNode
 
+        of nkIFExpression:
+            Condition*: PNode
+            Consequence*: BlockStatements
+            Alternative*: BlockStatements
+
         of nkPrefixExpression:
             PrOperator*: string
-            PrRight*: PNode # TODO: name
+            PrRight*: PNode
         of nkInfixExpression:
             InLeft*: PNode
             InOperator*: string
-            InRight*: PNode # TODO: name
+            InRight*: PNode
 
         of Nil: discard
         else: sons: TNodeSeq
 
+    BlockStatements* = ref object
+        Token*: token.Token
+        Statements*: seq[PNode]
+
 proc expressionNode(self: var PNode)
 proc tokenLiteral(self: PNode): string
 proc astToString(self: PNode): string
+proc astToString(self: BlockStatements): string
 
 
 # implementation
@@ -101,11 +116,14 @@ proc astToString(self: PNode): string =
         # let name = <expression>;
         result = fmt"{self.tokenLiteral()} {self.Name.Token.Literal} = {self.Value.Token.Literal};"
 
-    of nkReturnStatement: # NOTE: 仮 p.53
+    of nkReturnStatement: # NOTE: p.53
         result = fmt"{self.tokenLiteral()} returnValueString;"
 
-    of nkExpressionStatement: # NOTE: 仮 p.53
+    of nkExpressionStatement: # NOTE: p.53
         result = "ExpressionStatementString dayo"
+
+    of nkIFExpression: # NOTE:
+        result = "if dayo"
 
     of nkPrefixExpression:
         let
@@ -120,8 +138,11 @@ proc astToString(self: PNode): string =
             right = self.InRight.astToString()
         result = fmt"({left} {operator} {right})"
 
-    else:
-        result = self.Token.Literal
+    else: result = self.Token.Literal
+
+proc astToString(self: BlockStatements): string =
+    #  NOTE: 仮
+    echo "block sttement"
 
 # Program
 type

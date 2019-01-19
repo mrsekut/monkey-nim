@@ -53,6 +53,8 @@ proc parseIdentifier(self: Parser): PNode
 proc parseIntegerLiteral(self: Parser): PNode
 proc parseBoolean(self: Parser): PNode
 proc parseGroupedExpression(self: Parser): PNode
+proc parseIfExpression(self: Parser): PNode
+proc parseBlockStatement(self: Parser): BlockStatements
 
 proc parsePrefixExpression(self: Parser): PNode
 proc parseInfixExpression(self: Parser, left: PNode): PNode
@@ -155,6 +157,37 @@ proc parseGroupedExpression(self: Parser): PNode =
     result = self.parseExpression(Lowest)
     if not self.expectPeek(RPAREN): return nil
 
+proc parseIfExpression(self: Parser): PNode =
+    result = PNode(
+                kind: nkIFExpression,
+                Token: self.curToken)
+
+    if not self.expectPeek(LPAREN): return nil
+    self.nextToken()
+    result.Condition = self.parseExpression(Lowest)
+
+    if not self.expectPeek(RPAREN): return nil
+    if not self.expectPeek(LBRACE): return nil
+
+    result.Consequence = self.parseBlockStatement()
+
+    if self.peekTokenIs(ELSE):
+        self.nextToken()
+        if not self.expectPeek(LBRACE): return nil
+        result.Alternative = self.parseBlockStatement()
+
+
+proc parseBlockStatement(self: Parser): BlockStatements =
+    result = BlockStatements(Token: self.curToken)
+    result.Statements = newSeq[Pnode]()
+
+    self.nextToken()
+    while not self.curTokenIs(RBRACE) and not self.curTokenIs(EOF):
+        let statement = self.parseStatement()
+        if statement != nil:
+            result.Statements.add(statement)
+        self.nextToken()
+
 proc parsePrefixExpression(self: Parser): PNode =
     # var prefix: PrefixTypes
     # case self.curToken.Token.Type
@@ -210,6 +243,7 @@ proc parseExpression(self: Parser, precedence: Precedence): PNode =
     of TRUE, FALSE: left = self.parseBoolean()
     of BANG, MINUS: left = self.parsePrefixExpression()
     of LPAREN: left = self.parseGroupedExpression()
+    of IF: left = self.parseIfExpression()
     else:
         self.noPrefixParseError()
         left = nil
@@ -262,3 +296,4 @@ proc peekError(self: Parser, t: token.TokenType) =
 proc main() = discard
 when isMainModule:
     main()
+
