@@ -35,7 +35,7 @@ const
     LBRACE*    = "{"
     RBRACE*    = "}"
 
-    PROC*      = "PROC"
+    FUNCTION*  = "FUNCTION"
     LET*       = "LET"
     TRUE*      = "TRUE"
     FALSE*     = "FALSE"
@@ -48,7 +48,7 @@ const
 
 
 var keywords = {
-    "proc":   PROC,
+    "fn":     FUNCTION,
     "let":    LET,
     "true":   TRUE,
     "false":  FALSE,

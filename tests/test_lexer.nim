@@ -8,7 +8,7 @@ suite "Lexer":
             let five = 5
             let ten = 10
 
-            proc add(x, y) =
+            fn add(x, y) =
               x + y
 
             let result = add(five, ten)
@@ -34,7 +34,7 @@ suite "Lexer":
             ( IDENT, "ten"),
             ( ASSIGN, "=" ),
             ( INT, "10" ),
-            ( PROC, "proc" ),
+            ( FUNCTION, "fn" ),
             ( IDENT, "add" ),
             ( LPAREN, "(" ),
             ( IDENT, "x" ),

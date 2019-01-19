@@ -54,6 +54,8 @@ proc parseIntegerLiteral(self: Parser): PNode
 proc parseBoolean(self: Parser): PNode
 proc parseGroupedExpression(self: Parser): PNode
 proc parseIfExpression(self: Parser): PNode
+proc parseFunctionLiteral(self: Parser): PNode
+proc parseFunctionParameters(self: Parser): seq[PNode]
 proc parseBlockStatement(self: Parser): BlockStatements
 
 proc parsePrefixExpression(self: Parser): PNode
@@ -176,6 +178,43 @@ proc parseIfExpression(self: Parser): PNode =
         if not self.expectPeek(LBRACE): return nil
         result.Alternative = self.parseBlockStatement()
 
+proc parseFunctionLiteral(self: Parser): PNode =
+    result = PNode(
+                kind: nkFunctionLiteral,
+                Token: self.curToken)
+
+    if not self.expectPeek(LPAREN): return nil
+    result.FnParameters = self.parseFunctionParameters()
+
+    if not self.expectPeek(LBRACE): return nil
+    result.FnBody = self.parseBlockStatement()
+
+proc parseFunctionParameters(self: Parser): seq[PNode] =
+    var identifiers = newSeq[PNode]()
+
+    if self.peekTokenIs(RPAREN):
+        self.nextToken()
+        return identifiers
+
+    self.nextToken()
+
+    var ident = PNode(
+                    kind: nkIdent,
+                    Token: self.curToken,
+                    IdentValue: self.curToken.Literal)
+    identifiers.add(ident)
+
+    while self.peekTokenIs(COMMA):
+        self.nextToken()
+        self.nextToken()
+        ident = PNode(
+                    kind: nkIdent,
+                    Token: self.curToken,
+                    IdentValue: self.curToken.Literal)
+        identifiers.add(ident)
+
+    if not self.expectPeek(RPAREN): return nil
+    identifiers
 
 proc parseBlockStatement(self: Parser): BlockStatements =
     result = BlockStatements(Token: self.curToken)
@@ -194,7 +233,6 @@ proc parsePrefixExpression(self: Parser): PNode =
     # of token.BANG: prefix = PrefixTypes.PrNot
     # of token.MINUS: prefix = PrefixTypes.PrMinus
     # else: discard
-
 
     let operator = self.curToken.Type
     let prefix = self.curToken.Token
@@ -244,6 +282,7 @@ proc parseExpression(self: Parser, precedence: Precedence): PNode =
     of BANG, MINUS: left = self.parsePrefixExpression()
     of LPAREN: left = self.parseGroupedExpression()
     of IF: left = self.parseIfExpression()
+    of FUNCTION: left = self.parseFunctionLiteral()
     else:
         self.noPrefixParseError()
         left = nil

@@ -27,6 +27,7 @@ proc testLiteralExpression(exp: PNode, expected: string): bool =
     of "string": return testIdentifier(exp, expected)
     else: return false
 
+# TODO: テストヘルパー関数の定義と利用
 
 
 
@@ -286,3 +287,49 @@ suite "Parser":
         let alternative = act.Alternative
         check(alternative.Statements.len == 1)
         check(alternative.Statements[0].Token.Literal == "y")
+
+    test "test functionLiteral parsing":
+        let input = """fn(x, y) { x + y }\0"""
+
+        let l = newLexer(input)
+        let p = newParser(l)
+        let program = p.parseProgram()
+        checkParserError(p)
+        check(program.statements.len == 1)
+
+        let act = program.statements[0]
+        check(act.kind == nkFunctionLiteral)
+
+        let params = act.FnParameters
+        check(params.len == 2)
+        check(params[0].Token.Literal == "x")
+        check(params[1].Token.Literal == "y")
+
+        let body = act.FnBody.Statements
+        check(body.len == 1)
+        check(body[0].InLeft.Token.Literal == "x")
+        check(body[0].InOperator == "+")
+        check(body[0].InRight.Token.Literal == "y")
+
+    test "test functionParameter parging":
+        type Test = object
+            input: string
+            expected: seq[string]
+
+        let testInputs = @[
+            Test(input: """fn() {}\0""", expected: @[]),
+            Test(input: """fn(x) {}\0""", expected: @["x"]),
+            Test(input: """fn(x, y, z) {}\0""", expected: @["x", "y", "z"])
+        ]
+
+        for i in testInputs:
+            let l = newLexer(i.input)
+            let p = newParser(l)
+            let program = p.parseProgram()
+
+            let params = program.statements[0].FnParameters
+
+            check(params.len == i.expected.len)
+
+            for idx, e in i.expected:
+                check(params[idx].Token.Literal == e)

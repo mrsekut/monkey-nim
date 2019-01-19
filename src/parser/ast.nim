@@ -42,8 +42,8 @@ type
 
         # Expression
         nkIFExpression
+        nkFunctionLiteral
         nkBlockStatement
-
 
         # PrefixExpression
         nkPrefixExpression
@@ -79,6 +79,9 @@ type
             Condition*: PNode
             Consequence*: BlockStatements
             Alternative*: BlockStatements
+        of nkFunctionLiteral:
+            FnParameters*: seq[PNode] # NOTE: 本来は,seq[nkIdent]
+            FnBody*: BlockStatements
 
         of nkPrefixExpression:
             PrOperator*: string
@@ -116,14 +119,17 @@ proc astToString(self: PNode): string =
         # let name = <expression>;
         result = fmt"{self.tokenLiteral()} {self.Name.Token.Literal} = {self.Value.Token.Literal};"
 
-    of nkReturnStatement: # NOTE: p.53
+    of nkReturnStatement: # TODO: p.53
         result = fmt"{self.tokenLiteral()} returnValueString;"
 
-    of nkExpressionStatement: # NOTE: p.53
+    of nkExpressionStatement: # TODO: p.53
         result = "ExpressionStatementString dayo"
 
-    of nkIFExpression: # NOTE:
+    of nkIFExpression: # TODO:
         result = "if dayo"
+
+    of nkFunctionLiteral: # TODO:
+        result = "function dayo"
 
     of nkPrefixExpression:
         let
@@ -141,7 +147,7 @@ proc astToString(self: PNode): string =
     else: result = self.Token.Literal
 
 proc astToString(self: BlockStatements): string =
-    #  NOTE: 仮
+    #  TODO: 仮
     echo "block sttement"
 
 # Program

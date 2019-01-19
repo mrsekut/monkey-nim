@@ -1,4 +1,5 @@
 import token
+# TODO: `\0`以外のEOF
 
 const
     chars: set[char] = {'a'..'z', 'A'..'Z', '_'}
