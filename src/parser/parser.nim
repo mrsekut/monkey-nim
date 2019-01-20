@@ -2,7 +2,6 @@ import
     ast, typetraits, sequtils, strformat, typetraits, tables, strutils,
     ../lexer/lexer, ../lexer/token
 
-
 # type
 #     PrefixTypes = enum
 #         PrPlus,
@@ -34,7 +33,7 @@ type
         l: Lexer
         curToken: Token
         peekToken: Token
-        errors: seq[string]
+        errors*: seq[string]
 
 proc tokenToPrecedence(tok: Token): Precedence
 

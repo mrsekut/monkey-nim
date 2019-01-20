@@ -1,4 +1,5 @@
 import token
+
 # TODO: `\0`以外のEOF
 
 const
@@ -86,7 +87,7 @@ proc nextToken*(self: var Lexer): token.Token =
         tok = newToken(COLON, self.ch)
     of ';':
         tok = newToken(SEMICOLON, self.ch)
-    of '\\': # 仮
+    of '\\', '\n': # 仮
         tok = newToken(EOF, self.ch)
     of '(':
         tok = newToken(LPAREN, self.ch)
