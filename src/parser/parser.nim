@@ -113,33 +113,44 @@ proc peekPrecedence(self: Parser): Precedence =
 
 # parse
 proc parseLetStatement(self: Parser): PNode =
-    result = PNode(kind: nkLetStatement, Token: self.curToken)
+    let statement = PNode(kind: nkLetStatement, Token: self.curToken)
 
     # ident
-    if not self.expectPeek(token.IDENT): return PNode(kind: Nil)
-    result.Name = PNode(
+    if not self.expectPeek(token.IDENT):
+        return PNode(kind: Nil)
+
+    statement.LetName = PNode(
                     kind: nkIdent,
                     Token: self.curToken,
                     IdentValue: self.curToken.Literal
                   )
 
-    if not self.expectPeek(token.ASSIGN): return PNode(kind: Nil)
-    self.nextToken()
+    if not self.expectPeek(token.ASSIGN):
+        return nil
 
-    result.Value = self.parseExpression(Lowest)
+    self.nextToken()
+    statement.LetValue = self.parseExpression(Lowest)
     if self.peekTokenIs(SEMICOLON):
         self.nextToken()
 
-    # ~ ;
-    while not self.curTokenIs(token.SEMICOLON):
-        self.nextToken()
+    statement
+
+    # # ~ ;
+    # while not self.curTokenIs(token.SEMICOLON):
+    #     self.nextToken()
 
 proc parseReturnStatement(self: Parser): PNode =
-    result = PNode(kind: nkReturnStatement, Token: self.curToken)
+    let statement = PNode(kind: nkReturnStatement, Token: self.curToken)
     self.nextToken()
-    result.ReturnValue = self.parseExpression(Lowest)
-    while not self.curTokenIs(token.SEMICOLON):
+    statement.ReturnValue = self.parseExpression(Lowest)
+
+    if self.peekTokenIs(SEMICOLON):
         self.nextToken()
+
+    statement
+
+    # while not self.curTokenIs(token.SEMICOLON):
+    #     self.nextToken()
 
 proc parseIdentifier(self: Parser): PNode =
     PNode(
@@ -368,6 +379,14 @@ proc peekError(self: Parser, t: token.TokenType) =
 
 
 proc main() = discard
+    # let
+    #     input = """let hoge = 1 + 2 * 3 / 4 + 5 - 6;\0"""
+    #     l = newLexer(input)
+    #     p = newParser(l)
+    #     program = p.parseProgram()
+    #     act = program.astToString()
+
+    # echo repr act
+
 when isMainModule:
     main()
-

@@ -50,7 +50,7 @@ suite "Parser":
 
         for i in 0..<program.statements.len:
             let statement = program.statements[i]
-            check(statement.Name.IdentValue == expects[i])
+            check(statement.LetName.IdentValue == expects[i])
 
 
     test "it should parse returnStatements":
@@ -378,3 +378,30 @@ suite "Parser":
             let act = program.astToString()
             check(act == i.expected)
 
+    test "test let statement":
+        type Test[T] = object
+            input: string
+            expectedIdentifier: string
+            expectedValue: T
+
+        let testInputs = @[
+            Test[int](input: """let x = 5;\0""",
+                      expectedIdentifier: "x",
+                      expectedValue: 5),
+            # Test[bool](input: """let y = true;\0""",
+            #            expectedIdentifier: "y",
+            #            expectedValue: true),
+            # Test[string](input: """let foobar = y;\0""",
+            #              expectedIdentifier: "foobar",
+            #              expectedValue: "y"),
+        ]
+
+        for i in testInputs:
+            let l = newLexer(i.input)
+            let p = newParser(l)
+            let program = p.parseProgram()
+            checkParserError(p)
+
+            let act = program.statements[0]
+            check(act.LetName.Token.Literal == i.expectedIdentifier)
+            check(act.LetValue.IntValue == i.expectedValue)

@@ -69,8 +69,8 @@ type
             BlValue*: bool
 
         of nkLetStatement:
-            Name*: PNode
-            Value*:  PNode
+            LetName*: PNode
+            LetValue*:  PNode
         of nkReturnStatement:
             ReturnValue*: PNode
         of nkExpressionStatement:
@@ -120,7 +120,7 @@ proc astToString(self: PNode): string =
     of nkBoolean: result = self.Token.Literal
 
     of nkLetStatement:
-        result = fmt"{self.tokenLiteral()} {self.Name.Token.Literal} = {self.Value.Token.Literal};"
+        result = fmt"{self.tokenLiteral()} {self.LetName.Token.Literal} = {self.LetValue.Token.Literal};"
 
     of nkReturnStatement: # TODO: p.53
         result = fmt"{self.tokenLiteral()} returnValueString;"

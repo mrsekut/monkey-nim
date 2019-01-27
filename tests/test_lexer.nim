@@ -4,7 +4,7 @@ import ../src/lexer/token
 
 suite "Lexer":
     test "it analysis simple code":
-        let input: string = """
+        let input = """
             let five = 5
             let ten = 10
 

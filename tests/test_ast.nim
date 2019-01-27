@@ -13,12 +13,12 @@ suite "AST":
                 PNode(
                     kind: nkLetStatement,
                     Token: Token(Type: token.LET, Literal: "let"),
-                    Name: PNode(
+                    LetName: PNode(
                         kind: nkIdent,
                         Token: Token(Type: token.IDENT, Literal: "myVar"),
                         IdentValue: "myVar"
                     ),
-                    Value: PNode(
+                    LetValue: PNode(
                         kind: nkIdent,
                         Token: Token(Type: token.IDENT, Literal: "anotherVar"),
                         IdentValue: "anotherVar"

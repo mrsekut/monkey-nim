@@ -135,6 +135,5 @@ proc nextToken*(self: var Lexer): token.Token =
     tok
 
 proc main() = discard
-
 when isMainModule:
   main()
