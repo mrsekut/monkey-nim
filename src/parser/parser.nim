@@ -120,10 +120,9 @@ proc parseLetStatement(self: Parser): PNode =
         return PNode(kind: Nil)
 
     statement.LetName = PNode(
-                    kind: nkIdent,
-                    Token: self.curToken,
-                    IdentValue: self.curToken.Literal
-                  )
+                            kind: nkIdent,
+                            Token: self.curToken,
+                            IdentValue: self.curToken.Literal)
 
     if not self.expectPeek(token.ASSIGN):
         return nil
@@ -134,10 +133,6 @@ proc parseLetStatement(self: Parser): PNode =
         self.nextToken()
 
     statement
-
-    # # ~ ;
-    # while not self.curTokenIs(token.SEMICOLON):
-    #     self.nextToken()
 
 proc parseReturnStatement(self: Parser): PNode =
     let statement = PNode(kind: nkReturnStatement, Token: self.curToken)
@@ -378,15 +373,17 @@ proc peekError(self: Parser, t: token.TokenType) =
     self.errors.add(msg)
 
 
-proc main() = discard
-    # let
-    #     input = """let hoge = 1 + 2 * 3 / 4 + 5 - 6;\0"""
-    #     l = newLexer(input)
-    #     p = newParser(l)
-    #     program = p.parseProgram()
-    #     act = program.astToString()
+proc main() =  #discard
+    let
+        # input = """let hoge = 1 + 2 * 3 / 4 + 5 - 6;\0"""
+        input = """return 5 + 4;\0"""
+        l = newLexer(input)
+        p = newParser(l)
+        program = p.parseProgram()
+        act = program.statements[0]
 
-    # echo repr act
+    echo repr act
+    echo program.astToString()
 
 when isMainModule:
     main()

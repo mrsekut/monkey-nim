@@ -120,10 +120,10 @@ proc astToString(self: PNode): string =
     of nkBoolean: result = self.Token.Literal
 
     of nkLetStatement:
-        result = fmt"{self.tokenLiteral()} {self.LetName.Token.Literal} = {self.LetValue.Token.Literal};"
+        result = fmt"{self.tokenLiteral()} {self.LetName.Token.Literal} = {self.LetValue.astToString()};"
 
-    of nkReturnStatement: # TODO: p.53
-        result = fmt"{self.tokenLiteral()} returnValueString;"
+    of nkReturnStatement:
+        result = fmt"{self.tokenLiteral()} {self.ReturnValue.astToString()};"
 
     of nkExpressionStatement: # TODO: p.53
         result = "ExpressionStatementString dayo"
@@ -133,6 +133,7 @@ proc astToString(self: PNode): string =
 
     of nkFunctionLiteral: # TODO:
         result = "function dayo"
+
     of nkCallExpression:
         var args = newSeq[string]()
         for arg in self.Args:
