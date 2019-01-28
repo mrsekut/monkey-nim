@@ -1,56 +1,40 @@
-# import
-#     unittest,
-#     ../src/parser/parser,
-#     ../src/lexer/lexer,
-#     ../src/obj/obj
+import
+    unittest,
+    ../src/parser/parser,
+    ../src/lexer/lexer,
+    ../src/obj/obj,
+    ../src/evaluator/evaluator
 
-# proc testEvalIntegerExpression(): bool
-# proc testEval(input: string): Object
-# proc testIntegerObject(obj: Object, expexted: int): bool
+proc testEvalIntegerExpression()
+proc testEval(input: string): Object
+proc testIntegerObject(obj: Object, expexted: int): bool
 
-# proc testIntegerObject(obj: Object, expexted: int): bool =
-#     if(obj.kind ==  )
+proc testIntegerObject(obj: Object, expexted: int): bool =
+    if(obj.kind != Integer): return false
+    if(obj.IntValue != expexted): return false
+    return true
 
-# proc testEvalIntegerExpression(): bool =
-#     type Test = object
-#         input: string
-#         expected: int
+proc testEvalIntegerExpression() =
+    type Test = object
+        input: string
+        expected: int
 
-#     let testInput = @[
-#             Test(input: "5", expected: 5),
-#             Test(input: "10", expected: 10)]
+    let testInput = @[
+            Test(input: """5\0""", expected: 5),
+            Test(input: """10\0""", expected: 10)]
 
-#     for t in testInput:
-#         let evaluated = testEval(t.input)
-#         testIntegerObject(evaluated, t.expected)
+    for t in testInput:
+        let evaluated = testEval(t.input)
+        check(testIntegerObject(evaluated, t.expected))
 
-# proc testEval(input: string): Object =
-#     let
-#         l = newLexer(input)
-#         p = newParser(l)
-#         program = p.parseProgram()
+proc testEval(input: string): Object =
+    let
+        l = newLexer(input)
+        p = newParser(l)
+        program = p.parseProgram()
 
-#     return Eval(program)
+    return eval(program)
 
-# suite "REPL":
-#     test "test IntegerObject":
-#         echo "hello"
-
-# #         let input = """
-# #             let x = 5;
-# #             let y = 10;
-# #             let foobar = 838383;\0
-# #         """
-
-# #         let l = newLexer(input)
-# #         let p = newParser(l)
-
-# #         let program = p.parseProgram()
-# #         checkParserError(p)
-# #         check(program.statements.len == 3)
-
-# #         let expects = @["x", "y", "foobar"]
-
-# #         for i in 0..<program.statements.len:
-# #             let statement = program.statements[i]
-# #             check(statement.LetName.IdentValue == expects[i])
+suite "REPL":
+    test "test IntegerObject":
+        testEvalIntegerExpression()
