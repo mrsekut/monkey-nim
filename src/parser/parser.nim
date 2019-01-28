@@ -66,7 +66,7 @@ proc parseExpressionStatement(self: Parser): PNode
 proc parseStatement(self: Parser): PNode
 proc parseExpression(self: Parser, precedence: Precedence): PNode
 
-proc parseProgram*(self: Parser): Program
+proc parseProgram*(self: Parser): PNode
 proc error*(self: Parser): seq[string]
 proc noPrefixParseError(self: Parser)
 proc peekError(self: Parser, t: token.TokenType)
@@ -353,15 +353,14 @@ proc parseStatement(self: Parser): PNode =
     else: return self.parseExpressionStatement()
 
 # create AST Root Node
-proc parseProgram*(self: Parser): Program =
-    result = Program()
+proc parseProgram*(self: Parser): PNode =
+    result = PNode(kind: Program)
     result.statements = newSeq[PNode]()
 
     while self.curToken.Type != token.EOF:
         let statement = self.parseStatement()
         result.statements.add(statement)
         self.nextToken()
-
 
 proc error*(self: Parser): seq[string] = self.errors
 
@@ -373,18 +372,7 @@ proc peekError(self: Parser, t: token.TokenType) =
     self.errors.add(msg)
 
 
-proc main() =  #discard
-    let
-        input = """3 * 4\0"""
-        # input = """let hoge = 1 + 2 * 3 / 4 + 5 * 6;\0"""
-        l = newLexer(input)
-        p = newParser(l)
-        program = p.parseProgram()
-        act = program.statements[0]
-
-    echo repr act
-    echo program.astToString()
-
+proc main() = discard
 when isMainModule:
     main()
 

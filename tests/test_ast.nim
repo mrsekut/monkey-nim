@@ -8,7 +8,8 @@ import
 suite "AST":
     test "it should parse index letStatement":
         check(true==true)
-        let program = Program(
+        let program = PNode(
+            kind: Program,
             statements: @[
                 PNode(
                     kind: nkLetStatement,
