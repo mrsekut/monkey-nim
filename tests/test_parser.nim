@@ -1,5 +1,5 @@
 import
-    unittest, strformat, typetraits,
+    strutils, unittest, strformat, typetraits,
     ../src/parser/ast,
     ../src/parser/parser,
     ../src/lexer/lexer
@@ -9,25 +9,37 @@ proc checkParserError(self: Parser): void =
     if errors.len == 0: return
     echo fmt"parser has {errors.len} errors"
 
-proc testIntegerLiteral(exp: PNode, value: int): bool =
-    exp.Token.Literal == $value
+# # TODO: テストヘルパー関数の定義と利用
+# proc testIntegerLiteral(exp: PNode, value: int): bool =
+#     if(exp.kind != nkIntegerLiteral): return false
 
-proc testIdentifier(exp: PNode, value: string): bool =
-    if(exp.kind != nkIdent): return false
+#     let integer = exp.IntValue
+#     if(integer != value): return false
+#     if(exp.Token.Literal != $value): return false
+#     return true
 
-    let ident = exp.IdentValue
-    if(ident != value): return false
-    if(exp.Token.Literal != value): return false
-    return true
+# proc testIdentifier(exp: PNode, value: string): bool =
+#     if(exp.kind != nkIdent): return false
 
-proc testLiteralExpression(exp: PNode, expected: string): bool =
-    let v = expected.type.name
-    case v
-    # of "int": return testIntegerLiteral(exp, parseint(expected))
-    of "string": return testIdentifier(exp, expected)
-    else: return false
+#     let ident = exp.IdentValue
+#     if(ident != value): return false
+#     if(exp.Token.Literal != value): return false
+#     return true
 
-# TODO: テストヘルパー関数の定義と利用
+# proc testBooleanLiteral(exp: PNode, value: bool): bool =
+#     if(exp.kind != nkBoolean): return false
+
+#     let boolean = exp.BlValue
+#     if(boolean != value): return false
+#     if(exp.Token.Literal != $value): return false
+
+# proc testLiteralExpression(exp: PNode, expected: auto): bool =
+#     let v = expected.type.name
+#     case v
+#     of "int": return testIntegerLiteral(exp, expected.parseInt)
+#     of "string": return testIdentifier(exp, expected)
+#     else: return false
+
 
 
 
@@ -174,9 +186,9 @@ suite "Parser":
     #         check(program.statements.len == 1)
 
     #         let exp = program.statements[0]
-    #         check(testIntegerLiteral(exp.InLeft.IntValue, i.leftValue))
+    #         check(testIntegerLiteral(exp.InLeft, i.leftValue))
     #         check(exp.InOperator == i.operator)
-    #         check(testIntegerLiteral(exp.InRight.IntValue, i.rightValue))
+    #         check(testIntegerLiteral(exp.InRight, i.rightValue))
 
     test "test operator precedenve parsing":
 
@@ -384,24 +396,32 @@ suite "Parser":
             expectedIdentifier: string
             expectedValue: T
 
-        let testInputs = @[
-            Test[int](input: """let x = 5;\0""",
-                      expectedIdentifier: "x",
-                      expectedValue: 5),
-            # Test[bool](input: """let y = true;\0""",
-            #            expectedIdentifier: "y",
-            #            expectedValue: true),
-            # Test[string](input: """let foobar = y;\0""",
-            #              expectedIdentifier: "foobar",
-            #              expectedValue: "y"),
-        ]
+        let testInt = Test[int](input: """let x = 5;\0""",
+                                expectedIdentifier: "x",
+                                expectedValue: 5)
 
-        for i in testInputs:
-            let l = newLexer(i.input)
+        let testBool = Test[bool](input: """let y = true;\0""",
+                                    expectedIdentifier: "y",
+                                    expectedValue: true)
+
+        let testStr = Test[string](input: """let foobar = y;\0""",
+                                    expectedIdentifier: "foobar",
+                                    expectedValue: "y")
+
+        proc tes[T](test: Test[T]): PNode =
+            let l = newLexer(test.input)
             let p = newParser(l)
             let program = p.parseProgram()
             checkParserError(p)
 
-            let act = program.statements[0]
-            check(act.LetName.Token.Literal == i.expectedIdentifier)
-            check(act.LetValue.IntValue == i.expectedValue)
+            result = program.statements[0]
+            check(result.LetName.Token.Literal == test.expectedIdentifier)
+
+        var actInt = tes(testInt)
+        check(actInt.LetValue.IntValue == testInt.expectedValue)
+
+        var actBool = tes(testBool)
+        check(actBool.LetValue.BlValue == testBool.expectedValue)
+
+        var actStr = tes(testStr)
+        check(actStr.LetValue.IdentValue == testStr.expectedValue)

@@ -375,8 +375,8 @@ proc peekError(self: Parser, t: token.TokenType) =
 
 proc main() =  #discard
     let
-        # input = """let hoge = 1 + 2 * 3 / 4 + 5 - 6;\0"""
-        input = """return 5 + 4;\0"""
+        input = """3 * 4\0"""
+        # input = """let hoge = 1 + 2 * 3 / 4 + 5 * 6;\0"""
         l = newLexer(input)
         p = newParser(l)
         program = p.parseProgram()
@@ -387,3 +387,4 @@ proc main() =  #discard
 
 when isMainModule:
     main()
+
