@@ -12,6 +12,7 @@ proc evalStatements(statements: seq[PNode]): Object
 proc nativeBoolToBooleanObject(input: bool): Object
 proc evalPrefixExpression(operator: string, right: Object): Object
 proc evalBanOperationExpression(right: Object): Object
+proc evalMinusPrefixOperatorExpression(right: Object): Object
 
 # implementation
 
@@ -42,6 +43,7 @@ proc nativeBoolToBooleanObject(input: bool): Object =
 proc evalPrefixExpression(operator: string, right: Object): Object =
     case operator
     of "!": return evalBanOperationExpression(right)
+    of "-": return evalMinusPrefixOperatorExpression(right)
     else: return NULL
 
 proc evalBanOperationExpression(right: Object): Object =
@@ -52,6 +54,14 @@ proc evalBanOperationExpression(right: Object): Object =
         of false: result = TRUE
     of TNull: result = TRUE
     else: result = FALSE
+
+proc evalMinusPrefixOperatorExpression(right: Object): Object =
+    if right.myType() != obj.INTEGER_OBJ:
+        return NULL
+    let value = right.IntValue
+    return Object(kind: Integer, IntValue: -value)
+
+
 
 # test
 # =================

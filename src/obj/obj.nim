@@ -5,7 +5,7 @@ type
         TNull
 
 type
-    ObjectType = enum
+    ObjectType* = enum
         INTEGER_OBJ = "INTEGER"
         BOOLEAN_OBJ = "BOOLEAN"
         NULL_OBJ = "NULL"
@@ -22,7 +22,7 @@ type
         else: discard
 
 proc inspect*(self: Object): string
-proc type(self: Object): ObjectType
+proc myType*(self: Object): ObjectType
 
 
 proc inspect*(self: Object): string =
@@ -32,9 +32,9 @@ proc inspect*(self: Object): string =
     of Boolean:
         result = $self.BoolValue
     of TNull:
-        result = "string"
+        result = "null"
 
-proc type(self: Object): ObjectType =
+proc myType*(self: Object): ObjectType =
     case self.kind:
     of Integer:
         result = INTEGER_OBJ

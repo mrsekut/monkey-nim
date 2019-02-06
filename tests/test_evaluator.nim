@@ -35,7 +35,9 @@ suite "REPL":
 
         let testInput = @[
                 Test(input: """5\0""", expected: 5),
-                Test(input: """10\0""", expected: 10)]
+                Test(input: """10\0""", expected: 10),
+                Test(input: """-5\0""", expected: -5),
+                Test(input: """-10\0""", expected: -10)]
 
         for t in testInput:
             let evaluated = testEval(t.input)
