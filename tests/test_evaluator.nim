@@ -54,3 +54,20 @@ suite "REPL":
         for t in testInput:
             let evaluated = testEval(t.input)
             check(testBoolObject(evaluated, t.expected))
+
+    test "test BangOperator":
+        type Test = object
+            input: string
+            expected: bool
+
+        let testInput = @[
+                Test(input: """!true\0""", expected: false),
+                Test(input: """!false\0""", expected: true),
+                Test(input: """!5\0""", expected: false),
+                Test(input: """!!true\0""", expected: true),
+                Test(input: """!!false\0""", expected: false),
+                Test(input: """!!5\0""", expected: true)]
+
+        for t in testInput:
+            let evaluated = testEval(t.input)
+            check(testBoolObject(evaluated, t.expected))

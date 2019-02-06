@@ -5,11 +5,13 @@ import
 let
     TRUE = Object(kind: Boolean, BoolValue: true)
     FALSE = Object(kind: Boolean, BoolValue: false)
-    NULL = Object(kind: Null)
+    NULL = Object(kind: TNull)
 
 proc eval*(self: PNode): Object
 proc evalStatements(statements: seq[PNode]): Object
 proc nativeBoolToBooleanObject(input: bool): Object
+proc evalPrefixExpression(operator: string, right: Object): Object
+proc evalBanOperationExpression(right: Object): Object
 
 # implementation
 
@@ -22,8 +24,10 @@ proc eval*(self: PNode): Object =
     of nkIntegerLiteral:
         result = Object(kind: Integer, IntValue: self.IntValue)
     of nkBoolean:
-        # result = Object(kind: Boolean, BoolValue: self.BlValue)
         result = nativeBoolToBooleanObject(self.BlValue)
+    of nkPrefixExpression:
+        let right = eval(self.PrRight)
+        result = evalPrefixExpression(self.PrOperator, right)
     else: discard
 
 proc evalStatements(statements: seq[PNode]): Object =
@@ -35,19 +39,19 @@ proc nativeBoolToBooleanObject(input: bool): Object =
     if input: return TRUE
     return FALSE
 
+proc evalPrefixExpression(operator: string, right: Object): Object =
+    case operator
+    of "!": return evalBanOperationExpression(right)
+    else: return NULL
 
-
-
-
-
-
-
-
-
-
-
-
-
+proc evalBanOperationExpression(right: Object): Object =
+    case right.kind
+    of Boolean:
+        case right.BoolValue
+        of true: result = FALSE
+        of false: result = TRUE
+    of TNull: result = TRUE
+    else: result = FALSE
 
 # test
 # =================

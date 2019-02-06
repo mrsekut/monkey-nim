@@ -2,7 +2,7 @@ type
     TObjectKind* = enum
         Integer
         Boolean
-        Null
+        TNull
 
 type
     ObjectType = enum
@@ -17,7 +17,7 @@ type
             IntValue*: int
         of Boolean:
             BoolValue*: bool
-        of Null:
+        of TNull:
             discard
         else: discard
 
@@ -31,7 +31,7 @@ proc inspect*(self: Object): string =
         result = $self.IntValue
     of Boolean:
         result = $self.BoolValue
-    of Null:
+    of TNull:
         result = "string"
 
 proc type(self: Object): ObjectType =
@@ -40,5 +40,5 @@ proc type(self: Object): ObjectType =
         result = INTEGER_OBJ
     of Boolean:
         result = BOOLEAN_OBJ
-    of Null:
+    of TNull:
         result = NULL_OBJ
