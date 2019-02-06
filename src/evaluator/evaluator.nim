@@ -2,6 +2,10 @@ import
     ../parser/ast,
     ../obj/obj
 
+let
+    TRUE = Object(kind: Boolean, BoolValue: true)
+    FALSE = Object(kind: Boolean, BoolValue: false)
+
 proc eval*(self: PNode): Object
 proc evalStatements(statements: seq[PNode]): Object
 
@@ -15,6 +19,8 @@ proc eval*(self: PNode): Object =
         result = eval(self.Expression)
     of nkIntegerLiteral:
         result = Object(kind: Integer, IntValue: self.IntValue)
+    of nkBoolean:
+        result = Object(kind: Boolean, BoolValue: self.BlValue)
     else: discard
 
 proc evalStatements(statements: seq[PNode]): Object =
@@ -22,8 +28,26 @@ proc evalStatements(statements: seq[PNode]): Object =
     for statement in statements:
         result = eval(statement)
 
+proc nativeBoolToBooleanObject(input: bool): Object =
+    if input: return TRUE
+    return FALSE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # test
+# =================
 import
     ../parser/ast,
     ../parser/parser,
