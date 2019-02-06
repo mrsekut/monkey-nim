@@ -38,3 +38,4 @@ proc testEval(input: string): Object =
 suite "REPL":
     test "test IntegerObject":
         testEvalIntegerExpression()
+

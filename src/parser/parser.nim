@@ -2,32 +2,6 @@ import
     ast, typetraits, sequtils, strformat, typetraits, tables, strutils,
     ../lexer/lexer, ../lexer/token
 
-# type
-#     PrefixTypes = enum
-#         PrPlus,
-#         PrMinus,
-#         PrNot
-
-#     InfixTypes = enum
-#         InPlus,
-#         InMinus,
-#         InDivide,
-#         InMultiply,
-#         InEq,
-#         InNot_Eq,
-#         InGt,
-#         InLT
-
-
-#     Precedence = enum
-#         Lowest,
-#         Equals,
-#         Lg,
-#         Sum,
-#         Product,
-#         Prefix,
-#         Call
-
 type
     Parser* = ref object of RootObj
         l: Lexer
@@ -75,11 +49,11 @@ proc peekError(self: Parser, t: token.TokenType)
 
 proc tokenToPrecedence(tok: Token): Precedence =
     case tok.Type
-    of EQ, NOT_EQ: return Precedence.Equals
-    of LT, GT: return Precedence.Lg
-    of PLUS, MINUS: return Precedence.Sum
-    of SLASH, ASTERISC: return Precedence.Product
     of LPAREN: return Precedence.Call
+    of SLASH, ASTERISC: return Precedence.Product
+    of PLUS, MINUS: return Precedence.Sum
+    of LT, GT: return Precedence.Lg
+    of EQ, NOT_EQ: return Precedence.Equals
     else: return Precedence.Lowest
 
 proc newParser*(l: Lexer): Parser =
@@ -143,9 +117,6 @@ proc parseReturnStatement(self: Parser): PNode =
         self.nextToken()
 
     statement
-
-    # while not self.curTokenIs(token.SEMICOLON):
-    #     self.nextToken()
 
 proc parseIdentifier(self: Parser): PNode =
     PNode(
@@ -244,12 +215,12 @@ proc parseCallArgs(self: Parser): seq[PNode] =
     self.nextToken()
     self.nextToken()
 
-    args.add(self.parseExpression(Lowest))
+    args.add(self.parseExpression(Precedence.Lowest))
 
     while self.peekTokenIs(COMMA):
         self.nextToken()
         self.nextToken()
-        args.add(self.parseExpression(Lowest))
+        args.add(self.parseExpression(Precedence.Lowest))
 
     if not self.expectPeek(RPAREN): return nil
 
@@ -267,12 +238,6 @@ proc parseBlockStatement(self: Parser): BlockStatements =
         self.nextToken()
 
 proc parsePrefixExpression(self: Parser): PNode =
-    # var prefix: PrefixTypes
-    # case self.curToken.Token.Type
-    # of token.BANG: prefix = PrefixTypes.PrNot
-    # of token.MINUS: prefix = PrefixTypes.PrMinus
-    # else: discard
-
     let operator = self.curToken.Type
     let prefix = self.curToken.Token
     self.nextToken()
@@ -286,18 +251,6 @@ proc parsePrefixExpression(self: Parser): PNode =
     )
 
 proc parseInfixExpression(self: Parser, left: PNode): PNode =
-    # var infix: InfixTypes
-    # case self.curToken
-    # of PLUS: infix = InfixTypes.PLUS
-    # of MINUS: infix = InfixTypes.MINUS
-    # of SLASH: infix = InfixTypes.DIVIDE
-    # of ASTERISC: infix = InfixTypes.MULTIPLY
-    # of EQUALS: infix = InfixTypes.EQ
-    # of NOT_EQ: infix = InfixTypes.NOT_EQ
-    # of GT: infix = InfixTypes.GT
-    # of LT: infix = InfixTypes.LT
-    # else: discard
-
     let operator = self.curToken.Type
     let p = self.curPrecedence()
     self.nextToken()
@@ -337,14 +290,12 @@ proc parseExpression(self: Parser, precedence: Precedence): PNode =
         else:
             return left
 
-    left
+    return left
 
 proc parseExpressionStatement(self: Parser): PNode =
-    let statement = self.parseExpression(Precedence.Lowest)
-    # if self.parseExpression(Precedence.Lowest).type.name == "PNode":
+    result = self.parseExpression(Precedence.Lowest)
     if self.peekTokenIs(SEMICOLON):
         self.nextToken()
-    return statement
 
 proc parseStatement(self: Parser): PNode =
     case self.curToken.Type
@@ -372,20 +323,6 @@ proc peekError(self: Parser, t: token.TokenType) =
     self.errors.add(msg)
 
 
-proc main() =  #discard
-    let
-        input = """3 * 4\0"""
-        # input = """let hoge = 1 + 2 * 3 / 4 + 5 * 6;\0"""
-        l = newLexer(input)
-        p = newParser(l)
-        program = p.parseProgram()
-        act = program.statements[0]
-
-    echo repr program
-    echo repr act
-    echo program.astToString()
-    echo act.astToString()
-
+proc main() = discard
 when isMainModule:
     main()
-

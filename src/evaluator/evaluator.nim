@@ -23,6 +23,7 @@ proc evalStatements(statements: seq[PNode]): Object =
         result = eval(statement)
 
 
+# test
 import
     ../parser/ast,
     ../parser/parser,
