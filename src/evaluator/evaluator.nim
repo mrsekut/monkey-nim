@@ -5,9 +5,11 @@ import
 let
     TRUE = Object(kind: Boolean, BoolValue: true)
     FALSE = Object(kind: Boolean, BoolValue: false)
+    NULL = Object(kind: Null)
 
 proc eval*(self: PNode): Object
 proc evalStatements(statements: seq[PNode]): Object
+proc nativeBoolToBooleanObject(input: bool): Object
 
 # implementation
 
@@ -20,7 +22,8 @@ proc eval*(self: PNode): Object =
     of nkIntegerLiteral:
         result = Object(kind: Integer, IntValue: self.IntValue)
     of nkBoolean:
-        result = Object(kind: Boolean, BoolValue: self.BlValue)
+        # result = Object(kind: Boolean, BoolValue: self.BlValue)
+        result = nativeBoolToBooleanObject(self.BlValue)
     else: discard
 
 proc evalStatements(statements: seq[PNode]): Object =
