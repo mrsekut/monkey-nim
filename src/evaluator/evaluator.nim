@@ -13,6 +13,8 @@ proc nativeBoolToBooleanObject(input: bool): Object
 proc evalPrefixExpression(operator: string, right: Object): Object
 proc evalBanOperationExpression(right: Object): Object
 proc evalMinusPrefixOperatorExpression(right: Object): Object
+proc evalInfixExpression(operator: string, left: Object, right: Object): Object
+proc evalIntegerInfixExpression(operator: string, left: Object, right: Object): Object
 
 # implementation
 
@@ -29,6 +31,11 @@ proc eval*(self: PNode): Object =
     of nkPrefixExpression:
         let right = eval(self.PrRight)
         result = evalPrefixExpression(self.PrOperator, right)
+    of nkInfixExpression:
+        let
+            left = eval(self.InLeft)
+            right = eval(self.InRight)
+        result = evalInfixExpression(self.InOperator, left, right)
     else: discard
 
 proc evalStatements(statements: seq[PNode]): Object =
@@ -60,6 +67,35 @@ proc evalMinusPrefixOperatorExpression(right: Object): Object =
         return NULL
     let value = right.IntValue
     return Object(kind: Integer, IntValue: -value)
+
+proc evalInfixExpression(operator: string, left: Object, right: Object): Object =
+    if (left.myType() == obj.INTEGER_OBJ) and right.myType() == obj.INTEGER_OBJ:
+        return evalIntegerInfixExpression(operator, left, right)
+    else:
+        return NULL
+
+proc evalIntegerInfixExpression(operator: string, left: Object, right: Object): Object =
+    let
+        leftVal = left.IntValue
+        rightVal = right.IntValue
+
+    case operator
+    of "+":
+        result = Object(kind: Integer, IntValue: leftVal + rightVal)
+    of "-":
+        result = Object(kind: Integer, IntValue: leftVal - rightVal)
+    of "*":
+        result = Object(kind: Integer, IntValue: leftVal * rightVal)
+    of "/":
+        result = Object(kind: Integer, IntValue: (leftVal / rightVal).toInt)
+    else:
+        result = NULL
+
+
+
+
+
+
 
 
 
