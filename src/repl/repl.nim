@@ -1,4 +1,9 @@
-import ../lexer/lexer, ../parser/parser, ../parser/ast
+import
+    ../lexer/lexer,
+    ../parser/parser,
+    ../parser/ast,
+    ../evaluator/evaluator,
+    ../obj/obj
 
 const MONKEY_FACE = """           __,__
    .--.  .-'     '-.  .--.
@@ -31,7 +36,9 @@ proc start() =
             printParserErrors(p.errors)
             continue
 
-        echo program.astToString()
+        let evaluated = evaluator.eval(program)
+        if evaluated != nil:
+            echo evaluated.inspect()
 
 
 proc main() = start()

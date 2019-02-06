@@ -21,11 +21,11 @@ type
             discard
         else: discard
 
-proc Inspect(self: Object): string
+proc inspect*(self: Object): string
 proc type(self: Object): ObjectType
 
 
-proc Inspect(self: Object): string =
+proc inspect*(self: Object): string =
     case self.kind:
     of Integer:
         result = $self.IntValue
