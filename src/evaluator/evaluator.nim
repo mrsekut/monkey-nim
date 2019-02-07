@@ -3,9 +3,9 @@ import
     ../obj/obj
 
 let
-    TRUE = Object(kind: Boolean, BoolValue: true)
-    FALSE = Object(kind: Boolean, BoolValue: false)
-    NULL = Object(kind: TNull)
+    TRUE* = Object(kind: Boolean, BoolValue: true)
+    FALSE* = Object(kind: Boolean, BoolValue: false)
+    NULL* = Object(kind: TNull)
 
 proc eval*(self: PNode): Object
 proc evalStatements(statements: seq[PNode]): Object
@@ -15,6 +15,8 @@ proc evalBanOperationExpression(right: Object): Object
 proc evalMinusPrefixOperatorExpression(right: Object): Object
 proc evalInfixExpression(operator: string, left: Object, right: Object): Object
 proc evalIntegerInfixExpression(operator: string, left: Object, right: Object): Object
+proc evalIfExpression(ie: PNode): Object
+proc isTruthy(obj: Object): bool
 
 # implementation
 
@@ -36,6 +38,10 @@ proc eval*(self: PNode): Object =
             left = eval(self.InLeft)
             right = eval(self.InRight)
         result = evalInfixExpression(self.InOperator, left, right)
+    of nkBlockStatement:
+        result = evalStatements(self.statements)
+    of nkIFExpression:
+        result = evalIfExpression(self)
     else: discard
 
 proc evalStatements(statements: seq[PNode]): Object =
@@ -103,8 +109,23 @@ proc evalIntegerInfixExpression(operator: string, left: Object, right: Object): 
     else:
         result = NULL
 
+proc evalIfExpression(ie: PNode): Object =
+    let condition = eval(ie.Condition)
 
+    if isTruthy(condition):
+        return eval(ie.Consequence.Statements[0])
+    elif ie.Alternative != nil:
+        return eval(ie.Alternative.Statements[0])
+    else: return NULL
 
+proc isTruthy(obj: Object): bool =
+    case obj.kind:
+    of Boolean:
+        case obj.BoolValue
+        of false: return false
+        of true: return true
+    of TNull: return false
+    else: return true
 
 
 

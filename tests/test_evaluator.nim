@@ -19,6 +19,10 @@ proc testBoolObject(obj: Object, expexted: bool): bool =
     if(obj.BoolValue != expexted): return false
     return true
 
+proc testNullObject(obj: Object): bool =
+    if(obj.kind != TNull): return false
+    return true
+
 proc testEval(input: string): Object =
     let
         l = newLexer(input)
@@ -107,3 +111,32 @@ suite "REPL":
         for t in testInput:
             let evaluated = testEval(t.input)
             check(testBoolObject(evaluated, t.expected))
+
+
+    test "test eval ifElseExpression":
+        type Test = object
+            input: string
+            expected: int
+
+        let testInput = @[
+                Test(input: """if (true) { 10 }\0""", expected: 10),
+                Test(input: """if (1) { 10 }\0""", expected: 10),
+                Test(input: """if (1 < 2) { 10 }\0""", expected: 10),
+                Test(input: """if (1 > 2) { 10 } else { 20 }\0""", expected: 20),
+                Test(input: """if (1 < 2) { 10 } else { 20 }\0""", expected: 10)]
+
+        for t in testInput:
+            let evaluated = testEval(t.input)
+            check(testIntegerObject(evaluated, t.expected))
+
+        type TestNull = object
+            input: string
+            expected: string
+
+        let testInputNull = @[
+                TestNull(input: """if (false) { 10 }\0""", expected: "null"),
+                TestNull(input: """if (1 > 2) { 10 }\0""", expected: "null")]
+
+        for t in testInputNull:
+            let evaluated = testEval(t.input)
+            check(testNullObject(evaluated))
