@@ -28,7 +28,7 @@ proc testEval(input: string): Object =
     return eval(program)
 
 suite "REPL":
-    test "test IntegerObject":
+    test "test eval IntegerObject":
         type Test = object
             input: string
             expected: int
@@ -57,20 +57,40 @@ suite "REPL":
             check(testIntegerObject(evaluated, t.expected))
 
 
-    test "test BooleanObject":
+    test "test eval BooleanExpression":
         type Test = object
             input: string
             expected: bool
 
         let testInput = @[
                 Test(input: """true\0""", expected: true),
-                Test(input: """false\0""", expected: false)]
+                Test(input: """false\0""", expected: false),
+
+                Test(input: """1 < 2\0""", expected: true),
+                Test(input: """1 > 2\0""", expected: false),
+                Test(input: """1 < 1\0""", expected: false),
+                Test(input: """1 > 1\0""", expected: false),
+                Test(input: """1 == 1\0""", expected: true),
+                Test(input: """1 != 1\0""", expected: false),
+                Test(input: """1 == 2\0""", expected: false),
+                Test(input: """1 != 2\0""", expected: true),
+
+                Test(input: """true == true\0""", expected: true),
+                Test(input: """false == false\0""", expected: true),
+                Test(input: """true == false\0""", expected: false),
+                Test(input: """true != false\0""", expected: true),
+                Test(input: """false != true\0""", expected: true),
+
+                Test(input: """(1 < 2) == true\0""", expected: true),
+                Test(input: """(1 < 2) == false\0""", expected: false),
+                Test(input: """(1 > 2) == true\0""", expected: false),
+                Test(input: """(1 > 2) == false\0""", expected: true)]
 
         for t in testInput:
             let evaluated = testEval(t.input)
             check(testBoolObject(evaluated, t.expected))
 
-    test "test BangOperator":
+    test "test eval BangOperator":
         type Test = object
             input: string
             expected: bool
@@ -79,6 +99,7 @@ suite "REPL":
                 Test(input: """!true\0""", expected: false),
                 Test(input: """!false\0""", expected: true),
                 Test(input: """!5\0""", expected: false),
+
                 Test(input: """!!true\0""", expected: true),
                 Test(input: """!!false\0""", expected: false),
                 Test(input: """!!5\0""", expected: true)]

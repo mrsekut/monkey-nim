@@ -71,6 +71,10 @@ proc evalMinusPrefixOperatorExpression(right: Object): Object =
 proc evalInfixExpression(operator: string, left: Object, right: Object): Object =
     if (left.myType() == obj.INTEGER_OBJ) and right.myType() == obj.INTEGER_OBJ:
         return evalIntegerInfixExpression(operator, left, right)
+    elif (operator == "=="):
+        return nativeBoolToBooleanObject(left == right)
+    elif (operator == "!="):
+        return nativeBoolToBooleanObject(left != right)
     else:
         return NULL
 
@@ -88,6 +92,14 @@ proc evalIntegerInfixExpression(operator: string, left: Object, right: Object): 
         result = Object(kind: Integer, IntValue: leftVal * rightVal)
     of "/":
         result = Object(kind: Integer, IntValue: (leftVal / rightVal).toInt)
+    of "<":
+        result = nativeBoolToBooleanObject(leftVal < rightVal)
+    of ">":
+        result = nativeBoolToBooleanObject(leftVal > rightVal)
+    of "==":
+        result = nativeBoolToBooleanObject(leftVal == rightVal)
+    of "!=":
+        result = nativeBoolToBooleanObject(leftVal != rightVal)
     else:
         result = NULL
 
