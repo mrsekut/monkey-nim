@@ -140,3 +140,27 @@ suite "REPL":
         for t in testInputNull:
             let evaluated = testEval(t.input)
             check(testNullObject(evaluated))
+
+    test "test eval returnStatements":
+        type Test = object
+            input: string
+            expected: int
+
+        let testInput = @[
+                Test(input: """return 10\0""", expected: 10),
+                Test(input: """return 10; 9;\0""", expected: 10),
+                Test(input: """return 2 * 5; 9;\0""", expected: 10),
+                Test(input: """9; return 2 * 5; 9;\0""", expected: 10),
+                Test(input: """
+                    if (10 > 1) {
+                        if(10 > 1) {
+                            return 10;
+                        }
+                        return 1;
+                    }\0""", expected: 10),
+                ]
+
+        for t in testInput:
+            let evaluated = testEval(t.input)
+            check(testIntegerObject(evaluated, t.expected))
+

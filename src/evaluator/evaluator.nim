@@ -8,6 +8,8 @@ let
     NULL* = Object(kind: TNull)
 
 proc eval*(self: PNode): Object
+proc evalProgram(self: PNode): Object
+proc evalBlockStatement(statements: seq[PNode]): Object
 proc evalStatements(statements: seq[PNode]): Object
 proc nativeBoolToBooleanObject(input: bool): Object
 proc evalPrefixExpression(operator: string, right: Object): Object
@@ -23,7 +25,7 @@ proc isTruthy(obj: Object): bool
 proc eval*(self: PNode): Object =
     case self.kind
     of Program:
-        result = evalStatements(self.statements)
+        result = evalProgram(self)
     of nkExpressionStatement:
         result = eval(self.Expression)
     of nkIntegerLiteral:
@@ -39,15 +41,40 @@ proc eval*(self: PNode): Object =
             right = eval(self.InRight)
         result = evalInfixExpression(self.InOperator, left, right)
     of nkBlockStatement:
-        result = evalStatements(self.statements)
+        result = evalBlockStatement(self.statements)
     of nkIFExpression:
         result = evalIfExpression(self)
+    of nkReturnStatement:
+        let val = eval(self.ReturnValue)
+        result = Object(kind: ReturnValue, ReValue: val)
     else: discard
+
+proc evalProgram(self: PNode): Object =
+    var r: Object
+    for s in self.statements:
+        r = eval(s)
+        if r.kind == ReturnValue:
+            return r.ReValue
+    return r
+
+proc evalBlockStatement(statements: seq[PNode]): Object =
+    var r: Object
+    for b in statements:
+        r = eval(b)
+
+        if r.kind != TNull and r.myType() == RETURN_VALUE_OBJ:
+            return r
+
+    return r
 
 proc evalStatements(statements: seq[PNode]): Object =
     result = Object()
     for statement in statements:
         result = eval(statement)
+
+        if result.kind == ReturnValue:
+            return result.ReValue
+
 
 proc nativeBoolToBooleanObject(input: bool): Object =
     if input: return TRUE
