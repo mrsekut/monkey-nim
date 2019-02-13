@@ -195,7 +195,7 @@ proc parseFunctionParameters(self: Parser): seq[PNode] =
                     IdentValue: self.curToken.Literal)
         identifiers.add(ident)
 
-    if not self.expectPeek(RPAREN): return nil
+    if not self.expectPeek(RPAREN): return
     identifiers
 
 proc parseCallExpression(self: Parser, function: PNode): PNode =
@@ -222,7 +222,7 @@ proc parseCallArgs(self: Parser): seq[PNode] =
         self.nextToken()
         args.add(self.parseExpression(Precedence.Lowest))
 
-    if not self.expectPeek(RPAREN): return nil
+    if not self.expectPeek(RPAREN): return
 
     args
 
