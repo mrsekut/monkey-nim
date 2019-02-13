@@ -164,3 +164,37 @@ suite "REPL":
             let evaluated = testEval(t.input)
             check(testIntegerObject(evaluated, t.expected))
 
+    test "test error handling":
+        type Test = object
+            input: string
+            expected: string
+
+        let testInput = @[
+                Test(input: """5 + true;\0""",
+                     expected: "type mismatch: INTEGER + BOOLEAN"),
+                Test(input: """5 + true; 5;\0""",
+                     expected: "type mismatch: INTEGER + BOOLEAN"),
+                Test(input: """-true;\0""",
+                     expected: "unknown operator: -BOOLEAN"),
+                Test(input: """true + false;\0""",
+                     expected: "unknown operator: BOOLEAN + BOOLEAN"),
+                Test(input: """5; true + false; 5;\0""",
+                     expected: "unknown operator: BOOLEAN + BOOLEAN"),
+                Test(input: """if (10 > 1) { true + false; }\0""",
+                     expected: "unknown operator: BOOLEAN + BOOLEAN"),
+                Test(input: """
+                        if (10 > 1) {
+                            if(10 > 1) {
+                                return true + false;
+                            }
+                            return 1;
+                        }
+                    \0""",
+                     expected: "unknown operator: BOOLEAN + BOOLEAN"),
+                ]
+
+        for t in testInput:
+            let evaluated = testEval(t.input)
+            check(evaluated.ErrMessage == t.expected)
+
+

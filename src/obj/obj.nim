@@ -1,9 +1,12 @@
+import strformat
+
 type
     TObjectKind* = enum
         Integer
         Boolean
         TNull
         ReturnValue
+        Error
 
 type
     ObjectType* = enum
@@ -11,6 +14,7 @@ type
         BOOLEAN_OBJ = "BOOLEAN"
         NULL_OBJ = "NULL"
         RETURN_VALUE_OBJ = "RETURN_VALUE"
+        ERROR_OBJ="ERROR_OBJ"
 
     Object* = ref TObject
     TObject = object
@@ -23,6 +27,8 @@ type
             discard
         of ReturnValue:
             ReValue*: Object
+        of Error:
+            ErrMessage*: string
         else: discard
 
 proc inspect*(self: Object): string
@@ -39,6 +45,8 @@ proc inspect*(self: Object): string =
         result = "null"
     of ReturnValue:
         result = self.ReValue.inspect()
+    of Error:
+        result = fmt"ERROR: {self.ErrMessage}"
 
 proc myType*(self: Object): ObjectType =
     case self.kind:
@@ -50,3 +58,5 @@ proc myType*(self: Object): ObjectType =
         result = NULL_OBJ
     of ReturnValue:
         result = RETURN_VALUE_OBJ
+    of Error:
+        result = ERROR_OBJ
