@@ -1,4 +1,4 @@
-import strformat
+import strformat, tables
 
 type
     TObjectKind* = enum
@@ -60,3 +60,17 @@ proc myType*(self: Object): ObjectType =
         result = RETURN_VALUE_OBJ
     of Error:
         result = ERROR_OBJ
+
+type
+    Environment* = ref object of RootObj
+        store: Table[string, Object]
+
+proc newEnvironment*(): Environment =
+    Environment(store: initTable[string, Object](1))
+
+proc get*(self: Environment, name: string): Object =
+    self.store[name]
+
+proc set*(self: Environment, name: string, val: Object): Object =
+    self.store[name] = val
+    return val

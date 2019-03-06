@@ -4,7 +4,6 @@ import
     ../src/lexer/lexer,
     ../src/obj/obj,
     ../src/evaluator/evaluator
-
 proc testEval(input: string): Object
 proc testIntegerObject(obj: Object, expexted: int): bool
 proc testBoolObject(obj: Object, expexted: bool): bool
@@ -28,8 +27,9 @@ proc testEval(input: string): Object =
         l = newLexer(input)
         p = newParser(l)
         program = p.parseProgram()
+        env = newEnvironment()
 
-    return eval(program)
+    return eval(program, env)
 
 suite "REPL":
     test "test eval IntegerObject":
@@ -191,10 +191,26 @@ suite "REPL":
                         }
                     \0""",
                      expected: "unknown operator: BOOLEAN + BOOLEAN"),
+                # Test(input: """foobar;\0""",
+                #      expected: "identifier not found; foobar"),
                 ]
 
         for t in testInput:
             let evaluated = testEval(t.input)
             check(evaluated.ErrMessage == t.expected)
 
+    test "test letStatements":
+        type Test = object
+            input: string
+            expected: int
 
+        let testInput = @[
+                Test(input: """let a = 5; a;\0""", expected: 5),
+                Test(input: """let a = 5 * 5; 25;\0""", expected: 25),
+                Test(input: """let a = 5; let b = a; b;\0""", expected: 5),
+                Test(input: """let a = 5; let b = a; let c = a + b + 5; c;\0""", expected: 15),
+            ]
+
+        for t in testInput:
+            let evaluated = testEval(t.input)
+            check(evaluated.IntValue == t.expected)

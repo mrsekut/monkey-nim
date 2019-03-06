@@ -8,17 +8,17 @@ let
     FALSE* = Object(kind: Boolean, BoolValue: false)
     NULL* = Object(kind: TNull)
 
-proc eval*(self: PNode): Object
-proc evalProgram(self: PNode): Object
-proc evalBlockStatement(statements: seq[PNode]): Object
-proc evalStatements(statements: seq[PNode]): Object
+proc eval*(self: PNode, env: Environment): Object
+proc evalProgram(self: PNode, env: Environment): Object
+proc evalIdentifier(self: PNode, env: Environment): Object
+proc evalBlockStatement(statements: seq[PNode], env: Environment): Object
 proc nativeBoolToBooleanObject(input: bool): Object
 proc evalPrefixExpression(operator: string, right: Object): Object
 proc evalBanOperationExpression(right: Object): Object
 proc evalMinusPrefixOperatorExpression(right: Object): Object
 proc evalInfixExpression(operator: string, left: Object, right: Object): Object
 proc evalIntegerInfixExpression(operator: string, left: Object, right: Object): Object
-proc evalIfExpression(ie: PNode): Object
+proc evalIfExpression(ie: PNode, env: Environment): Object
 proc isTruthy(obj: Object): bool
 
 proc isError(self: Object): bool
@@ -29,66 +29,67 @@ proc newError(format: string, left: ObjectType, operator: string, right: ObjectT
 
 # implementation
 
-proc eval*(self: PNode): Object =
+proc eval*(self: PNode, env: Environment): Object =
     case self.kind
     of Program:
-        result = evalProgram(self)
+        result = evalProgram(self, env)
     of nkExpressionStatement:
-        result = eval(self.Expression)
+        result = eval(self.Expression, env)
     of nkIntegerLiteral:
         result = Object(kind: Integer, IntValue: self.IntValue)
     of nkBoolean:
         result = nativeBoolToBooleanObject(self.BlValue)
     of nkPrefixExpression:
-        let right = eval(self.PrRight)
+        let right = eval(self.PrRight, env)
         if isError(right): return right
         result = evalPrefixExpression(self.PrOperator, right)
     of nkInfixExpression:
         let
-            left = eval(self.InLeft)
-            right = eval(self.InRight)
+            left = eval(self.InLeft, env)
+            right = eval(self.InRight, env)
         if isError(right): return right
         if isError(left): return left
         result = evalInfixExpression(self.InOperator, left, right)
     of nkBlockStatement:
-        result = evalBlockStatement(self.statements)
+        result = evalBlockStatement(self.statements, env)
     of nkIFExpression:
-        result = evalIfExpression(self)
+        result = evalIfExpression(self, env)
     of nkReturnStatement:
-        let val = eval(self.ReturnValue)
+        let val = eval(self.ReturnValue, env)
         if isError(val): return val
         result = Object(kind: ReturnValue, ReValue: val)
+    of nkLetStatement:
+        let val = eval(self.LetValue, env)
+        if isError(val): return val
+        return env.set(self.LetName.Token.Literal, val)
+    of nkIdent:
+        return evalIdentifier(self, env)
     else: discard
 
-proc evalProgram(self: PNode): Object =
+proc evalIdentifier(self: PNode, env: Environment): Object =
+    let val = env.get(self.IdentValue)
+    return val
+
+proc evalProgram(self: PNode, env: Environment): Object =
     var r: Object
     for s in self.statements:
-        r = eval(s)
+        r = eval(s, env)
         if r.kind == ReturnValue:
             return r.ReValue
         elif r.kind == Error:
             return r
     return r
 
-proc evalBlockStatement(statements: seq[PNode]): Object =
+proc evalBlockStatement(statements: seq[PNode], env: Environment): Object =
     var r: Object
     for b in statements:
-        r = eval(b)
+        r = eval(b, env)
 
         if r.kind != TNull:
             if r.myType() == RETURN_VALUE_OBJ or r.myType() == ERROR_OBJ:
                 return r
 
     return r
-
-proc evalStatements(statements: seq[PNode]): Object =
-    result = Object()
-    for statement in statements:
-        result = eval(statement)
-
-        if result.kind == ReturnValue:
-            return result.ReValue
-
 
 proc nativeBoolToBooleanObject(input: bool): Object =
     if input: return TRUE
@@ -152,14 +153,14 @@ proc evalIntegerInfixExpression(operator: string, left: Object, right: Object): 
     else:
         result = newError("unknown operator: ", left.myType(), operator, right.myType())
 
-proc evalIfExpression(ie: PNode): Object =
-    let condition = eval(ie.Condition)
+proc evalIfExpression(ie: PNode, env: Environment): Object =
+    let condition = eval(ie.Condition, env)
     if isError(condition): return condition
 
     if isTruthy(condition):
-        return eval(ie.Consequence.Statements[0])
+        return eval(ie.Consequence.Statements[0], env)
     elif ie.Alternative != nil:
-        return eval(ie.Alternative.Statements[0])
+        return eval(ie.Alternative.Statements[0], env)
     else: return NULL
 
 proc isTruthy(obj: Object): bool =
@@ -205,8 +206,9 @@ proc testEval(input: string): Object =
         l = newLexer(input)
         p = newParser(l)
         program = p.parseProgram()
+        env = newEnvironment()
 
-    return eval(program)
+    return eval(program, env)
 
 proc main() =  #discard
     type Test = object
@@ -214,32 +216,16 @@ proc main() =  #discard
         expected: string
 
     let testInput = @[
-            Test(input: """5 + true;\0""",
-                    expected: "type mismatch: INTEGER + BOOLEAN"),
-            Test(input: """5 + true; 5;\0""",
-                    expected: "type mismatch: INTEGER + BOOLEAN"),
-            Test(input: """-true;\0""",
-                    expected: "unknown operator: -BOOLEAN"),
-            Test(input: """true + false;\0""",
-                    expected: "unknown operator: BOOLEAN + BOOLEAN"),
-            Test(input: """5; true + false; 5;\0""",
-                    expected: "unknown operator: BOOLEAN + BOOLEAN"),
-            Test(input: """if (10 > 1) { true + false; }\0""",
-                    expected: "unknown operator: BOOLEAN + BOOLEAN"),
-            Test(input: """
-                    if (10 > 1) {
-                        if(10 > 1) {
-                            return true + false;
-                        }
-                        return 1;
-                    }
-                \0""",
-                    expected: "unknown operator: BOOLEAN + BOOLEAN"),
+            Test(input: """let a = 5; a;\0""", expected: "5"),
+            Test(input: """let a = 5 * 5; 25;\0""", expected: "25"),
+            Test(input: """let a = 5; let b = a; b;\0""", expected: "5"),
+            Test(input: """let a = 5; b = a; let c = a + b + 5; c;\0""", expected: "15"),
         ]
 
     for t in testInput:
         let evaluated = testEval(t.input)
-        echo evaluated.ErrMessage
+        echo repr evaluated.IntValue
+        # repr t.expected
 
 when isMainModule:
     main()

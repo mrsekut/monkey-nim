@@ -23,6 +23,7 @@ proc printParserErrors(errors: seq[string]) =
     for e in errors: echo e
 
 proc start() =
+    let env = newEnvironment()
     echo "hello"
     while true:
         stdout.write ">> "
@@ -36,7 +37,7 @@ proc start() =
             printParserErrors(p.errors)
             continue
 
-        let evaluated = evaluator.eval(program)
+        let evaluated = evaluator.eval(program, env)
         if evaluated != nil:
             echo evaluated.inspect()
 
