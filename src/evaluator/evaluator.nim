@@ -208,24 +208,11 @@ proc evalExpressions(exps: seq[PNode], env: Environment): seq[Object] =
         r.add(evaluated)
     return r
 
-# NOTE:
 proc applyFunction(self: Object, args: seq[Object]): Object =
-    let fn = self # NOTE:
-    if fn == nil: return newError("not a function ", fn.myType())
-
-    let extendedEnv = extendFunctionEnv(fn, args)
-
-    echo "in apply functions 1"
-    echo repr self.Body
-    echo repr extendedEnv
-
+    if self == nil: return newError("not a function ", self.myType())
+    let extendedEnv = extendFunctionEnv(self, args)
     let  evaluated = eval(self.Body.Statements[0], extendedEnv) # TODO:
-    echo "in apply functions 2"
-    echo repr evaluated
-
-    let r = unwrapReturnValue(evaluated)
-    return r
-    # return unwrapReturnValue(evaluated)
+    return unwrapReturnValue(evaluated)
 
 
 proc extendFunctionEnv(self: Object, args: seq[Object]): Environment =
@@ -235,18 +222,10 @@ proc extendFunctionEnv(self: Object, args: seq[Object]): Environment =
 
 
 proc unwrapReturnValue(self: Object): Object =
-    let r = self # NOTE: 仮
-
-    echo "unwrap return value"
-    echo repr r
-
     if self.kind == ReturnValue:
-        echo "in if"
-        echo repr self.ReValue
         return self.ReValue
 
-    return r
-    # NOTE:
+    return self
 
 
 proc isTruthy(obj: Object): bool =
@@ -310,20 +289,14 @@ proc main() =  #discard
                     return 10;
                     return 1;
                 }\0""", expected: 10),
-            # Test(input: """let add = fn(x, y) {x + y;}; add(5 + 5, add(5, 5));\0""", expected: 20),
-            # Test(input: """fn(x) {x;}(5)\0""", expected: 5),
         ]
 
     for t in testInput:
         let evaluated = testEval(t.input)
-        echo "============================"
         echo "========start============"
-        echo "============================"
         echo repr evaluated
         echo evaluated.IntValue
-        echo "============================"
         echo "========end============"
-        echo "============================"
 
 when isMainModule:
     main()
