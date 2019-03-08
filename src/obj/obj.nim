@@ -1,4 +1,6 @@
-import strformat, tables
+import
+    strformat, tables, sequtils,
+    ../parser/ast
 
 type
     TObjectKind* = enum
@@ -6,14 +8,19 @@ type
         Boolean
         TNull
         ReturnValue
+        Function
         Error
 
-type
+    Environment* = ref object of RootObj
+        store: Table[string, Object]
+        outer: Environment
+
     ObjectType* = enum
         INTEGER_OBJ = "INTEGER"
         BOOLEAN_OBJ = "BOOLEAN"
         NULL_OBJ = "NULL"
         RETURN_VALUE_OBJ = "RETURN_VALUE"
+        FUNCTION_OBJ = "FUNCTION"
         ERROR_OBJ="ERROR_OBJ"
 
     Object* = ref TObject
@@ -27,6 +34,10 @@ type
             discard
         of ReturnValue:
             ReValue*: Object
+        of Function:
+            Parameters*: seq[PNode]
+            Body*: BlockStatements
+            Env*: Environment
         of Error:
             ErrMessage*: string
         else: discard
@@ -45,6 +56,12 @@ proc inspect*(self: Object): string =
         result = "null"
     of ReturnValue:
         result = self.ReValue.inspect()
+    of Function:
+        var params: seq[string]
+        for p in self.Parameters:
+            params.add(p.astToString())
+        # NOTE:
+        result = fmt"fn ({params}) " & "{" & fmt"{'\n'} {self.Body.astToString()} {'\n'}" & "}"
     of Error:
         result = fmt"ERROR: {self.ErrMessage}"
 
@@ -58,19 +75,25 @@ proc myType*(self: Object): ObjectType =
         result = NULL_OBJ
     of ReturnValue:
         result = RETURN_VALUE_OBJ
+    of Function:
+        result = FUNCTION_OBJ
     of Error:
         result = ERROR_OBJ
 
-type
-    Environment* = ref object of RootObj
-        store: Table[string, Object]
 
 proc newEnvironment*(): Environment =
     Environment(store: initTable[string, Object](1))
 
 proc get*(self: Environment, name: string): Object =
-    self.store[name]
+    var obj = self.store[name]
+    # if self.outer != nil:
+    #     obj = self.outer.get(name)
+    return obj
 
 proc set*(self: Environment, name: string, val: Object): Object =
     self.store[name] = val
     return val
+
+proc newEncloseEnvironment*(outer: Environment): Environment =
+    result = newEnvironment()
+    result.outer = outer

@@ -1,5 +1,5 @@
 import
-    strformat, typetraits, sequtils,
+    strformat, typetraits, sequtils, strutils,
     ../lexer/token
 
 type
@@ -165,8 +165,13 @@ proc astToString*(self: PNode): string =
     else: result = self.Token.Literal
 
 proc astToString*(self: BlockStatements): string =
-    #  TODO: 仮
-    echo "block sttement"
+    var body: seq[string]
+
+    for b in self.Statements:
+        body.add(b.astToString())
+
+    result = body.join(" ")
+
 
 proc main() = discard
 when isMainModule:
