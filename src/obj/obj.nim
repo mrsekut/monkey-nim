@@ -91,9 +91,8 @@ proc get*(self: Environment, name: string): Object =
     #     obj = self.outer.get(name)
     return obj
 
-proc set*(self: Environment, name: string, val: Object): Object =
+proc set*(self: Environment, name: string, val: Object) =
     self.store[name] = val
-    return val
 
 proc newEncloseEnvironment*(outer: Environment): Environment =
     result = newEnvironment()

@@ -235,9 +235,10 @@ suite "REPL":
                 Test(input: """let identity = fn(x) { x; }; identity(5);\0""", expected: 5),
                 Test(input: """let identity = fn(x) { return x; }; identity(5);\0""", expected: 5),
                 Test(input: """let double = fn(x) {x * 2;}; double(5);\0""", expected: 10),
-                Test(input: """let add = fn(x, y) {x + y;}; add(5, 5);\0""", expected: 10),
-                Test(input: """let add = fn(x, y) {x + y;}; add(5 + 5, add(5, 5));\0""", expected: 20),
+                Test(input: """let add = fn(x, y) {x + y;}; add(5, 6);\0""", expected: 11),
+                Test(input: """let add = fn(x, y) {x + y;}; add(5 + 6, add(5, 6));\0""", expected: 22),
                 Test(input: """fn(x) {x;}(5)\0""", expected: 5),
+                Test(input: """let add = fn(x, y) {let o = x + y; return 42;}; add(5+6, 6);\0""", expected: 42),
             ]
 
         for t in testInput:
