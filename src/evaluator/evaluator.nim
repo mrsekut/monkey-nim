@@ -34,8 +34,6 @@ proc newError(format: string, left: ObjectType, operator: string, right: ObjectT
 # implementation
 
 proc eval*(self: PNode, env: Environment): Object =
-    echo "eval"
-    echo repr self
     case self.kind
     of Program:
         return evalProgram(self, env)
@@ -99,11 +97,7 @@ proc eval*(self: PNode, env: Environment): Object =
 
 proc evalIdentifier(self: PNode, env: Environment): Object =
     let val = env.get(self.IdentValue)
-    # echo "in eval identifier"
-    # echo repr val
-    # echo repr self
-    # echo repr self.IdentValue
-    # if val == nil: return newError("identifier not found: ", val.myType())
+    # if val == nil: return newError("identifier not found: ", val.myType()) TODO:
     return val
 
 proc evalProgram(self: PNode, env: Environment): Object =
