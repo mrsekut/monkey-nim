@@ -226,22 +226,20 @@ suite "REPL":
         check(evaluated.Parameters[0].Token.Literal == "x")
         check(evaluated.Body.astToString() == "(x + 2)")
 
+    test "test functionApplication":
+        type Test = object
+            input: string
+            expected: int
 
+        let testInput = @[
+                Test(input: """let identity = fn(x) { x; }; identity(5);\0""", expected: 5),
+                Test(input: """let identity = fn(x) { return x; }; identity(5);\0""", expected: 5),
+                Test(input: """let double = fn(x) {x * 2;}; double(5);\0""", expected: 10),
+                Test(input: """let add = fn(x, y) {x + y;}; add(5, 5);\0""", expected: 10),
+                Test(input: """let add = fn(x, y) {x + y;}; add(5 + 5, add(5, 5));\0""", expected: 20),
+                Test(input: """fn(x) {x;}(5)\0""", expected: 5),
+            ]
 
-    # test "test functionApplication":
-    #     type Test = object
-    #         input: string
-    #         expected: int
-
-    #     let testInput = @[
-    #             Test(input: """let identity = fn(x) { x; }; identity(5);\0""", expected: 5),
-    #             Test(input: """let identity = fn(x) { return x; }; identity(5);\0""", expected: 5),
-    #             Test(input: """let double = fn(x) {x * 2;}; double(5);\0""", expected: 10),
-    #             Test(input: """let add = fn(x, y) {x + y;}; add(5, 5);\0""", expected: 10),
-    #             Test(input: """let add = fn(x, y) {x + y;}; add(5 + 5, add(5, 5));\0""", expected: 20),
-    #             Test(input: """fn(x) {x;}(5)\0""", expected: 5),
-    #         ]
-
-    #     for t in testInput:
-    #         let evaluated = testEval(t.input)
-    #         check(evaluated.IntValue == t.expected)
+        for t in testInput:
+            let evaluated = testEval(t.input)
+            check(evaluated.IntValue == t.expected)

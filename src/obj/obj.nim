@@ -86,6 +86,7 @@ proc newEnvironment*(): Environment =
 
 proc get*(self: Environment, name: string): Object =
     var obj = self.store[name]
+    # TODO:
     # if self.outer != nil:
     #     obj = self.outer.get(name)
     return obj

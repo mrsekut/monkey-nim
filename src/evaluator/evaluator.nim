@@ -19,10 +19,10 @@ proc evalMinusPrefixOperatorExpression(right: Object): Object
 proc evalInfixExpression(operator: string, left: Object, right: Object): Object
 proc evalIntegerInfixExpression(operator: string, left: Object, right: Object): Object
 proc evalIfExpression(ie: PNode, env: Environment): Object
-# proc evalExpression(exps: seq[PNode], env: Environment): seq[Object]
-# proc applyFunction(self: Object, args: seq[Object]): Object
-# proc extendFunctionEnv(self: Object, args: seq[Object]): Environment
-# proc unwrapReturnValue(self: Object): Object
+proc evalExpressions(exps: seq[PNode], env: Environment): seq[Object]
+proc applyFunction(self: Object, args: seq[Object]): Object
+proc extendFunctionEnv(self: Object, args: seq[Object]): Environment
+proc unwrapReturnValue(self: Object): Object
 proc isTruthy(obj: Object): bool
 
 proc isError(self: Object): bool
@@ -73,18 +73,23 @@ proc eval*(self: PNode, env: Environment): Object =
             params = self.FnParameters
             body = self.FnBody
         return Object(kind: Function, Parameters: params, Body: body, Env: env)
-    # of nkCallExpression:
-    #     # echo "in nk call expression 1"
-    #     # echo repr self.Function
-    #     let fn = eval(self.Function, env)
-    #     # echo "after"
-    #     # echo repr fn # nil NOTE: ここがnil担って終わる
-    #     if isError(fn): return fn
 
-    #     let args = evalExpression(self.Args, env)
+    of nkCallExpression:
+        let fn = eval(self.Function, env)
+        if isError(fn): return fn
+        let args = evalExpressions(self.Args, env)
+        # echo "in nk call expression args"
+        # echo repr args
+        # echo repr args.len
 
-    #     if args.len == 1 and isError(args[0]): return args[0]
-    #     return applyFunction(fn, args)
+        if args.len == 1 and isError(args[0]):
+            return args[0]
+
+        let test= applyFunction(fn, args)
+        # echo "in nk call expression test"
+        # echo repr test
+        return test
+        # return applyFunction(fn, args)
 
     else: discard
 
@@ -190,37 +195,66 @@ proc evalIfExpression(ie: PNode, env: Environment): Object =
         return eval(ie.Alternative.Statements[0], env)
     else: return NULL
 
-# # NOTE:
-# proc evalExpression(exps: seq[PNode], env: Environment): seq[Object] =
-#     var r: seq[Object]
-#     for e in exps:
-#         let evaluated = eval(e, env)
-#         # if isError(evaluated): return Object(evaluated) TODO:
-#         r.add(evaluated)
-#     return r
+proc evalExpressions(exps: seq[PNode], env: Environment): seq[Object] =
+    var r: seq[Object]
+    for e in exps:
+        let evaluated = eval(e, env)
+        # if isError(evaluated): return Object(evaluated) TODO:
+        r.add(evaluated)
+    return r
 
-# proc applyFunction(self: Object, args: seq[Object]): Object =
-#     # let fn = self.Function
-#     # TODO: newError()
-#     let
-#         extendedEnv = extendFunctionEnv(self, args)
-#         # evaluated = eval(self.Body.Statements[0], extendedEnv)
-#     return unwrapReturnValue(self)
+# NOTE:
+proc applyFunction(self: Object, args: seq[Object]): Object =
+    # echo "in apply functions"
+    # echo repr self
+    let fn = self # NOTE:
+
+    # echo "body"
+    # echo repr self.Body
+
+    # TODO: newError()
+    let extendedEnv = extendFunctionEnv(fn, args)
+
+    # echo "in apply functions 1"
+    # echo repr extendedEnv
+
+    let  evaluated = eval(self.Body.Statements[0], extendedEnv) # NOTE:
+    # echo "in apply functions 2"
+    # echo repr evaluated
+
+    let r = unwrapReturnValue(evaluated)
+    # echo "in apply functions 3"
+    # echo repr r
+    return r
+    # return unwrapReturnValue(evaluated)
 
 
-# proc extendFunctionEnv(self: Object, args: seq[Object]): Environment =
-#     let env = newEncloseEnvironment(self.Env)
-#     # for i, p in self.Parameters:
-#     #     return env.set("mrsekut", args[0])
+proc extendFunctionEnv(self: Object, args: seq[Object]): Environment =
+    # echo "in extend function env"
+    # echo repr self
+    # echo repr args
+    let env = newEncloseEnvironment(self.Env)
 
-#     return env
+    for i, p in self.Parameters:
+        # echo "in extend funcion in for"
+        # echo repr p
+        # echo repr p.Token.Literal
+
+        let e = env.set(p.Token.Literal, args[0])
+        # echo "e"
+        # echo repr e
+        # return e
+
+    return env
 
 
 
-# proc unwrapReturnValue(self: Object): Object =
-#     let r = self.ReValue
-#     return r
-#     # NOTE:
+proc unwrapReturnValue(self: Object): Object =
+    let r = self # NOTE: 仮
+    # echo "unwrap return value"
+    # echo repr r
+    return r
+    # NOTE:
 
 
 proc isTruthy(obj: Object): bool =
@@ -276,11 +310,7 @@ proc main() =  #discard
         expected: int
 
     let testInput = @[
-            Test(input: """fn(x) {x+2};\0""", expected: 5),
-            # Test(input: """4444444444;\0""", expected: 5),
-            # Test(input: """let identity = fn(x) { x; };\0""", expected: 5),
-            # Test(input: """let identity = fn(x) { x; }; identity(5);\0""", expected: 5),
-            # Test(input: """let identity = fn(x) { return x; }; identity(5);\0""", expected: 5),
+            Test(input: """let identity = fn(x) { return x; }; identity(5);\0""", expected: 5),
             # Test(input: """let double = fn(x) {x * 2;}; double(5);\0""", expected: 10),
             # Test(input: """let add = fn(x, y) {x + y;}; add(5, 5);\0""", expected: 10),
             # Test(input: """let add = fn(x, y) {x + y;}; add(5 + 5, add(5, 5));\0""", expected: 20),
@@ -293,8 +323,7 @@ proc main() =  #discard
         echo "========start============"
         echo "============================"
         echo repr evaluated
-        echo repr evaluated.Body.astToString()
-        echo evaluated.Body.astToString()
+        echo evaluated.IntValue
         echo "============================"
         echo "========end============"
         echo "============================"
