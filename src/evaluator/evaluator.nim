@@ -251,46 +251,6 @@ proc newError(format: string, left: ObjectType, operator: string, right: ObjectT
         ErrMessage: fmt"{format}{left} {operator} {right}")
 
 
-
-
-# test
-# =================
-import
-    ../parser/ast,
-    ../parser/parser,
-    ../lexer/lexer
-
-proc testEval(input: string): Object =
-    let
-        l = newLexer(input)
-        p = newParser(l)
-        program = p.parseProgram()
-        env = newEnvironment()
-
-    return eval(program, env)
-
-proc main() =  #discard
-    type Test = object
-        input: string
-        expected: int
-
-    let testInput = @[
-            # Test(input: """let add = fn(x, y) {x + y;}; add(5+6, 6);\0""", expected: 17),
-            Test(input: """let add = fn(x, y) {let o = x + y; return 42;}; add(5+6, 6);\0""", expected: 17),
-            Test(input: """
-                if (10 > 1) {
-                    let x = 3+ 3;
-                    return 10;
-                    return 1;
-                }\0""", expected: 10),
-        ]
-
-    for t in testInput:
-        let evaluated = testEval(t.input)
-        echo "========start============"
-        echo repr evaluated
-        echo evaluated.IntValue
-        echo "========end============"
-
+proc main() = discard
 when isMainModule:
     main()
