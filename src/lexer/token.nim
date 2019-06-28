@@ -1,6 +1,5 @@
 import tables
 
-# TODO: 合ってるか？
 type
     TokenType* = string
 
@@ -8,13 +7,14 @@ type
         Type*:    TokenType
         Literal*: string
 
-# TODO: enum
+
 const
     ILLEGAL*   = "ILLEGAL"
     EOF*       = "EOF"
 
     IDENT*     = "IDENT"
     INT*       = "INT"
+    STRING*    = "STRING"
 
     ASSIGN*    = "="
     PLUS*      = "+"

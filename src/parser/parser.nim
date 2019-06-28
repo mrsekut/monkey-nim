@@ -26,6 +26,7 @@ proc parseReturnStatement(self: Parser): PNode
 
 proc parseIdentifier(self: Parser): PNode
 proc parseIntegerLiteral(self: Parser): PNode
+proc parseStringLiteral(self: Parser): PNode
 proc parseBoolean(self: Parser): PNode
 proc parseGroupedExpression(self: Parser): PNode
 proc parseIfExpression(self: Parser): PNode
@@ -148,6 +149,13 @@ proc parseIntegerLiteral(self: Parser): PNode =
         kind: nkIntegerLiteral,
         Token: self.curToken,
         IntValue: self.curToken.Literal.parseInt)
+
+
+proc parseStringLiteral(self: Parser): PNode =
+    PNode(
+        kind: nkStringLiteral,
+        Token: self.curToken,
+        StringValue: self.curToken.Literal)
 
 
 proc parseBoolean(self: Parser): PNode =
@@ -298,13 +306,22 @@ proc parseExpression(self: Parser, precedence: Precedence): PNode =
     # prefix
     var left: PNode
     case self.curToken.Token.Type
-    of IDENT: left = self.parseIdentifier()
-    of INT: left = self.parseIntegerLiteral()
-    of TRUE, FALSE: left = self.parseBoolean()
-    of BANG, MINUS: left = self.parsePrefixExpression()
-    of LPAREN: left = self.parseGroupedExpression()
-    of IF: left = self.parseIfExpression()
-    of FUNCTION: left = self.parseFunctionLiteral()
+    of IDENT:
+        left = self.parseIdentifier()
+    of INT:
+        left = self.parseIntegerLiteral()
+    of STRING:
+        left = self.parseStringLiteral()
+    of TRUE, FALSE:
+        left = self.parseBoolean()
+    of BANG, MINUS:
+        left = self.parsePrefixExpression()
+    of LPAREN:
+        left = self.parseGroupedExpression()
+    of IF:
+        left = self.parseIfExpression()
+    of FUNCTION:
+        left = self.parseFunctionLiteral()
     else:
         self.noPrefixParseError()
         left = nil

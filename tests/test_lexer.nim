@@ -2,6 +2,7 @@ import unittest
 import ../src/lexer/lexer
 import ../src/lexer/token
 
+
 suite "Lexer":
     test "it analysis simple code":
         let input = """
@@ -22,8 +23,10 @@ suite "Lexer":
               return false
 
             10 == 10
-            10 != 9
-        """
+            10 != 9;
+            "foobar"
+            "foo bar"
+            """
 
         let test = @[
             ( LET, "let" ),
@@ -83,6 +86,9 @@ suite "Lexer":
             ( INT, "10" ),
             ( NOT_EQ, "!=" ),
             ( INT, "9" ),
+            ( SEMICOLON, ";" ),
+            ( STRING, "foobar" ),
+            ( STRING, "foo bar" ),
             ( EOF, "\0" ),
         ]
 

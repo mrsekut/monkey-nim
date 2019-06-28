@@ -2,11 +2,13 @@ import
     strformat, typetraits, sequtils, strutils,
     ../lexer/token
 
+
 type
     PrefixTypes* = enum
         PrPlus,
         PrMinus,
         PrNot
+
 
     InfixTypes* = enum
         InPlus,
@@ -28,6 +30,7 @@ type
         Prefix,
         Call
 
+
 type
     TNodeKind* = enum
         # root
@@ -36,6 +39,7 @@ type
         # Identifier
         nkIdent
         nkIntegerLiteral
+        nkStringLiteral
         nkBoolean
 
         # Statement
@@ -55,6 +59,7 @@ type
 
         Nil # TODO: 最終的に消す
 
+
 type
     PNode* = ref TNode
     TNodeSeq = seq[PNode]
@@ -68,6 +73,8 @@ type
             IdentValue*: string
         of nkIntegerLiteral:
             IntValue*: int
+        of nkStringLiteral:
+            StringValue*: string
         of nkBoolean:
             BlValue*: bool
 
@@ -105,17 +112,22 @@ type
         Token*: token.Token
         Statements*: seq[PNode]
 
+
 proc expressionNode(self: var PNode)
 proc tokenLiteral(self: PNode): string
 proc astToString*(self: PNode): string
 proc astToString*(self: BlockStatements): string
 
 
+
 # implementation
+
 
 proc expressionNode(self: var PNode) = discard
 
+
 proc tokenLiteral(self: PNode): string = self.Token.Literal
+
 
 proc astToString*(self: PNode): string =
     case self.kind:
@@ -124,7 +136,9 @@ proc astToString*(self: PNode): string =
         for statement in self.statements:
             result = result & statement.astToString()
 
-    of nkIntegerLiteral: result =  self.Token.Literal
+    of nkIntegerLiteral, nkStringLiteral:
+        result = self.Token.Literal
+
     of nkBoolean: result = self.Token.Literal
 
     of nkLetStatement:
@@ -163,6 +177,7 @@ proc astToString*(self: PNode): string =
         result = fmt"({left} {operator} {right})"
 
     else: result = self.Token.Literal
+
 
 proc astToString*(self: BlockStatements): string =
     var body: seq[string]

@@ -29,6 +29,7 @@ proc readNextChar(self: var Lexer)
 proc readIdentifier(self: var Lexer): string
 proc skipWhiteSpace(self: var Lexer)
 proc readNumber(self: var Lexer): string
+proc readString(self: var Lexer): string
 proc peekChar(self: var Lexer): char
 proc nextToken*(self: var Lexer): token.Token
 
@@ -57,7 +58,7 @@ proc readIdentifier(self: var Lexer): string =
     while isLetter(self.ch):
         self.readNextChar()
 
-    self.input[position..self.position-1]
+    self.input[position..<self.position]
 
 
 proc readNumber(self: var Lexer): string =
@@ -65,7 +66,18 @@ proc readNumber(self: var Lexer): string =
     while isDigit(self.ch):
         self.readNextChar()
 
-    self.input[position..self.position-1]
+    self.input[position..<self.position]
+
+
+proc readString(self: var Lexer): string =
+    let position = self.position + 1
+    while true:
+        self.readNextChar()
+        if self.ch == '"' or self.ch == '\0':
+            break
+
+    self.readNextChar()
+    self.input[position..<self.position-1]
 
 
 proc skipWhiteSpace(self: var Lexer) =
@@ -127,6 +139,10 @@ proc nextToken*(self: var Lexer): token.Token =
         tok = newToken(LBRACE, self.ch)
     of '}':
         tok = newToken(RBRACE, self.ch)
+    of '"':
+        let t = STRING
+        let l = self.readString()
+        return Token(Type: t, Literal: l)
     of '\0':
         tok = newToken(EOF, '\0')
     else:
@@ -135,7 +151,7 @@ proc nextToken*(self: var Lexer): token.Token =
             let t = LookUpIdent(l)
             return Token(Type: t, Literal: l)
         elif isDigit(self.ch):
-            let t = token.INT
+            let t = INT
             let l = self.readNumber()
             return Token(Type: t, Literal: l)
         else:

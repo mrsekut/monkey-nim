@@ -2,9 +2,11 @@ import
     strformat, tables, sequtils,
     ../parser/ast
 
+
 type
     TObjectKind* = enum
         Integer
+        String
         Boolean
         TNull
         ReturnValue
@@ -17,6 +19,7 @@ type
 
     ObjectType* = enum
         INTEGER_OBJ = "INTEGER"
+        STRING_OBJ = "STRING"
         BOOLEAN_OBJ = "BOOLEAN"
         NULL_OBJ = "NULL"
         RETURN_VALUE_OBJ = "RETURN_VALUE"
@@ -28,6 +31,8 @@ type
         case kind*: TObjectKind
         of Integer:
             IntValue*: int
+        of String:
+            StringValue*: string
         of Boolean:
             BoolValue*: bool
         of TNull:
@@ -42,6 +47,7 @@ type
             ErrMessage*: string
         else: discard
 
+
 proc inspect*(self: Object): string
 proc myType*(self: Object): ObjectType
 
@@ -50,6 +56,8 @@ proc inspect*(self: Object): string =
     case self.kind:
     of Integer:
         result = $self.IntValue
+    of String:
+        result = $self.StringValue
     of Boolean:
         result = $self.BoolValue
     of TNull:
@@ -65,10 +73,13 @@ proc inspect*(self: Object): string =
     of Error:
         result = fmt"ERROR: {self.ErrMessage}"
 
+
 proc myType*(self: Object): ObjectType =
     case self.kind:
     of Integer:
         result = INTEGER_OBJ
+    of String:
+        result = STRING_OBJ
     of Boolean:
         result = BOOLEAN_OBJ
     of TNull:
@@ -84,6 +95,7 @@ proc myType*(self: Object): ObjectType =
 proc newEnvironment*(): Environment =
     Environment(store: initTable[string, Object](1))
 
+
 proc get*(self: Environment, name: string): Object =
     var obj = self.store[name]
     # TODO:
@@ -91,8 +103,10 @@ proc get*(self: Environment, name: string): Object =
     #     obj = self.outer.get(name)
     return obj
 
+
 proc set*(self: Environment, name: string, val: Object) =
     self.store[name] = val
+
 
 proc newEncloseEnvironment*(outer: Environment): Environment =
     result = newEnvironment()

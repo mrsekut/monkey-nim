@@ -3,10 +3,12 @@ import
     ../parser/ast,
     ../obj/obj
 
+
 let
     TRUE* = Object(kind: Boolean, BoolValue: true)
     FALSE* = Object(kind: Boolean, BoolValue: false)
     NULL* = Object(kind: TNull)
+
 
 proc eval*(self: PNode, env: Environment): Object
 proc evalProgram(self: PNode, env: Environment): Object
@@ -31,7 +33,9 @@ proc newError(format: string, operator: string, right: ObjectType ): Object
 proc newError(format: string, left: ObjectType, operator: string, right: ObjectType ): Object
 
 
+
 # implementation
+
 
 proc eval*(self: PNode, env: Environment): Object =
     case self.kind
@@ -43,6 +47,9 @@ proc eval*(self: PNode, env: Environment): Object =
 
     of nkIntegerLiteral:
         result = Object(kind: Integer, IntValue: self.IntValue)
+
+    of nkStringLiteral:
+        result = Object(kind: String, StringValue: self.StringValue)
 
     of nkBoolean:
         result = nativeBoolToBooleanObject(self.BlValue)
@@ -95,10 +102,12 @@ proc eval*(self: PNode, env: Environment): Object =
 
     else: discard
 
+
 proc evalIdentifier(self: PNode, env: Environment): Object =
     let val = env.get(self.IdentValue)
     # if val == nil: return newError("identifier not found: ", val.myType()) TODO:
     return val
+
 
 proc evalProgram(self: PNode, env: Environment): Object =
     var r: Object
@@ -109,6 +118,7 @@ proc evalProgram(self: PNode, env: Environment): Object =
         elif r.kind == Error:
             return r
     return r
+
 
 proc evalBlockStatement(self: PNode, env: Environment): Object =
     # NOTE: 到達しない p.148
@@ -122,15 +132,18 @@ proc evalBlockStatement(self: PNode, env: Environment): Object =
 
     return r
 
+
 proc nativeBoolToBooleanObject(input: bool): Object =
     if input: return TRUE
     return FALSE
+
 
 proc evalPrefixExpression(operator: string, right: Object): Object =
     case operator
     of "!": return evalBanOperationExpression(right)
     of "-": return evalMinusPrefixOperatorExpression(right)
     else: return newError("unknown operator: ", operator, right.myType())
+
 
 proc evalBanOperationExpression(right: Object): Object =
     case right.kind
@@ -141,11 +154,13 @@ proc evalBanOperationExpression(right: Object): Object =
     of TNull: result = TRUE
     else: result = FALSE
 
+
 proc evalMinusPrefixOperatorExpression(right: Object): Object =
     if right.myType() != obj.INTEGER_OBJ:
         return newError("unknown operator: -", right.myType())
     let value = right.IntValue
     return Object(kind: Integer, IntValue: -value)
+
 
 proc evalInfixExpression(operator: string, left: Object, right: Object): Object =
     if left.myType() == obj.INTEGER_OBJ and right.myType() == obj.INTEGER_OBJ:
@@ -158,6 +173,7 @@ proc evalInfixExpression(operator: string, left: Object, right: Object): Object 
         return newError("type mismatch: ", left.myType(), operator, right.myType())
     else:
         return newError("unknown operator: ", left.myType(), operator, right.myType())
+
 
 proc evalIntegerInfixExpression(operator: string, left: Object, right: Object): Object =
     let
@@ -184,6 +200,7 @@ proc evalIntegerInfixExpression(operator: string, left: Object, right: Object): 
     else:
         result = newError("unknown operator: ", left.myType(), operator, right.myType())
 
+
 proc evalIfExpression(ie: PNode, env: Environment): Object =
     let condition = eval(ie.Condition, env)
     if isError(condition): return condition
@@ -194,6 +211,7 @@ proc evalIfExpression(ie: PNode, env: Environment): Object =
         return eval(ie.Alternative.Statements[0], env)
     else: return NULL
 
+
 proc evalExpressions(exps: seq[PNode], env: Environment): seq[Object] =
     var r: seq[Object]
     for e in exps:
@@ -201,6 +219,7 @@ proc evalExpressions(exps: seq[PNode], env: Environment): seq[Object] =
         # if isError(evaluated): return Object(evaluated) TODO:
         r.add(evaluated)
     return r
+
 
 proc applyFunction(self: Object, args: seq[Object]): Object =
     if self == nil: return newError("not a function ", self.myType())
@@ -235,15 +254,18 @@ proc isTruthy(obj: Object): bool =
 proc isError(self: Object): bool =
     self.kind == Error
 
+
 proc newError(format: string, right: ObjectType): Object =
     Object(
         kind: Error,
         ErrMessage: fmt"{format}{right}")
 
+
 proc newError(format: string, operator: string, right: ObjectType ): Object =
     Object(
         kind: Error,
         ErrMessage: fmt"2{format}{right}{operator}")
+
 
 proc newError(format: string, left: ObjectType, operator: string, right: ObjectType ): Object =
     Object(

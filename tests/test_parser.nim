@@ -190,6 +190,7 @@ suite "Parser":
     #         check(exp.InOperator == i.operator)
     #         check(testIntegerLiteral(exp.InRight, i.rightValue))
 
+
     test "test operator precedenve parsing":
 
         type Test = object

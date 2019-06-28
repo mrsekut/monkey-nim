@@ -1,4 +1,4 @@
-# Writing An Interprete In Nim
+# Moneky-Nim
 
 Implementing the Monkey language interpreter with Nim, referring to the book "Writing An Interpreter In Go"
 
