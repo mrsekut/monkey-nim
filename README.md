@@ -9,7 +9,7 @@ Implementing the Monkey language interpreter with Nim, referring to the book "Wr
 
 ## Build
 
-`$ nible build`
+`$ nimble build`
 
 ## Test
 

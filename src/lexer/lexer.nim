@@ -1,13 +1,12 @@
 import token
 
-# TODO: `\0`以外のEOF
-
 const
     chars: set[char] = {'a'..'z', 'A'..'Z', '_'}
     nums: set[char] = {'0'..'9'}
 
 proc isLetter(ch: char): bool = ch in chars
 proc isDigit(num: char): bool = num in nums
+
 
 proc newToken(tokenType: TokenType, ch: char): Token =
     new result
@@ -17,11 +16,13 @@ proc newToken(tokenType: TokenType, ch: char): Token =
 
 # Lexer
 # ================
+
 type Lexer* = ref object of RootObj
     input: string
     position: int
     readPosition: int
     ch: char
+
 
 proc newLexer*(input: string): Lexer
 proc readNextChar(self: var Lexer)
@@ -31,20 +32,25 @@ proc readNumber(self: var Lexer): string
 proc peekChar(self: var Lexer): char
 proc nextToken*(self: var Lexer): token.Token
 
+
+
 # implementation
+
 
 proc newLexer*(input: string): Lexer =
     new result
     result.input = input
     result.readNextChar()
 
+
 proc readNextChar(self: var Lexer) =
     if self.readPosition >= len(self.input):
-        self.ch = ' '
+        self.ch = '\0'
     else:
         self.ch = self.input[self.readPosition]
     self.position = self.readPosition
     self.readPosition += 1
+
 
 proc readIdentifier(self: var Lexer): string =
     let position = self.position
@@ -53,9 +59,6 @@ proc readIdentifier(self: var Lexer): string =
 
     self.input[position..self.position-1]
 
-proc skipWhiteSpace(self: var Lexer) =
-    while self.ch == ' ' or self.ch == '\t' or self.ch == '\n':
-        self.readNextChar()
 
 proc readNumber(self: var Lexer): string =
     let position = self.position
@@ -64,11 +67,18 @@ proc readNumber(self: var Lexer): string =
 
     self.input[position..self.position-1]
 
+
+proc skipWhiteSpace(self: var Lexer) =
+    while self.ch == ' ' or self.ch == '\t' or self.ch == '\n':
+        self.readNextChar()
+
+
 proc peekChar(self: var Lexer): char =
     if self.readPosition >= len(self.input):
         return ' '
     else:
         return self.input[self.readPosition]
+
 
 proc nextToken*(self: var Lexer): token.Token =
     var tok: token.Token
@@ -87,8 +97,6 @@ proc nextToken*(self: var Lexer): token.Token =
         tok = newToken(COLON, self.ch)
     of ';':
         tok = newToken(SEMICOLON, self.ch)
-    of '\\', '\n': # 仮
-        tok = newToken(EOF, self.ch)
     of '(':
         tok = newToken(LPAREN, self.ch)
     of ')':
@@ -119,6 +127,8 @@ proc nextToken*(self: var Lexer): token.Token =
         tok = newToken(LBRACE, self.ch)
     of '}':
         tok = newToken(RBRACE, self.ch)
+    of '\0':
+        tok = newToken(EOF, '\0')
     else:
         if isLetter(self.ch):
             let l = self.readIdentifier()
@@ -133,6 +143,7 @@ proc nextToken*(self: var Lexer): token.Token =
 
     self.readNextChar()
     tok
+
 
 proc main() = discard
 when isMainModule:

@@ -21,12 +21,12 @@ proc printParserErrors(errors: seq[string]) =
     echo MONKEY_FACE
     for e in errors: echo e
 
-proc start() =
+when isMainModule:
     let env = newEnvironment()
-    echo "hello"
     while true:
         stdout.write ">> "
-        let
+        # let
+        var
             line = stdin.readLine()
             l = newLexer(line)
             p = newParser(l)
@@ -41,6 +41,7 @@ proc start() =
             echo evaluated.inspect()
 
 
-proc main() = start()
-when isMainModule:
-    main()
+        # TODO: 問題は読み込み終わってるのにnextTokenが終わらないこと
+        # for i in 0..10:
+        #     let tok = l.nextToken()
+        #     echo tok.Literal

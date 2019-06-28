@@ -83,7 +83,7 @@ suite "Lexer":
             ( INT, "10" ),
             ( NOT_EQ, "!=" ),
             ( INT, "9" ),
-            # ( token.EOF, "" ),
+            ( EOF, "\0" ),
         ]
 
         var l = lexer.newLexer(input)
