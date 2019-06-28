@@ -25,8 +25,7 @@ when isMainModule:
     let env = newEnvironment()
     while true:
         stdout.write ">> "
-        # let
-        var
+        let
             line = stdin.readLine()
             l = newLexer(line)
             p = newParser(l)
@@ -39,9 +38,3 @@ when isMainModule:
         let evaluated = evaluator.eval(program, env)
         if evaluated != nil:
             echo evaluated.inspect()
-
-
-        # TODO: 問題は読み込み終わってるのにnextTokenが終わらないこと
-        # for i in 0..10:
-        #     let tok = l.nextToken()
-        #     echo tok.Literal
