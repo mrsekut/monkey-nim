@@ -20,6 +20,7 @@ proc evalBanOperationExpression(right: Object): Object
 proc evalMinusPrefixOperatorExpression(right: Object): Object
 proc evalInfixExpression(operator: string, left: Object, right: Object): Object
 proc evalIntegerInfixExpression(operator: string, left: Object, right: Object): Object
+proc evalStringInfixExpression(operator: string, left: Object, right: Object): Object
 proc evalIfExpression(ie: PNode, env: Environment): Object
 proc evalExpressions(exps: seq[PNode], env: Environment): seq[Object]
 proc applyFunction(self: Object, args: seq[Object]): Object
@@ -165,6 +166,8 @@ proc evalMinusPrefixOperatorExpression(right: Object): Object =
 proc evalInfixExpression(operator: string, left: Object, right: Object): Object =
     if left.myType() == obj.INTEGER_OBJ and right.myType() == obj.INTEGER_OBJ:
         return evalIntegerInfixExpression(operator, left, right)
+    elif left.myType() == obj.STRING_OBJ and right.myType() == obj.STRING_OBJ:
+        return evalStringInfixExpression(operator, left, right)
     elif operator == "==":
         return nativeBoolToBooleanObject(left == right)
     elif operator == "!=":
@@ -199,6 +202,15 @@ proc evalIntegerInfixExpression(operator: string, left: Object, right: Object): 
         result = nativeBoolToBooleanObject(leftVal != rightVal)
     else:
         result = newError("unknown operator: ", left.myType(), operator, right.myType())
+
+
+proc evalStringInfixExpression(operator: string, left: Object, right: Object): Object =
+    if operator != "+":
+        return newError("unknown operator: ", left.myType(), operator, right.myType())
+
+    let leftVal = left.StringValue
+    let rightVal = right.StringValue
+    return Object(kind: String, StringValue: leftVal & rightVal)
 
 
 proc evalIfExpression(ie: PNode, env: Environment): Object =

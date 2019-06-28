@@ -5,6 +5,7 @@ import
     ../evaluator/evaluator,
     ../obj/obj
 
+
 const MONKEY_FACE = """
     ^                      _______
     |                     < Error!! >
@@ -17,9 +18,11 @@ const MONKEY_FACE = """
     |------------------------------->
 """
 
+
 proc printParserErrors(errors: seq[string]) =
     echo MONKEY_FACE
     for e in errors: echo e
+
 
 when isMainModule:
     let env = newEnvironment()
