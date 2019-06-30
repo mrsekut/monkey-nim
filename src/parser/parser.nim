@@ -86,9 +86,9 @@ proc expectPeek(self: Parser, t: token.TokenType): bool =
     if self.peekTokenIs(t):
         self.nextToken()
         return true
-    else:
-        self.peekError(t)
-        return false
+
+    self.peekError(t)
+    return false
 
 
 proc curPrecedence(self: Parser): Precedence =
@@ -205,13 +205,11 @@ proc parseFunctionLiteral(self: Parser): PNode =
 
 proc parseFunctionParameters(self: Parser): seq[PNode] =
     var identifiers = newSeq[PNode]()
-
     if self.peekTokenIs(RPAREN):
         self.nextToken()
         return identifiers
 
     self.nextToken()
-
     var ident = PNode(
                     kind: nkIdent,
                     Token: self.curToken,
@@ -241,14 +239,12 @@ proc parseCallExpression(self: Parser, function: PNode): PNode =
 
 proc parseCallArgs(self: Parser): seq[PNode] =
     var args = newSeq[PNode]()
-
     if self.peekTokenIs(RPAREN):
         self.nextToken()
         return args
 
     self.nextToken()
     self.nextToken()
-
     args.add(self.parseExpression(Precedence.Lowest))
 
     while self.peekTokenIs(COMMA):
@@ -257,7 +253,6 @@ proc parseCallArgs(self: Parser): seq[PNode] =
         args.add(self.parseExpression(Precedence.Lowest))
 
     if not self.expectPeek(RPAREN): return
-
     args
 
 
@@ -274,8 +269,9 @@ proc parseBlockStatement(self: Parser): BlockStatements =
 
 
 proc parsePrefixExpression(self: Parser): PNode =
-    let operator = self.curToken.Type
-    let prefix = self.curToken.Token
+    let
+        operator = self.curToken.Type
+        prefix = self.curToken
     self.nextToken()
 
     let right = self.parseExpression(Precedence.Prefix)
@@ -288,8 +284,9 @@ proc parsePrefixExpression(self: Parser): PNode =
 
 
 proc parseInfixExpression(self: Parser, left: PNode): PNode =
-    let operator = self.curToken.Type
-    let p = self.curPrecedence()
+    let
+        operator = self.curToken.Type
+        p = self.curPrecedence()
     self.nextToken()
 
     let right = self.parseExpression(p)
@@ -305,7 +302,7 @@ proc parseInfixExpression(self: Parser, left: PNode): PNode =
 proc parseExpression(self: Parser, precedence: Precedence): PNode =
     # prefix
     var left: PNode
-    case self.curToken.Token.Type
+    case self.curToken.Type
     of IDENT:
         left = self.parseIdentifier()
     of INT:
@@ -348,9 +345,12 @@ proc parseExpressionStatement(self: Parser): PNode =
 
 proc parseStatement(self: Parser): PNode =
     case self.curToken.Type
-    of token.LET: return self.parseLetStatement()
-    of token.RETURN: return self.parseReturnStatement()
-    else: return self.parseExpressionStatement()
+    of LET:
+        return self.parseLetStatement()
+    of RETURN:
+        return self.parseReturnStatement()
+    else:
+        return self.parseExpressionStatement()
 
 
 
@@ -366,6 +366,10 @@ proc parseProgram*(self: Parser): PNode =
         self.nextToken()
 
 
+
+# Errors
+
+
 proc error*(self: Parser): seq[string] = self.errors
 
 
@@ -374,7 +378,7 @@ proc noPrefixParseError(self: Parser) =
 
 
 proc peekError(self: Parser, t: token.TokenType) =
-    let msg = fmt"expected next tokent to be {t}, got {self.peekToken.Type} instead"
+    let msg = fmt"expected next token to be {t}, got {self.peekToken.Type} instead"
     self.errors.add(msg)
 
 

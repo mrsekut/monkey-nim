@@ -5,9 +5,9 @@ import
     ../src/lexer/lexer,
     ../src/lexer/token
 
+
 suite "AST":
     test "it should parse index letStatement":
-        check(true==true)
         let program = PNode(
             kind: Program,
             statements: @[

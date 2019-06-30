@@ -42,6 +42,10 @@ type
         nkStringLiteral
         nkBoolean
 
+        # PrefixExpression
+        nkPrefixExpression
+        nkInfixExpression
+
         # Statement
         nkLetStatement
         nkReturnStatement
@@ -52,10 +56,6 @@ type
         nkFunctionLiteral
         nkCallExpression
         nkBlockStatement
-
-        # PrefixExpression
-        nkPrefixExpression
-        nkInfixExpression
 
         Nil # TODO: 最終的に消す
 
@@ -78,6 +78,14 @@ type
         of nkBoolean:
             BlValue*: bool
 
+        of nkPrefixExpression:
+            PrOperator*: string
+            PrRight*: PNode
+        of nkInfixExpression:
+            InLeft*: PNode
+            InOperator*: string
+            InRight*: PNode
+
         of nkLetStatement:
             LetName*: PNode
             LetValue*:  PNode
@@ -96,14 +104,6 @@ type
         of nkCallExpression:
             Function*: PNode
             Args*: seq[PNode]
-
-        of nkPrefixExpression:
-            PrOperator*: string
-            PrRight*: PNode
-        of nkInfixExpression:
-            InLeft*: PNode
-            InOperator*: string
-            InRight*: PNode
 
         of Nil: discard
         else: sons: TNodeSeq
@@ -131,6 +131,7 @@ proc tokenLiteral(self: PNode): string = self.Token.Literal
 
 proc astToString*(self: PNode): string =
     case self.kind:
+
     of Program:
         result = ""
         for statement in self.statements:
@@ -140,28 +141,6 @@ proc astToString*(self: PNode): string =
         result = self.Token.Literal
 
     of nkBoolean: result = self.Token.Literal
-
-    of nkLetStatement:
-        result = fmt"{self.tokenLiteral()} {self.LetName.Token.Literal} = {self.LetValue.astToString()};"
-
-    of nkReturnStatement:
-        result = fmt"{self.tokenLiteral()} {self.ReturnValue.astToString()};"
-
-    of nkExpressionStatement: # TODO: p.53
-        result = "ExpressionStatementString dayo"
-
-    of nkIFExpression: # TODO:
-        result = "if dayo"
-
-    of nkFunctionLiteral: # TODO:
-        result = "function dayo"
-
-    of nkCallExpression:
-        var args = newSeq[string]()
-        for arg in self.Args:
-            args.add(arg.astToString())
-
-        result = fmt"{self.Function.Token.Literal}({ args.foldr(a & ',' & ' ' & b) })"
 
     of nkPrefixExpression:
         let
@@ -175,6 +154,32 @@ proc astToString*(self: PNode): string =
             operator = self.InOperator
             right = self.InRight.astToString()
         result = fmt"({left} {operator} {right})"
+
+    of nkLetStatement:
+        result = fmt"{self.tokenLiteral()} {self.LetName.Token.Literal} = {self.LetValue.astToString()};"
+
+    of nkReturnStatement:
+        result = fmt"{self.tokenLiteral()} {self.ReturnValue.astToString()};"
+
+    of nkExpressionStatement:
+        result = self.Expression.astToString()
+
+    of nkIFExpression:
+        result = fmt"if {self.Condition.astToString()} " & "{" & fmt"{self.Consequence.astToString()}" & "}"
+        if self.Alternative != nil:
+            result &= " else {" & fmt"{self.Alternative.astToString()}" & "}"
+
+    of nkFunctionLiteral:
+        var params: seq[string]
+        for p in self.FnParameters:
+            params.add(p.astToString())
+        result = self.tokenLiteral() & "(" & params.join(", ") & ") " & "{" & self.FnBody.astToString() & "}"
+
+    of nkCallExpression:
+        var args = newSeq[string]()
+        for arg in self.Args:
+            args.add(arg.astToString())
+        result = fmt"{self.Function.Token.Literal}({ args.foldr(a & ',' & ' ' & b) })"
 
     else: result = self.Token.Literal
 
