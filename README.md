@@ -14,6 +14,14 @@ Implementing the Monkey language interpreter with Nim, referring to the book "Wr
 
 `$ nimble build`
 
+## Run
+
+- `$ ./moneky_nim`
+
 ## Test
 
 `$ nimble test`
+
+## Run in developing
+
+- `$ $ nim c -r src/monkey_nim.nim`

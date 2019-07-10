@@ -24,7 +24,8 @@ proc printParserErrors(errors: seq[string]) =
     for e in errors: echo e
 
 
-when isMainModule:
+# when isMainModule:
+proc repl*() =
     let env = newEnvironment()
     while true:
         stdout.write ">> "
