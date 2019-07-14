@@ -61,6 +61,52 @@ proc make*(op: OpCode, operands: seq[int]): seq[byte] =
         errorMessageWriter(fmt"opcode {op} undefined")
 
 
+proc insToString*(): string =
+    var i = 0
+    while i < len(ins):
+        let def = lookup(ins[i])
+        if def != nil:
+            echo fmt"Error: {err}"
+            continue
+
+    let operands, read = readOperands(def, ins[i+1])
+    echo fmt""
+
+
+proc fmtInstructions(def: Definition, operands: seq[int]): string =
+    let operandCount = len(def.OperandWidth)
+
+    if len(operands) != operandCount:
+        return fmt"ERROR: operand len {len(operands)} does not match defined {operandCount}"
+
+    if operandCount != 1:
+        return fmt""
+
+    return fmt""
+
+
+
+proc readUint16(ins: Instructions): uint16 =
+    return ins
+
+
+proc readOperands*(def: Definition, ins: Instructions): (seq[int], int) =
+    var
+        operands = make(newSeq[int](), @[len(def.OperandWidths)])
+        offset = 0
+
+    for i, width in def.OperandWidths:
+        if width == 2:
+            operands[i] = int(readUint16(ins[offset]))
+
+        offset += width
+
+    return (operands, offset)
+
+
+
+
+
 
 
 proc main() = discard
