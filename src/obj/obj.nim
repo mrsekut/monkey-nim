@@ -45,7 +45,6 @@ type
             Env*: Environment
         of Error:
             ErrMessage*: string
-        else: discard
 
 
 proc inspect*(self: Object): string

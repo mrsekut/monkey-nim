@@ -24,4 +24,4 @@ Implementing the Monkey language interpreter with Nim, referring to the book "Wr
 
 ## Run in developing
 
-- `$ $ nim c -r src/monkey_nim.nim`
+- `$ nim c -r src/monkey_nim.nim`

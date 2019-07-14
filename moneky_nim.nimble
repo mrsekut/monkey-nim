@@ -9,5 +9,5 @@ bin           = @["monkey_nim"]
 
 # Dependencies
 
-requires "nim >= 0.19.2"
+requires "nim >= 0.20.0"
 skipDirs = @["tests"]
