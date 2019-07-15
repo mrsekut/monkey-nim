@@ -47,31 +47,27 @@ suite "Code":
             fail()
 
 
-    # test "test readOperands":
-    #     type Test = object
-    #         op: Opcode
-    #         operands: seq[int]
-    #         bytesRead: int
+    test "test readOperands":
+        type TestReadOperands = object
+            op: Opcode
+            operands: seq[int]
+            bytesRead: int
 
-    #     let tests = @[
-    #         Test(op: OpConstant, operands: @[65535], bytesRead: 2)
-    #     ]
+        let tests = @[
+            TestReadOperands(op: OpConstant, operands: @[65535], bytesRead: 2)
+        ]
 
-    #     for _, test in tests:
-    #         let
-    #             instrucion = makeByte(test.op, test.operands)
-    #             def = lookup(byte(test.op))
+        for _, test in tests:
+            let
+                instrucion = makeByte(test.op, test.operands)
+                def = lookup(byte(test.op))
 
-    #         if def != nil:
-    #             checkpoint(fmt"definition not found")
-    #             fail()
+            let (operandsRead, n ) = readOperands(def, instrucion[1..^1])
+            if n != test.bytesRead:
+                checkpoint(fmt"n wrong. want={test.bytesRead}, got={n}")
+                fail()
 
-    #         let (operandsRead, n ) = readOperands(def, instrucion[1..^1])
-    #         if n != test.bytesRead:
-    #             checkpoint(fmt"n wrong. want={test.bytesRead}, got={n}")
-    #             fail()
-
-    #         for i, want in test.operands:
-    #             if operandsRead[i] != want:
-    #                 checkpoint(fmt"operand wrong. want={want}, got={operandsRead[i]}")
-    #                 fail()
+            for i, want in test.operands:
+                if operandsRead[i] != want:
+                    checkpoint(fmt"operand wrong. want={want}, got={operandsRead[i]}")
+                    fail()

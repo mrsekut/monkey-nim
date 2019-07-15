@@ -176,6 +176,7 @@ suite "Parser":
 
     # # NOTE: If this test case is executed alone, it passes.
     # test "it should parse infixExpressions":
+    #      TODO: コメントアウトしてるテスト、この「Test」型の名前をファイル内でユニークなものにしたら動くTestHogeなど
     #     type Test = object
     #         input: string
     #         leftValue: int
