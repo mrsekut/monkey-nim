@@ -14,8 +14,8 @@ type CompilerTestCase[T] = ref object of RootObj
     expectedInstructions: seq[Instructions]
 
 
-# proc testConstants[T](expected: T, actual: seq[Object]): string
-# proc testIntegerObject(expected: int, actual: seq[Object]): string
+proc testConstants[T](expected: T, actual: seq[Object])
+proc testIntegerObject(expected: int, actual: Object)
 proc testInstructions(expected: seq[Instructions], actual: Instructions)
 proc concatInstructions(s: seq[Instructions]): Instructions
 proc parse(input: string): PNode
@@ -27,34 +27,32 @@ proc runCompilerTests[T](tests: seq[CompilerTestCase[T]])
 
 
 
-# proc testConstants[T](expected: T, actual: seq[Object]): string =
-#     if len(expected) != len(actual):
-#         return fmt"""
-#             wrong number of constants.
-#             want={concatted}
-#             got={actual}
-#         """
+proc testConstants[T](expected: T, actual: seq[Object]) =
+    if len(expected) != len(actual):
+        checkpoint(fmt"""
+            wrong number of constants.
+            got={actual.len}
+            want={expected.len}
+        """)
+        fail()
 
-#     # 定数を処理し、コンパイラが生成した定数と比較する
-#     for i, constant in expected:
-#         case constant.type.name
-#         of int:
-#             let e = testIntegerObject(int64(constant), actual[i])
-#             # if err != nil:
-#             #     return fmt"constant {i} - testIntegerObject failed: {err}"
-
-#     return nil
+    # 定数を処理し、コンパイラが生成した定数と比較する
+    for i, constant in expected:
+        echo constant
+        case constant.type.name
+        of "int":
+            testIntegerObject(int(constant), actual[i])
 
 
-# proc testIntegerObject(expected: int, actual: seq[Object]): string =
-#     let res = actual
+proc testIntegerObject(expected: int, actual: Object) =
+    let res = actual
     # if res != nil:
-    #     return fmt"object is not Integer. got={actual} ({actual})"
-
+    #     checkpoint(fmt"object is not Integer. got={actual} ({actual})")
+    #     fail()
     # if res.Value != expected:
-    #     return fmt"object has wrong value. got={res.Value}, want={expected}"
+    #     checkpoint(fmt"object has wrong value. got={res.Value}, want={expected}")
+    #     fail()
 
-    # return nil
 
 
 proc testInstructions(expected: seq[Instructions], actual: Instructions) =
@@ -101,18 +99,15 @@ proc runCompilerTests[T](tests: seq[CompilerTestCase[T]]) =
             errCompilr = compiler.compile(program)
 
         if errCompilr:
-            echo fmt"compiler error"
+            checkpoint(fmt"compiler error")
+            fail()
             # echo fmt"compiler error: {err}"
 
         # バイトコードの正しさのテスト
         let bytecode = compiler.bytecode()
         echo bytecode.instructions
         testInstructions(test.expectedInstructions, bytecode.instructions)
-
-        # var errCons = testConstants(test.expectedConstants, bytecode.Constants)
-        # if errCons:
-        #     checkpoint(fmt"testConstants failed: {err}")
-        #     fail()
+        testConstants(test.expectedConstants, bytecode.constants)
 
 
 

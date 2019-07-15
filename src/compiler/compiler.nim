@@ -8,7 +8,7 @@ type
 
     Bytecode* = ref object of RootObj
         instructions*: Instructions
-        constants: seq[Object]
+        constants*: seq[Object]
 
 
 
