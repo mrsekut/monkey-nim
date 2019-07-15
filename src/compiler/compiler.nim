@@ -13,7 +13,7 @@ type
 
 
 
-proc newCompiler(self: Compiler): Compiler =
+proc newCompiler*(self: Compiler): Compiler =
     Compiler(
         # instructions: Instructions(),
         constants: newSeq[Object]()

@@ -20,6 +20,16 @@ var definitions = {
 }.newTable
 
 
+proc lookup*(op: byte): Definition
+proc putBigEndian16(arr: var seq[byte], index: int, operand: uint16)
+proc makeByte*(op: OpCode, operands: seq[int]): seq[byte]
+proc insToString*(ins: Instructions): string
+proc readUint16(ins: Instructions): uint16
+proc readOperands*(def: Definition, ins: Instructions): (seq[int], int)
+proc fmtInstructions(self: Instructions, def: Definition, operands: seq[int]): string
+
+# implementation
+
 proc lookup*(op: byte): Definition =
     try:
         var def = definitions[Opcode(op)]
@@ -28,17 +38,18 @@ proc lookup*(op: byte): Definition =
         errorMessageWriter(fmt"opcode {op} undefined")
 
 
-proc putBigEndian16(arr: var seq[byte], index: int, operand :int64) =
+proc putBigEndian16(arr: var seq[byte], index: int, operand: uint16) =
     if arr.len != index: arr.add(byte(0)) # FIXME:
 
-    let hex: string = toHex(operand, 4) # FFFE
+    let hex: string = toHex(int(operand), 4) # FFFE
     for i in countup(0, len(hex)-1, 2):
         var bc = hex[i..i+1] # FF
         var c = fromHex[byte](bc) # 255
         arr.add(c)
 
 
-proc make*(op: OpCode, operands: seq[int]): seq[byte] =
+# opcodeとoperandを引数にとり、その全体をバイトコード化したものの配列を返す
+proc makeByte*(op: OpCode, operands: seq[int]): seq[byte] =
     try:
         let def = definitions[op]
         var instructionLen = 1
@@ -53,7 +64,7 @@ proc make*(op: OpCode, operands: seq[int]): seq[byte] =
         for i, operand in operands:
             let width = def.OperandWidths[i]
             if width == 2:
-                instruction.putBigEndian16(offset, int64(operand))
+                instruction.putBigEndian16(offset, uint16(operand))
             offset += width
 
         return instruction
@@ -61,44 +72,51 @@ proc make*(op: OpCode, operands: seq[int]): seq[byte] =
         errorMessageWriter(fmt"opcode {op} undefined")
 
 
-proc insToString*(): string =
-    var i = 0
+proc insToString*(ins: Instructions): string =
+    result = ""
+    var
+       i = 0
+       def: Definition
     while i < len(ins):
-        let def = lookup(ins[i])
-        if def != nil:
-            echo fmt"Error: {err}"
-            continue
+        def = lookup(ins[i])
+        # if def != nil:
+        #     echo fmt"Error"
+        #     continue
 
-    let operands, read = readOperands(def, ins[i+1])
-    echo fmt""
+        let (operands, read) = readOperands(def, ins[i+1..^1])
+        result &= &"{i:04} {ins.fmtInstructions(def, operands)}\n"
+
+        i += 1 + read
 
 
-proc fmtInstructions(def: Definition, operands: seq[int]): string =
-    let operandCount = len(def.OperandWidth)
+proc fmtInstructions(self: Instructions, def: Definition, operands: seq[int]): string =
+    let operandCount = len(def.OperandWidths)
 
     if len(operands) != operandCount:
         return fmt"ERROR: operand len {len(operands)} does not match defined {operandCount}"
 
-    if operandCount != 1:
-        return fmt""
+    if operandCount == 1:
+        return fmt"{def.Name} {operands[0]}"
 
-    return fmt""
+    return fmt"ERROR: unhandled operandCount for {def.Name}"
 
 
 
+# バイナリの配列を引数にとって、uint16を返す
 proc readUint16(ins: Instructions): uint16 =
-    return ins
+    let s = toHex(ins[0]) & toHex(ins[1])
+    return fromHex[uint16](s)
 
 
 proc readOperands*(def: Definition, ins: Instructions): (seq[int], int) =
     var
-        operands = make(newSeq[int](), @[len(def.OperandWidths)])
+        # operands: array[0..def.OperandWidths.len, int]
+        operands = newSeq[int]()
         offset = 0
 
     for i, width in def.OperandWidths:
         if width == 2:
-            operands[i] = int(readUint16(ins[offset]))
-
+            operands.add(int(readUint16(ins[offset..^1]))) # FIXME:
         offset += width
 
     return (operands, offset)
@@ -107,10 +125,8 @@ proc readOperands*(def: Definition, ins: Instructions): (seq[int], int) =
 
 
 
-
-
-proc main() = discard
-    # echo make(OpConstant, @[65534])
+proc main() = # discard
+    discard
 when isMainModule:
     main()
 
