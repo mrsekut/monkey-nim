@@ -152,14 +152,14 @@ suite "Parser":
 
 
     test "it should parse prefixExpressions":
-        type Test = object
+        type TestPrefixExpressions = object
             input: string
             operator: string
             integerValue: int
 
         let testInputs = @[
-            Test(input: "!5", operator: "!", integerValue: 5),
-            Test(input: "-15", operator: "-", integerValue: 15)
+            TestPrefixExpressions(input: "!5", operator: "!", integerValue: 5),
+            TestPrefixExpressions(input: "-15", operator: "-", integerValue: 15)
         ]
 
         for i in testInputs:
@@ -174,102 +174,98 @@ suite "Parser":
             check(testIntegerLiteral(exp.PrRight, i.integerValue))
 
 
-    # # NOTE: If this test case is executed alone, it passes.
-    # test "it should parse infixExpressions":
-    #      TODO: コメントアウトしてるテスト、この「Test」型の名前をファイル内でユニークなものにしたら動くTestHogeなど
-    #     type Test = object
-    #         input: string
-    #         leftValue: int
-    #         operator: string
-    #         rightValue: int
-    #
-    #     let testInputs = @[
-    #         Test(input: "5 + 5;", leftValue: 5, operator: "+", rightValue: 5),
-    #         Test(input: "5 - 5;", leftValue: 5, operator: "-", rightValue: 5),
-    #         Test(input: "5 * 5;", leftValue: 5, operator: "*", rightValue: 5),
-    #         Test(input: "5 / 5;", leftValue: 5, operator: "/", rightValue: 5),
-    #         Test(input: "5 > 5;", leftValue: 5, operator: ">", rightValue: 5),
-    #         Test(input: "5 < 5;", leftValue: 5, operator: "<", rightValue: 5),
-    #         Test(input: "5 == 5;", leftValue: 5, operator: "==", rightValue: 5),
-    #         Test(input: "5 != 5;", leftValue: 5, operator: "!=", rightValue: 5)
-    #     ]
-    #
-    #     for i in testInputs:
-    #         let
-    #             l = newLexer(i.input)
-    #             p = newParser(l)
-    #             program = p.parseProgram()
-    #             exp = program.statements[0]
-    #
-    #         checkParserError(p)
-    #         check(program.statements.len == 1)
-    #         check(testIntegerLiteral(exp.InLeft, i.leftValue))
-    #         check(exp.InOperator == i.operator)
-    #         check(testIntegerLiteral(exp.InRight, i.rightValue))
+    test "it should parse infixExpressions":
+        type TestInfixExpressions = object
+            input: string
+            leftValue: int
+            operator: string
+            rightValue: int
+
+        let testInputs = @[
+            TestInfixExpressions(input: "5 + 5;", leftValue: 5, operator: "+", rightValue: 5),
+            TestInfixExpressions(input: "5 - 5;", leftValue: 5, operator: "-", rightValue: 5),
+            TestInfixExpressions(input: "5 * 5;", leftValue: 5, operator: "*", rightValue: 5),
+            TestInfixExpressions(input: "5 / 5;", leftValue: 5, operator: "/", rightValue: 5),
+            TestInfixExpressions(input: "5 > 5;", leftValue: 5, operator: ">", rightValue: 5),
+            TestInfixExpressions(input: "5 < 5;", leftValue: 5, operator: "<", rightValue: 5),
+            TestInfixExpressions(input: "5 == 5;", leftValue: 5, operator: "==", rightValue: 5),
+            TestInfixExpressions(input: "5 != 5;", leftValue: 5, operator: "!=", rightValue: 5)
+        ]
+
+        for i in testInputs:
+            let
+                l = newLexer(i.input)
+                p = newParser(l)
+                program = p.parseProgram()
+                exp = program.statements[0]
+
+            checkParserError(p)
+            check(program.statements.len == 1)
+            check(testIntegerLiteral(exp.InLeft, i.leftValue))
+            check(exp.InOperator == i.operator)
+            check(testIntegerLiteral(exp.InRight, i.rightValue))
 
 
-    # # NOTE: If this test case is executed alone, it passes.
-    # test "test operator precedenve parsing":
-    #     type Test = object
-    #         input: string
-    #         expected: string
-    #
-    #     let testInputs = @[
-    #         Test(input: "-a * b", expected: "((-a) * b)"),
-    #         Test(input: "!-a", expected: "(!(-a))"),
-    #         Test(input: "a + b + c", expected: "((a + b) + c)"),
-    #         Test(input: "a * b / c", expected: "((a * b) / c)"),
-    #         Test(input: "a + b * c + d / e - f", expected: "(((a + (b * c)) + (d / e)) - f)"),
-    #         Test(input: "3 + 4; -5 * 5", expected: "(3 + 4)((-5) * 5)"),
-    #         Test(input: "5 > 4 == 3 < 4", expected: "((5 > 4) == (3 < 4))"),
-    #         Test(input: "5 < 4 != 3 > 4", expected: "((5 < 4) != (3 > 4))"),
-    #         Test(input: "3 + 4 * 5 == 3 * 1 + 4 * 5", expected: "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"),
-    #     ]
-    #
-    #     for i in testInputs:
-    #         let
-    #             l = newLexer(i.input)
-    #             p = newParser(l)
-    #             program = p.parseProgram()
-    #             act = program.astToString()
-    #         checkParserError(p)
-    #         check(act == i.expected)
+    test "test operator precedence parsing":
+        type TestOpPrecedence = object
+            input: string
+            expected: string
+
+        let testInputs = @[
+            TestOpPrecedence(input: "-a * b", expected: "((-a) * b)"),
+            TestOpPrecedence(input: "!-a", expected: "(!(-a))"),
+            TestOpPrecedence(input: "a + b + c", expected: "((a + b) + c)"),
+            TestOpPrecedence(input: "a * b / c", expected: "((a * b) / c)"),
+            TestOpPrecedence(input: "a + b * c + d / e - f", expected: "(((a + (b * c)) + (d / e)) - f)"),
+            TestOpPrecedence(input: "3 + 4; -5 * 5", expected: "(3 + 4)((-5) * 5)"),
+            TestOpPrecedence(input: "5 > 4 == 3 < 4", expected: "((5 > 4) == (3 < 4))"),
+            TestOpPrecedence(input: "5 < 4 != 3 > 4", expected: "((5 < 4) != (3 > 4))"),
+            TestOpPrecedence(input: "3 + 4 * 5 == 3 * 1 + 4 * 5", expected: "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"),
+        ]
+
+        for i in testInputs:
+            let
+                l = newLexer(i.input)
+                p = newParser(l)
+                program = p.parseProgram()
+                act = program.astToString()
+            checkParserError(p)
+            check(act == i.expected)
 
 
-    # # NOTE: If this test case is executed alone, it passes.
-    # test "test operator precedence parsing":
-    #     type Test = object
-    #         input: string
-    #         expected: string
-    #
-    #     let testInputs = @[
-    #         Test(input: "true", expected: "true"),
-    #         Test(input: "false", expected: "false"),
-    #         Test(input: "3 < 5 == false", expected: "((3 < 5) == false)"),
-    #         Test(input: "3 < 5 == true", expected: "((3 < 5) == true)"),
-    #
-    #         Test(input: "true == true", expected: "(true == true)"),
-    #         Test(input: "true != false", expected: "(true != false)"),
-    #         Test(input: "false == false", expected: "(false == false)"),
-    #
-    #         Test(input: "!true;", expected: "(!true)"),
-    #         Test(input: "!false;", expected: "(!false)"),
-    #
-    #         Test(input: "1 + (2 + 3) + 4", expected: "((1 + (2 + 3)) + 4)"),
-    #         Test(input: "(5 + 5) * 2", expected: "((5 + 5) * 2)"),
-    #         Test(input: "2 / (5 + 5);", expected: "(2 / (5 + 5))"),
-    #         Test(input: "-(5 + 5);", expected: "(-(5 + 5))"),
-    #         Test(input: "!(true == true);", expected: "(!(true == true))"),
-    #     ]
-    #
-    #     for i in testInputs:
-    #         let
-    #             l = newLexer(i.input)
-    #             p = newParser(l)
-    #             program = p.parseProgram()
-    #             act = program.astToString()
-    #         checkParserError(p)
-    #         check(act == i.expected)
+    test "test operator precedence parsing":
+        type TestOpPrecedence2 = object
+            input: string
+            expected: string
+
+        let testInputs = @[
+            TestOpPrecedence2(input: "true", expected: "true"),
+            TestOpPrecedence2(input: "false", expected: "false"),
+            TestOpPrecedence2(input: "3 < 5 == false", expected: "((3 < 5) == false)"),
+            TestOpPrecedence2(input: "3 < 5 == true", expected: "((3 < 5) == true)"),
+
+            TestOpPrecedence2(input: "true == true", expected: "(true == true)"),
+            TestOpPrecedence2(input: "true != false", expected: "(true != false)"),
+            TestOpPrecedence2(input: "false == false", expected: "(false == false)"),
+
+            TestOpPrecedence2(input: "!true;", expected: "(!true)"),
+            TestOpPrecedence2(input: "!false;", expected: "(!false)"),
+
+            TestOpPrecedence2(input: "1 + (2 + 3) + 4", expected: "((1 + (2 + 3)) + 4)"),
+            TestOpPrecedence2(input: "(5 + 5) * 2", expected: "((5 + 5) * 2)"),
+            TestOpPrecedence2(input: "2 / (5 + 5);", expected: "(2 / (5 + 5))"),
+            TestOpPrecedence2(input: "-(5 + 5);", expected: "(-(5 + 5))"),
+            TestOpPrecedence2(input: "!(true == true);", expected: "(!(true == true))"),
+        ]
+
+        for i in testInputs:
+            let
+                l = newLexer(i.input)
+                p = newParser(l)
+                program = p.parseProgram()
+                act = program.astToString()
+            checkParserError(p)
+            check(act == i.expected)
 
 
     test "test if expression":
@@ -344,29 +340,28 @@ suite "Parser":
         check(body[0].InRight.Token.Literal == "y")
 
 
-    # # NOTE: If this test case is executed alone, it passes.
-    # test "test functionParameter parging":
-    #     type Test = object
-    #         input: string
-    #         expected: seq[string]
-    #
-    #     let testInputs = @[
-    #         Test(input: "fn() {}", expected: @[]),
-    #         Test(input: "fn(x) {}", expected: @["x"]),
-    #         Test(input: "fn(x, y, z) {}", expected: @["x", "y", "z"])
-    #     ]
-    #
-    #     for i in testInputs:
-    #         let
-    #             l = newLexer(i.input)
-    #             p = newParser(l)
-    #             program = p.parseProgram()
-    #             params = program.statements[0].FnParameters
-    #
-    #         check(params.len == i.expected.len)
-    #
-    #         for idx, e in i.expected:
-    #             check(params[idx].Token.Literal == e)
+    test "test functionParameter parging":
+        type TestFuncParm = object
+            input: string
+            expected: seq[string]
+
+        let testInputs = @[
+            TestFuncParm(input: "fn() {}", expected: @[]),
+            TestFuncParm(input: "fn(x) {}", expected: @["x"]),
+            TestFuncParm(input: "fn(x, y, z) {}", expected: @["x", "y", "z"])
+        ]
+
+        for i in testInputs:
+            let
+                l = newLexer(i.input)
+                p = newParser(l)
+                program = p.parseProgram()
+                params = program.statements[0].FnParameters
+
+            check(params.len == i.expected.len)
+
+            for idx, e in i.expected:
+                check(params[idx].Token.Literal == e)
 
 
     test "test callExpressions parging":
@@ -390,49 +385,48 @@ suite "Parser":
         check(args[2].InRight.Token.Literal == "5")
 
 
-    # # NOTE: If this test case is executed alone, it passes.
-    # test "test operator precedence parsing":
-    #     type Test = object
-    #         input: string
-    #         expected: string
-    #
-    #     let testInputs = @[
-    #         Test(input: """a + add(b * c) + d""",
-    #              expected: """((a + add((b * c))) + d)"""),
-    #         Test(input: """add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))""",
-    #              expected: """add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))"""),
-    #         Test(input: """add(a + b + c * d / f + g)""",
-    #              expected: """add((((a + b) + ((c * d) / f)) + g))"""),
-    #     ]
-    #
-    #     for i in testInputs:
-    #         let
-    #             l = newLexer(i.input)
-    #             p = newParser(l)
-    #             program = p.parseProgram()
-    #         checkParserError(p)
-    #
-    #         let act = program.astToString()
-    #         check(act == i.expected)
+    test "test operator precedence parsing":
+        type TestOpPrecedence3 = object
+            input: string
+            expected: string
+
+        let testInputs = @[
+            TestOpPrecedence3(input: """a + add(b * c) + d""",
+                 expected: """((a + add((b * c))) + d)"""),
+            TestOpPrecedence3(input: """add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))""",
+                 expected: """add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))"""),
+            TestOpPrecedence3(input: """add(a + b + c * d / f + g)""",
+                 expected: """add((((a + b) + ((c * d) / f)) + g))"""),
+        ]
+
+        for i in testInputs:
+            let
+                l = newLexer(i.input)
+                p = newParser(l)
+                program = p.parseProgram()
+            checkParserError(p)
+
+            let act = program.astToString()
+            check(act == i.expected)
 
 
     test "test let statement":
-        type Test[T] = object
+        type TestLetStmt[T] = object
             input: string
             expectedIdentifier: string
             expectedValue: T
         let
-            testInt = Test[int](input: """let x = 5;""",
+            testInt = TestLetStmt[int](input: """let x = 5;""",
                                 expectedIdentifier: "x",
                                 expectedValue: 5)
-            testBool = Test[bool](input: """let y = true;""",
+            testBool = TestLetStmt[bool](input: """let y = true;""",
                                     expectedIdentifier: "y",
                                     expectedValue: true)
-            testStr = Test[string](input: """let foobar = y;""",
+            testStr = TestLetStmt[string](input: """let foobar = y;""",
                                     expectedIdentifier: "foobar",
                                     expectedValue: "y")
 
-        proc tes[T](test: Test[T]): PNode =
+        proc tes[T](test: TestLetStmt[T]): PNode =
             let
                 l = newLexer(test.input)
                 p = newParser(l)
