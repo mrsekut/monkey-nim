@@ -125,8 +125,7 @@ proc readOperands*(def: Definition, ins: Instructions): (seq[int], int) =
 
 
 
-proc main() = # discard
-    discard
+proc main() = discard
 when isMainModule:
     main()
 
