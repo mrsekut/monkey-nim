@@ -12,6 +12,8 @@ suite "Code":
 
         let testInputs = @[
             Test(op: OpConstant, operands: @[65534], expected: @[byte(OpConstant), 255, 254 ]),
+            Test(op: OpAdd, operands: @[], expected: @[byte(OpAdd)]),
+
         ]
 
         for t in testInputs:

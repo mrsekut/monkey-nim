@@ -9,6 +9,7 @@ type
 # これらに振られる数値は各々ユニークであれば何でも良い
 const
     OpConstant*: OpCode = 0
+    OpAdd*: OpCode = 1
 
 type Definition = ref object of RootObj
     Name: string
@@ -16,7 +17,8 @@ type Definition = ref object of RootObj
 
 
 var definitions = {
-    OpConstant: Definition(Name: "OpConstant", OperandWidths: @[2])
+    OpConstant: Definition(Name: "OpConstant", OperandWidths: @[2]),
+    OpAdd: Definition(Name: "OpAdd", OperandWidths: @[]),
 }.newTable
 
 
