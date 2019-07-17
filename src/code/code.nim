@@ -24,7 +24,7 @@ proc lookup*(op: byte): Definition
 proc putBigEndian16(arr: var seq[byte], index: int, operand: uint16)
 proc makeByte*(op: OpCode, operands: seq[int]): seq[byte]
 proc insToString*(ins: Instructions): string
-proc readUint16(ins: Instructions): uint16
+proc readUint16*(ins: Instructions): uint16
 proc readOperands*(def: Definition, ins: Instructions): (seq[int], int)
 proc fmtInstructions(self: Instructions, def: Definition, operands: seq[int]): string
 
@@ -103,7 +103,7 @@ proc fmtInstructions(self: Instructions, def: Definition, operands: seq[int]): s
 
 
 # バイナリの配列を引数にとって、uint16を返す
-proc readUint16(ins: Instructions): uint16 =
+proc readUint16*(ins: Instructions): uint16 =
     let s = toHex(ins[0]) & toHex(ins[1])
     return fromHex[uint16](s)
 

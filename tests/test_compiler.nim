@@ -91,14 +91,13 @@ proc parse(input: string): PNode =
 proc runCompilerTests[T](tests: seq[CompilerTestCase[T]]) =
     for _, test in tests:
         let
-            program = parse(test.input) # ASTを作成
+            program = parse(test.input) # make an AST
             compiler = newCompiler()
             errCompilr = compiler.compile(program)
 
         if errCompilr:
             checkpoint(fmt"compiler error")
             fail()
-            # echo fmt"compiler error: {err}"
 
         # バイトコードの正しさのテスト
         let bytecode = compiler.bytecode()

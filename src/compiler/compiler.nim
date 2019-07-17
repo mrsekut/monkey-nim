@@ -64,14 +64,12 @@ proc addConstant(self: Compiler, obj: Object): int =
 
 proc emit(self: Compiler, op: Opcode, operands: seq[int]): int =
     let ins = makeByte(op, operands)
-    let pos = self.addInstruction(ins)
-    return pos
+    self.addInstruction(ins)
 
 
 proc addInstruction(self: Compiler, ins: seq[byte]): int =
-    let posNewInstruction = self.instructions.len
     self.instructions.add(ins)
-    return posNewInstruction
+    self.instructions.len
 
 
 
