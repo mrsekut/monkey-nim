@@ -1,9 +1,12 @@
 import
+    strformat,
     ../lexer/lexer,
     ../parser/parser,
     ../parser/ast,
     ../evaluator/evaluator,
-    ../obj/obj
+    ../obj/obj,
+    ../compiler/compiler,
+    ../vm/vm
 
 
 const MONKEY_FACE = """
@@ -39,6 +42,19 @@ proc repl*() =
             printParserErrors(p.errors)
             continue
 
-        let evaluated = evaluator.eval(program, env)
-        if evaluated != nil:
-            echo evaluated.inspect()
+        # compiler
+        let
+            comp = newCompiler()
+            errComp = comp.compile(program)
+
+        if errComp:
+            echo fmt"Woops! Compilation failed"
+
+        let machine = newVm(comp.bytecode())
+        machine.runVm()
+        echo machine.stackTop().inspect()
+
+        # interpreter
+        # let evaluated = evaluator.eval(program, env)
+        # if evaluated != nil:
+        #     echo evaluated.inspect()

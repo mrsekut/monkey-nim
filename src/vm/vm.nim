@@ -2,7 +2,7 @@ import
     strformat,
     ../compiler/compiler, ../code/code, ../obj/obj
 
-const stackSize = 2048
+const STACK_SIZE = 2048
 
 type VM* = ref object of RootObj
     constants: seq[Object]
@@ -58,7 +58,7 @@ proc runVm*(self: VM) =
 
 
 proc push(self: VM, o: Object) =
-    if self.sp >= stackSize:
+    if self.sp >= STACK_SIZE:
         raise newException(Exception, "stack overflow")
 
     self.stack.add(o)
