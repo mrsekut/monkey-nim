@@ -13,7 +13,6 @@ suite "Code":
         let testInputs = @[
             Test(op: OpConstant, operands: @[65534], expected: @[byte(OpConstant), 255, 254 ]),
             Test(op: OpAdd, operands: @[], expected: @[byte(OpAdd)]),
-
         ]
 
         for t in testInputs:
@@ -28,13 +27,13 @@ suite "Code":
     test "test InstructionsString":
         let
             instrucions = @[
-                makeByte(OpConstant, @[1]),
+                makeByte(OpAdd),
                 makeByte(OpConstant, @[2]),
                 makeByte(OpConstant, @[65535]),
             ]
-            expected = &"0000 OpConstant 1\n" &
-                       &"0003 OpConstant 2\n" &
-                       &"0006 OpConstant 65535\n"
+            expected = &"0000 OpAdd\n" &
+                       &"0001 OpConstant 2\n" &
+                       &"0004 OpConstant 65535\n"
 
         var concatted: seq[byte]
         for _, ins in instrucions:
@@ -73,3 +72,4 @@ suite "Code":
                 if operandsRead[i] != want:
                     checkpoint(fmt"operand wrong. want={want}, got={operandsRead[i]}")
                     fail()
+

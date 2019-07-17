@@ -24,7 +24,7 @@ var definitions = {
 
 proc lookup*(op: byte): Definition
 proc putBigEndian16(arr: var seq[byte], index: int, operand: uint16)
-proc makeByte*(op: OpCode, operands: seq[int]): seq[byte]
+proc makeByte*(op: OpCode, operands: seq[int] = @[]): seq[byte]
 proc insToString*(ins: Instructions): string
 proc readUint16*(ins: Instructions): uint16
 proc readOperands*(def: Definition, ins: Instructions): (seq[int], int)
@@ -51,7 +51,7 @@ proc putBigEndian16(arr: var seq[byte], index: int, operand: uint16) =
 
 
 # opcodeとoperandを引数にとり、その全体をバイトコード化したものの配列を返す
-proc makeByte*(op: OpCode, operands: seq[int]): seq[byte] =
+proc makeByte*(op: OpCode, operands: seq[int] = @[]): seq[byte] =
     try:
         let def = definitions[op]
         var instructionLen = 1
@@ -97,8 +97,13 @@ proc fmtInstructions(self: Instructions, def: Definition, operands: seq[int]): s
     if len(operands) != operandCount:
         return fmt"ERROR: operand len {len(operands)} does not match defined {operandCount}"
 
-    if operandCount == 1:
+    case operandCount:
+    of 0:
+        return def.Name
+    of 1:
         return fmt"{def.Name} {operands[0]}"
+    else:
+        discard
 
     return fmt"ERROR: unhandled operandCount for {def.Name}"
 
