@@ -38,21 +38,18 @@ proc testConstants[T](expected: T, actual: seq[Object]) =
 
     # 定数を処理し、コンパイラが生成した定数と比較する
     for i, constant in expected:
-        echo constant
         case constant.type.name
         of "int":
             testIntegerObject(int(constant), actual[i])
 
 
 proc testIntegerObject(expected: int, actual: Object) =
-    let res = actual
-    # if res != nil:
-    #     checkpoint(fmt"object is not Integer. got={actual} ({actual})")
-    #     fail()
-    # if res.Value != expected:
-    #     checkpoint(fmt"object has wrong value. got={res.Value}, want={expected}")
-    #     fail()
-
+    if actual.kind != Integer:
+        checkpoint(fmt"object is not Integer. got={actual.kind}")
+        fail()
+    if actual.IntValue != expected:
+        checkpoint(fmt"object has wrong value. got={actual.IntValue}, want={expected}")
+        fail()
 
 
 proc testInstructions(expected: seq[Instructions], actual: Instructions) =
@@ -105,7 +102,6 @@ proc runCompilerTests[T](tests: seq[CompilerTestCase[T]]) =
 
         # バイトコードの正しさのテスト
         let bytecode = compiler.bytecode()
-        echo bytecode.instructions
         testInstructions(test.expectedInstructions, bytecode.instructions)
         testConstants(test.expectedConstants, bytecode.constants)
 
