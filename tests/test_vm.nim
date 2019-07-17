@@ -75,7 +75,7 @@ suite "VM":
         let tests = @[
             VmTestCase[int](input: "1", expected: 1),
             VmTestCase[int](input: "2", expected: 2),
-            VmTestCase[int](input: "1 + 2", expected: 2),
+            VmTestCase[int](input: "1 + 2", expected: 3),
         ]
         runVmTests(tests)
 

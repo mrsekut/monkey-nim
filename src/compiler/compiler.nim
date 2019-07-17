@@ -16,8 +16,8 @@ proc newCompiler*(): Compiler
 proc compile*(self: Compiler, node: PNode): bool
 proc bytecode*(self: Compiler): Bytecode
 proc addConstant(self: Compiler, obj: Object): int
-proc emit(self: Compiler, op: Opcode, operands: seq[int]): int
-proc addInstruction(self: Compiler, ins: seq[byte]): int
+proc emit(self: Compiler, op: Opcode, operands: seq[int] = @[])
+proc addInstruction(self: Compiler, ins: seq[byte])
 
 
 # implementation
@@ -47,11 +47,15 @@ proc compile*(self: Compiler, node: PNode): bool =
         if err: return err
         err = self.compile(node.InRight)
         if err: return err
+        case node.InOperator
+        of "+":
+            self.emit(OpAdd)
+        else:
+            discard
 
     of nkIntegerLiteral:
         var integer = Object(kind: Integer, IntValue: node.IntValue)
-        let _ = self.emit(OpConstant, @[self.addConstant(integer)])
-
+        self.emit(OpConstant, @[self.addConstant(integer)])
 
     else:
         discard
@@ -62,14 +66,13 @@ proc addConstant(self: Compiler, obj: Object): int =
     return self.constants.len - 1
 
 
-proc emit(self: Compiler, op: Opcode, operands: seq[int]): int =
+proc emit(self: Compiler, op: Opcode, operands: seq[int] = @[]) =
     let ins = makeByte(op, operands)
     self.addInstruction(ins)
 
 
-proc addInstruction(self: Compiler, ins: seq[byte]): int =
+proc addInstruction(self: Compiler, ins: seq[byte]) =
     self.instructions.add(ins)
-    self.instructions.len
 
 
 

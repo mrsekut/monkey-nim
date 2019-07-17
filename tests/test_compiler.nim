@@ -115,6 +115,7 @@ suite "Compiler":
                 expectedInstructions: @[
                     makeByte(OpConstant, @[0]),
                     makeByte(OpConstant, @[1]),
+                    makeByte(OpAdd),
                 ]
             )
         ]

@@ -15,6 +15,7 @@ proc newVm*(bytecode: Bytecode): VM
 proc stackTop*(self: VM): Object
 proc runVm*(self: VM)
 proc push(self: VM, o: Object)
+proc pop(self: VM): Object
 
 # implementation
 
@@ -43,6 +44,14 @@ proc runVm*(self: VM) =
             let constIndex = readUint16(self.instructions[ip+1..^1])
             ip += 2
             self.push(self.constants[constIndex])
+        of OpAdd:
+            let
+                right = self.pop()
+                left = self.pop()
+                leftValue = left.IntValue
+                rightValue = right.IntValue
+                res = leftValue + rightValue
+            self.push(Object(kind: Integer, IntValue: res))
         else:
             discard
         inc ip
@@ -58,7 +67,6 @@ proc push(self: VM, o: Object) =
 
 
 
-
-
-
-
+proc pop(self: VM): Object =
+    dec self.sp
+    self.stack.pop()
