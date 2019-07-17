@@ -1,6 +1,6 @@
 # Monkey-Nim
 
-Implementing the Monkey language interpreter with Nim, referring to the book "Writing An Interpreter In Go"
+Implementing the Monkey language interpreter with Nim.
 
 ![sample](https://github.com/mrsekut/monkey-nim/blob/master/img/interp.gif)
 
