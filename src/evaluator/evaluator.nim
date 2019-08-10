@@ -12,15 +12,17 @@ let
 
 proc eval*(self: PNode, env: Environment): Object
 
-proc evalProgram(self: PNode, env: Environment): Object
+proc evalStatements(self: PNode, env: Environment): Object
+proc evalPrefixExpression(operator: string, right: Object): Object
+proc evalInfixExpression(operator: string, left: Object, right: Object): Object
+
+proc evalIntegerInfixExpression(operator: string, left: Object, right: Object): Object
+proc evalBanOperationExpression(right: Object): Object
+proc evalMinusPrefixOperatorExpression(right: Object): Object
 # proc evalIdentifier(self: PNode, env: Environment): Object
 # proc evalBlockStatement(self: PNode, env: Environment): Object
-# proc nativeBoolToBooleanObject(input: bool): Object
-# proc evalPrefixExpression(operator: string, right: Object): Object
-# proc evalBanOperationExpression(right: Object): Object
-# proc evalMinusPrefixOperatorExpression(right: Object): Object
-# proc evalInfixExpression(operator: string, left: Object, right: Object): Object
-# proc evalIntegerInfixExpression(operator: string, left: Object, right: Object): Object
+
+proc nativeBoolToBooleanObject(input: bool): Object
 # proc evalStringInfixExpression(operator: string, left: Object, right: Object): Object
 # proc evalIfExpression(ie: PNode, env: Environment): Object
 # proc evalExpressions(exps: seq[PNode], env: Environment): seq[Object]
@@ -42,7 +44,8 @@ proc evalProgram(self: PNode, env: Environment): Object
 proc eval*(self: PNode, env: Environment): Object =
     case self.kind
     of Program:
-        return evalProgram(self, env)
+        return evalStatements(self, env)
+        # return evalProgram(self, env) TODO:
 
     # of nkExpressionStatement:
     #     result = eval(self.Expression, env)
@@ -53,21 +56,21 @@ proc eval*(self: PNode, env: Environment): Object =
     # of nkStringLiteral:
     #     result = Object(kind: String, StringValue: self.StringValue)
 
-    # of nkBoolean:
-    #     result = nativeBoolToBooleanObject(self.BlValue)
+    of nkBoolean:
+        result = nativeBoolToBooleanObject(self.BlValue)
 
-    # of nkPrefixExpression:
-    #     let right = eval(self.PrRight, env)
-    #     if isError(right): return right
-    #     result = evalPrefixExpression(self.PrOperator, right)
+    of nkPrefixExpression:
+        let right = eval(self.PrRight, env)
+        # if isError(right): return right
+        result = evalPrefixExpression(self.PrOperator, right)
 
-    # of nkInfixExpression:
-    #     let
-    #         left = eval(self.InLeft, env)
-    #         right = eval(self.InRight, env)
-    #     if isError(right): return right
-    #     if isError(left): return left
-    #     result = evalInfixExpression(self.InOperator, left, right)
+    of nkInfixExpression:
+        let
+            left = eval(self.InLeft, env)
+            right = eval(self.InRight, env)
+        # if isError(right): return right
+        # if isError(left): return left
+        result = evalInfixExpression(self.InOperator, left, right)
 
     # of nkBlockStatement:
     #     return evalBlockStatement(self, env)
@@ -111,7 +114,7 @@ proc eval*(self: PNode, env: Environment): Object =
 #     return val
 
 
-proc evalProgram(self: PNode, env: Environment): Object =
+proc evalStatements(self: PNode, env: Environment): Object =
     # var r: Object
     for s in self.statements:
         result = eval(s, env)
@@ -135,74 +138,74 @@ proc evalProgram(self: PNode, env: Environment): Object =
 #     return r
 
 
-# proc nativeBoolToBooleanObject(input: bool): Object =
-#     if input: return TRUE
-#     return FALSE
+proc nativeBoolToBooleanObject(input: bool): Object =
+    if input: return TRUE
+    return FALSE
 
 
-# proc evalPrefixExpression(operator: string, right: Object): Object =
-#     case operator
-#     of "!": return evalBanOperationExpression(right)
-#     of "-": return evalMinusPrefixOperatorExpression(right)
-#     else: return newError("unknown operator: ", operator, right.myType())
+proc evalPrefixExpression(operator: string, right: Object): Object =
+    case operator
+    of "!": return evalBanOperationExpression(right)
+    of "-": return evalMinusPrefixOperatorExpression(right)
+    # else: return newError("unknown operator: ", operator, right.myType())
 
 
-# proc evalBanOperationExpression(right: Object): Object =
-#     case right.kind
-#     of Boolean:
-#         case right.BoolValue
-#         of true: result = FALSE
-#         of false: result = TRUE
-#     of TNull: result = TRUE
-#     else: result = FALSE
+proc evalBanOperationExpression(right: Object): Object =
+    case right.kind
+    of Boolean:
+        case right.BoolValue
+        of true: result = FALSE
+        of false: result = TRUE
+    of TNull: result = TRUE
+    else: result = FALSE
 
 
-# proc evalMinusPrefixOperatorExpression(right: Object): Object =
-#     if right.myType() != obj.INTEGER_OBJ:
-#         return newError("unknown operator: -", right.myType())
-#     let value = right.IntValue
-#     return Object(kind: Integer, IntValue: -value)
+proc evalMinusPrefixOperatorExpression(right: Object): Object =
+    # if right.myType() != obj.INTEGER_OBJ:
+    #     return newError("unknown operator: -", right.myType())
+    let value = right.IntValue
+    return Object(kind: Integer, IntValue: -value)
 
 
-# proc evalInfixExpression(operator: string, left: Object, right: Object): Object =
-#     if left.myType() == obj.INTEGER_OBJ and right.myType() == obj.INTEGER_OBJ:
-#         return evalIntegerInfixExpression(operator, left, right)
-#     elif left.myType() == obj.STRING_OBJ and right.myType() == obj.STRING_OBJ:
-#         return evalStringInfixExpression(operator, left, right)
-#     elif operator == "==":
-#         return nativeBoolToBooleanObject(left == right)
-#     elif operator == "!=":
-#         return nativeBoolToBooleanObject(left != right)
-#     elif left.myType() != right.myType():
-#         return newError("type mismatch: ", left.myType(), operator, right.myType())
-#     else:
-#         return newError("unknown operator: ", left.myType(), operator, right.myType())
+proc evalInfixExpression(operator: string, left: Object, right: Object): Object =
+    if left.myType() == obj.INTEGER_OBJ and right.myType() == obj.INTEGER_OBJ:
+        return evalIntegerInfixExpression(operator, left, right)
+    # elif left.myType() == obj.STRING_OBJ and right.myType() == obj.STRING_OBJ:
+    #     return evalStringInfixExpression(operator, left, right)
+    elif operator == "==":
+        return nativeBoolToBooleanObject(left == right)
+    elif operator == "!=":
+        return nativeBoolToBooleanObject(left != right)
+    # elif left.myType() != right.myType():
+    #     return newError("type mismatch: ", left.myType(), operator, right.myType())
+    # else:
+    #     return newError("unknown operator: ", left.myType(), operator, right.myType())
 
 
-# proc evalIntegerInfixExpression(operator: string, left: Object, right: Object): Object =
-#     let
-#         leftVal = left.IntValue
-#         rightVal = right.IntValue
+proc evalIntegerInfixExpression(operator: string, left: Object, right: Object): Object =
+    let
+        leftVal = left.IntValue
+        rightVal = right.IntValue
 
-#     case operator
-#     of "+":
-#         result = Object(kind: Integer, IntValue: leftVal + rightVal)
-#     of "-":
-#         result = Object(kind: Integer, IntValue: leftVal - rightVal)
-#     of "*":
-#         result = Object(kind: Integer, IntValue: leftVal * rightVal)
-#     of "/":
-#         result = Object(kind: Integer, IntValue: (leftVal / rightVal).toInt)
-#     of "<":
-#         result = nativeBoolToBooleanObject(leftVal < rightVal)
-#     of ">":
-#         result = nativeBoolToBooleanObject(leftVal > rightVal)
-#     of "==":
-#         result = nativeBoolToBooleanObject(leftVal == rightVal)
-#     of "!=":
-#         result = nativeBoolToBooleanObject(leftVal != rightVal)
-#     else:
-#         result = newError("unknown operator: ", left.myType(), operator, right.myType())
+    case operator
+    of "+":
+        result = Object(kind: Integer, IntValue: leftVal + rightVal)
+    of "-":
+        result = Object(kind: Integer, IntValue: leftVal - rightVal)
+    of "*":
+        result = Object(kind: Integer, IntValue: leftVal * rightVal)
+    of "/":
+        result = Object(kind: Integer, IntValue: (leftVal / rightVal).toInt)
+    of "<":
+        result = nativeBoolToBooleanObject(leftVal < rightVal)
+    of ">":
+        result = nativeBoolToBooleanObject(leftVal > rightVal)
+    of "==":
+        result = nativeBoolToBooleanObject(leftVal == rightVal)
+    of "!=":
+        result = nativeBoolToBooleanObject(leftVal != rightVal)
+    # else:
+    #     result = newError("unknown operator: ", left.myType(), operator, right.myType())
 
 
 # proc evalStringInfixExpression(operator: string, left: Object, right: Object): Object =

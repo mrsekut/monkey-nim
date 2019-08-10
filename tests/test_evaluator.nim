@@ -50,45 +50,44 @@ suite "REPL":
         let testInput = @[
                 Test(input: "5", expected: 5),
                 Test(input: "10", expected: 10),
-                # Test(input: "-5", expected: -5),
-                # Test(input: "-10", expected: -10),
+                Test(input: "-5", expected: -5),
+                Test(input: "-10", expected: -10),
 
-                # Test(input: "5 + 5 + 5 + 5 - 10", expected: 10),
-                # Test(input: "2 * 2 * 2 * 2 * 2", expected: 32),
-                # Test(input: "-50 + 100 -50", expected: 0),
-                # Test(input: "5 * 2 + 10", expected: 20),
-                # Test(input: "5 + 2 * 10", expected: 25),
-                # Test(input: "20 + 2 * -10", expected: 0),
-                # Test(input: "50 / 2 * 2 + 10", expected: 60),
-                # Test(input: "2 * (5 + 10)", expected: 30),
-                # Test(input: "3 * 3 * 3 + 10", expected: 37),
-                # Test(input: "3 * (3 * 3) + 10", expected: 37),
-                # Test(input: "(5 + 10 * 2 + 15 / 3) * 2 + -10", expected: 50)
+                Test(input: "5 + 5 + 5 + 5 - 10", expected: 10),
+                Test(input: "2 * 2 * 2 * 2 * 2", expected: 32),
+                Test(input: "-50 + 100 -50", expected: 0),
+                Test(input: "5 * 2 + 10", expected: 20),
+                Test(input: "5 + 2 * 10", expected: 25),
+                Test(input: "20 + 2 * -10", expected: 0),
+                Test(input: "50 / 2 * 2 + 10", expected: 60),
+                Test(input: "2 * (5 + 10)", expected: 30),
+                Test(input: "3 * 3 * 3 + 10", expected: 37),
+                Test(input: "3 * (3 * 3) + 10", expected: 37),
+                Test(input: "(5 + 10 * 2 + 15 / 3) * 2 + -10", expected: 50)
         ]
 
         for t in testInput:
             let evaluated = testEval(t.input)
-            echo repr evaluated
             check(testIntegerObject(evaluated, t.expected))
 
 
-    # test "test eval BooleanExpression":
-    #     type Test = object
-    #         input: string
-    #         expected: bool
+    test "test eval BooleanExpression":
+        type Test = object
+            input: string
+            expected: bool
 
-    #     let testInput = @[
-    #             Test(input: """true""", expected: true),
-    #             Test(input: """false""", expected: false),
+        let testInput = @[
+                Test(input: "true", expected: true),
+                Test(input: "false", expected: false),
 
-    #             Test(input: """1 < 2""", expected: true),
-    #             Test(input: """1 > 2""", expected: false),
-    #             Test(input: """1 < 1""", expected: false),
-    #             Test(input: """1 > 1""", expected: false),
-    #             Test(input: """1 == 1""", expected: true),
-    #             Test(input: """1 != 1""", expected: false),
-    #             Test(input: """1 == 2""", expected: false),
-    #             Test(input: """1 != 2""", expected: true),
+                Test(input: "1 < 2", expected: true),
+                Test(input: "1 > 2", expected: false),
+                Test(input: "1 < 1", expected: false),
+                Test(input: "1 > 1", expected: false),
+                Test(input: "1 == 1", expected: true),
+                Test(input: "1 != 1", expected: false),
+                Test(input: "1 == 2", expected: false),
+                Test(input: "1 != 2", expected: true),
 
     #             Test(input: """true == true""", expected: true),
     #             Test(input: """false == false""", expected: true),
@@ -100,28 +99,31 @@ suite "REPL":
     #             Test(input: """(1 < 2) == false""", expected: false),
     #             Test(input: """(1 > 2) == true""", expected: false),
     #             Test(input: """(1 > 2) == false""", expected: true)]
+        ]
 
-    #     for t in testInput:
-    #         let evaluated = testEval(t.input)
-    #         check(testBoolObject(evaluated, t.expected))
+        for t in testInput:
+            let evaluated = testEval(t.input)
+            check(testBoolObject(evaluated, t.expected))
 
-    # test "test eval BangOperator":
-    #     type Test = object
-    #         input: string
-    #         expected: bool
 
-    #     let testInput = @[
-    #             Test(input: """!true""", expected: false),
-    #             Test(input: """!false""", expected: true),
-    #             Test(input: """!5""", expected: false),
+    test "test eval BangOperator":
+        type Test = object
+            input: string
+            expected: bool
 
-    #             Test(input: """!!true""", expected: true),
-    #             Test(input: """!!false""", expected: false),
-    #             Test(input: """!!5""", expected: true)]
+        let testInput = @[
+                Test(input: "!true", expected: false),
+                Test(input: "!false", expected: true),
+                Test(input: "!5", expected: false),
 
-    #     for t in testInput:
-    #         let evaluated = testEval(t.input)
-    #         check(testBoolObject(evaluated, t.expected))
+                Test(input: "!!true", expected: true),
+                Test(input: "!!false", expected: false),
+                Test(input: "!!5", expected: true)
+        ]
+
+        for t in testInput:
+            let evaluated = testEval(t.input)
+            check(testBoolObject(evaluated, t.expected))
 
 
     # test "test eval ifElseExpression":
