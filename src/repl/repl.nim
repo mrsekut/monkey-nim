@@ -9,7 +9,7 @@ import
     ../vm/vm
 
 
-const MONKEY_FACE = """
+const ERR_MSG = """
     ^                      _______
     |                     < Error!! >
     |                /\    --------
@@ -23,7 +23,7 @@ const MONKEY_FACE = """
 
 
 proc printParserErrors(errors: seq[string]) =
-    echo MONKEY_FACE
+    echo ERR_MSG
     for e in errors: echo e
 
 

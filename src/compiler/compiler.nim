@@ -39,8 +39,10 @@ proc compile*(self: Compiler, node: PNode): bool =
             if err: return err
 
     of nkExpressionStatement:
+        # TODO: きてない
         var err = self.compile(node.Expression)
         if err: return err
+        self.emit(OpPop)
 
     of nkInfixExpression:
         var err = self.compile(node.InLeft)
