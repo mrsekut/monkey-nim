@@ -179,40 +179,41 @@ suite "REPL":
             check(testIntegerObject(evaluated, t.expected))
 
 
-    # test "test error handling":
-    #     type Test = object
-    #         input: string
-    #         expected: string
+    test "test error handling":
+        type Test = object
+            input: string
+            expected: string
 
-    #     let testInput = @[
-    #             Test(input: """5 + true;""",
-    #                  expected: "type mismatch: INTEGER + BOOLEAN"),
-    #             Test(input: """5 + true; 5;""",
-    #                  expected: "type mismatch: INTEGER + BOOLEAN"),
-    #             Test(input: """-true;""",
-    #                  expected: "unknown operator: -BOOLEAN"),
-    #             Test(input: """true + false;""",
-    #                  expected: "unknown operator: BOOLEAN + BOOLEAN"),
-    #             Test(input: """5; true + false; 5;""",
-    #                  expected: "unknown operator: BOOLEAN + BOOLEAN"),
-    #             Test(input: """if (10 > 1) { true + false; }""",
-    #                  expected: "unknown operator: BOOLEAN + BOOLEAN"),
-    #             Test(input: """
-    #                     if (10 > 1) {
-    #                         if(10 > 1) {
-    #                             return true + false;
-    #                         }
-    #                         return 1;
-    #                     }
-    #                 """,
-    #                  expected: "unknown operator: BOOLEAN + BOOLEAN"),
-    #             # Test(input: """foobar;""",
-    #             #      expected: "identifier not found; foobar"),
-    #             ]
+        let testInput = @[
+                Test(input: "5 + true;",
+                     expected: "type mismatch: INTEGER + BOOLEAN"),
+                Test(input: "5 + true; 5;",
+                     expected: "type mismatch: INTEGER + BOOLEAN"),
+                Test(input: "-true;",
+                     expected: "unknown operator: -BOOLEAN"),
+                Test(input: "true + false;",
+                     expected: "unknown operator: BOOLEAN + BOOLEAN"),
+                Test(input: "5; true + false; 5;",
+                     expected: "unknown operator: BOOLEAN + BOOLEAN"),
+                Test(input: "if (10 > 1) { true + false; }",
+                     expected: "unknown operator: BOOLEAN + BOOLEAN"),
+                Test(input: """
+                        if (10 > 1) {
+                            if(10 > 1) {
+                                return true + false;
+                            }
+                            return 1;
+                        }
+                    """,
+                     expected: "unknown operator: BOOLEAN + BOOLEAN"),
+                # Test(input: "foobar;",
+                #      expected: "identifier not found; foobar"),
+                ]
 
-    #     for t in testInput:
-    #         let evaluated = testEval(t.input)
-    #         check(evaluated.ErrMessage == t.expected)
+        for t in testInput:
+            let evaluated = testEval(t.input)
+            check(evaluated.ErrMessage == t.expected)
+
 
     # test "test letStatements":
     #     type Test = object

@@ -14,7 +14,6 @@ proc eval*(self: PNode, env: Environment): Object
 proc eval*(self: BlockStatements, env: Environment): Object
 
 proc evalProgram(self: PNode, env: Environment): Object
-# proc evalBlockStatement(self: PNode, env: Environment): Object
 
 proc evalPrefixExpression(operator: string, right: Object): Object
 proc evalInfixExpression(operator: string, left: Object, right: Object): Object
@@ -34,9 +33,9 @@ proc nativeBoolToBooleanObject(input: bool): Object
 
 proc isTruthy(obj: Object): bool
 # proc isError(self: Object): bool
-# proc newError(format: string, right: ObjectType): Object
-# proc newError(format: string, operator: string, right: ObjectType ): Object
-# proc newError(format: string, left: ObjectType, operator: string, right: ObjectType ): Object
+proc newError(format: string, right: ObjectType): Object
+proc newError(format: string, operator: string, right: ObjectType ): Object
+proc newError(format: string, left: ObjectType, operator: string, right: ObjectType ): Object
 
 
 
@@ -47,9 +46,6 @@ proc eval*(self: PNode, env: Environment): Object =
     case self.kind
     of Program:
         return evalProgram(self, env)
-
-    # of nkBlockStatement:
-    #     return evalBlockStatement(self, env)
 
 
     # Statements ==
@@ -118,7 +114,7 @@ proc eval*(self: BlockStatements, env: Environment): Object =
     var r: Object
     for s in self.Statements:
         r = eval(s, env)
-        if r.myType() == RETURN_VALUE_OBJ:
+        if r.myType() == RETURN_VALUE_OBJ or r.myType() == ERROR_OBJ:
             return r
     return r
 
@@ -131,20 +127,10 @@ proc evalProgram(self: PNode, env: Environment): Object =
         r = eval(s, env)
         if r.kind == ReturnValue:
             return r.ReValue
-        # elif r.kind == Error:
-        #     return r
+        elif r.kind == Error:
+            return r
     return r
 
-
-# proc evalBlockStatement(self: PNode, env: Environment): Object =
-#     # NOTE: 到達しない p.148
-#     var r: Object
-#     for b in self.statements:
-#         r = eval(b, env)
-#         if r.kind != TNull:
-#             if r.myType() == RETURN_VALUE_OBJ or r.myType() == ERROR_OBJ:
-#                 return r
-#     return r
 
 # proc evalIdentifier(self: PNode, env: Environment): Object =
 #     let val = env.get(self.IdentValue)
@@ -163,7 +149,7 @@ proc evalPrefixExpression(operator: string, right: Object): Object =
     case operator
     of "!": return evalBanOperationExpression(right)
     of "-": return evalMinusPrefixOperatorExpression(right)
-    # else: return newError("unknown operator: ", operator, right.myType())
+    else: return newError("unknown operator: ", operator, right.myType())
 
 
 proc evalBanOperationExpression(right: Object): Object =
@@ -177,8 +163,8 @@ proc evalBanOperationExpression(right: Object): Object =
 
 
 proc evalMinusPrefixOperatorExpression(right: Object): Object =
-    # if right.myType() != obj.INTEGER_OBJ:
-    #     return newError("unknown operator: -", right.myType())
+    if right.myType() != obj.INTEGER_OBJ:
+        return newError("unknown operator: -", right.myType())
     let value = right.IntValue
     return Object(kind: Integer, IntValue: -value)
 
@@ -192,10 +178,10 @@ proc evalInfixExpression(operator: string, left: Object, right: Object): Object 
         return nativeBoolToBooleanObject(left == right)
     elif operator == "!=":
         return nativeBoolToBooleanObject(left != right)
-    # elif left.myType() != right.myType():
-    #     return newError("type mismatch: ", left.myType(), operator, right.myType())
-    # else:
-    #     return newError("unknown operator: ", left.myType(), operator, right.myType())
+    elif left.myType() != right.myType():
+        return newError("type mismatch: ", left.myType(), operator, right.myType())
+    else:
+        return newError("unknown operator: ", left.myType(), operator, right.myType())
 
 
 proc evalIntegerInfixExpression(operator: string, left: Object, right: Object): Object =
@@ -220,8 +206,8 @@ proc evalIntegerInfixExpression(operator: string, left: Object, right: Object): 
         result = nativeBoolToBooleanObject(leftVal == rightVal)
     of "!=":
         result = nativeBoolToBooleanObject(leftVal != rightVal)
-    # else:
-    #     result = newError("unknown operator: ", left.myType(), operator, right.myType())
+    else:
+        result = newError("unknown operator: ", left.myType(), operator, right.myType())
 
 
 # proc evalStringInfixExpression(operator: string, left: Object, right: Object): Object =
@@ -283,26 +269,31 @@ proc isTruthy(obj: Object): bool =
     else: return true
 
 
+# Error ======
+
+proc newError(format: string, right: ObjectType): Object =
+    Object(
+        kind: Error,
+        ErrMessage: fmt"{format}{right}")
+
+
+proc newError(format: string, operator: string, right: ObjectType ): Object =
+    Object(
+        kind: Error,
+        ErrMessage: fmt"2{format}{right}{operator}")
+
+
+proc newError(format: string, left: ObjectType, operator: string, right: ObjectType ): Object =
+    Object(
+        kind: Error,
+        ErrMessage: fmt"{format}{left} {operator} {right}")
+
+
 # proc isError(self: Object): bool =
 #     self.kind == Error
 
 
-# proc newError(format: string, right: ObjectType): Object =
-#     Object(
-#         kind: Error,
-#         ErrMessage: fmt"{format}{right}")
 
-
-# proc newError(format: string, operator: string, right: ObjectType ): Object =
-#     Object(
-#         kind: Error,
-#         ErrMessage: fmt"2{format}{right}{operator}")
-
-
-# proc newError(format: string, left: ObjectType, operator: string, right: ObjectType ): Object =
-#     Object(
-#         kind: Error,
-#         ErrMessage: fmt"{format}{left} {operator} {right}")
 
 
 # proc main() = discard
