@@ -113,7 +113,6 @@ type
         Statements*: seq[PNode]
 
 
-proc expressionNode(self: var PNode)
 proc tokenLiteral(self: PNode): string
 proc astToString*(self: PNode): string
 proc astToString*(self: BlockStatements): string
@@ -121,9 +120,6 @@ proc astToString*(self: BlockStatements): string
 
 
 # implementation
-
-
-proc expressionNode(self: var PNode) = discard
 
 
 proc tokenLiteral(self: PNode): string = self.Token.Literal

@@ -126,56 +126,58 @@ suite "REPL":
             check(testBoolObject(evaluated, t.expected))
 
 
-    # test "test eval ifElseExpression":
-    #     type Test = object
-    #         input: string
-    #         expected: int
+    test "test eval ifElseExpression":
+        type Test = object
+            input: string
+            expected: int
 
-    #     let testInput = @[
-    #             Test(input: """if (true) { 10 }""", expected: 10),
-    #             Test(input: """if (1) { 10 }""", expected: 10),
-    #             Test(input: """if (1 < 2) { 10 }""", expected: 10),
-    #             Test(input: """if (1 > 2) { 10 } else { 20 }""", expected: 20),
-    #             Test(input: """if (1 < 2) { 10 } else { 20 }""", expected: 10)]
+        let testInput = @[
+                Test(input: "if (true) { 10 }", expected: 10),
+                Test(input: "if (1) { 10 }", expected: 10),
+                Test(input: "if (1 < 2) { 10 }", expected: 10),
+                Test(input: "if (1 > 2) { 10 } else { 20 }", expected: 20),
+                Test(input: "if (1 < 2) { 10 } else { 20 }", expected: 10)]
 
-    #     for t in testInput:
-    #         let evaluated = testEval(t.input)
-    #         check(testIntegerObject(evaluated, t.expected))
+        for t in testInput:
+            let evaluated = testEval(t.input)
+            check(testIntegerObject(evaluated, t.expected))
 
-    #     type TestNull = object
-    #         input: string
-    #         expected: string
+        type TestNull = object
+            input: string
+            expected: string
 
-    #     let testInputNull = @[
-    #             TestNull(input: """if (false) { 10 }""", expected: "null"),
-    #             TestNull(input: """if (1 > 2) { 10 }""", expected: "null")]
+        let testInputNull = @[
+                TestNull(input: "if (false) { 10 }", expected: "null"),
+                TestNull(input: "if (1 > 2) { 10 }", expected: "null")]
 
-    #     for t in testInputNull:
-    #         let evaluated = testEval(t.input)
-    #         check(testNullObject(evaluated))
+        for t in testInputNull:
+            let evaluated = testEval(t.input)
+            check(testNullObject(evaluated))
 
-    # test "test eval returnStatements":
-    #     type Test = object
-    #         input: string
-    #         expected: int
 
-    #     let testInput = @[
-    #             Test(input: """return 10""", expected: 10),
-    #             Test(input: """return 10; 9;""", expected: 10),
-    #             Test(input: """return 2 * 5; 9;""", expected: 10),
-    #             Test(input: """9; return 2 * 5; 9;""", expected: 10),
-    #             Test(input: """
-    #                 if (10 > 1) {
-    #                     if(10 > 1) {
-    #                         return 10;
-    #                     }
-    #                     return 1;
-    #                 }""", expected: 10),
-    #             ]
+    test "test eval returnStatements":
+        type Test = object
+            input: string
+            expected: int
 
-    #     for t in testInput:
-    #         let evaluated = testEval(t.input)
-    #         check(testIntegerObject(evaluated, t.expected))
+        let testInput = @[
+                Test(input: "return 10", expected: 10),
+                Test(input: "return 10; 9;", expected: 10),
+                Test(input: "return 2 * 5; 9;", expected: 10),
+                Test(input: "9; return 2 * 5; 9;", expected: 10),
+                Test(input: """
+                    if (10 > 1) {
+                        if(10 > 1) {
+                            return 10;
+                        }
+                        return 1;
+                    }""", expected: 10),
+        ]
+
+        for t in testInput:
+            let evaluated = testEval(t.input)
+            check(testIntegerObject(evaluated, t.expected))
+
 
     # test "test error handling":
     #     type Test = object
