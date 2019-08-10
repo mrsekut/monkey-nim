@@ -32,10 +32,11 @@ proc nativeBoolToBooleanObject(input: bool): Object
 # proc unwrapReturnValue(self: Object): Object
 
 proc isTruthy(obj: Object): bool
-# proc isError(self: Object): bool
+
 proc newError(format: string, right: ObjectType): Object
 proc newError(format: string, operator: string, right: ObjectType ): Object
 proc newError(format: string, left: ObjectType, operator: string, right: ObjectType ): Object
+proc isError(self: Object): bool
 
 
 
@@ -55,7 +56,7 @@ proc eval*(self: PNode, env: Environment): Object =
 
     of nkReturnStatement:
         let val = eval(self.ReturnValue, env)
-        # if isError(val): return val
+        if isError(val): return val
         result = Object(kind: ReturnValue, ReValue: val)
 
     # of nkLetStatement:
@@ -76,15 +77,15 @@ proc eval*(self: PNode, env: Environment): Object =
 
     of nkPrefixExpression:
         let right = eval(self.PrRight, env)
-        # if isError(right): return right
+        if isError(right): return right
         result = evalPrefixExpression(self.PrOperator, right)
 
     of nkInfixExpression:
         let
             left = eval(self.InLeft, env)
             right = eval(self.InRight, env)
-        # if isError(right): return right
-        # if isError(left): return left
+        if isError(right): return right
+        if isError(left): return left
         result = evalInfixExpression(self.InOperator, left, right)
 
 
@@ -289,11 +290,8 @@ proc newError(format: string, left: ObjectType, operator: string, right: ObjectT
         ErrMessage: fmt"{format}{left} {operator} {right}")
 
 
-# proc isError(self: Object): bool =
-#     self.kind == Error
-
-
-
+proc isError(self: Object): bool =
+    self.kind == Error
 
 
 # proc main() = discard
