@@ -89,16 +89,16 @@ suite "REPL":
                 Test(input: "1 == 2", expected: false),
                 Test(input: "1 != 2", expected: true),
 
-    #             Test(input: """true == true""", expected: true),
-    #             Test(input: """false == false""", expected: true),
-    #             Test(input: """true == false""", expected: false),
-    #             Test(input: """true != false""", expected: true),
-    #             Test(input: """false != true""", expected: true),
+                Test(input: "true == true", expected: true),
+                Test(input: "false == false", expected: true),
+                Test(input: "true == false", expected: false),
+                Test(input: "true != false", expected: true),
+                Test(input: "false != true", expected: true),
 
-    #             Test(input: """(1 < 2) == true""", expected: true),
-    #             Test(input: """(1 < 2) == false""", expected: false),
-    #             Test(input: """(1 > 2) == true""", expected: false),
-    #             Test(input: """(1 > 2) == false""", expected: true)]
+                Test(input: "(1 < 2) == true", expected: true),
+                Test(input: "(1 < 2) == false", expected: false),
+                Test(input: "(1 > 2) == true", expected: false),
+                Test(input: "(1 > 2) == false", expected: true)
         ]
 
         for t in testInput:
@@ -206,8 +206,10 @@ suite "REPL":
                         }
                     """,
                      expected: "unknown operator: BOOLEAN + BOOLEAN"),
-                # Test(input: "foobar;",
-                #      expected: "identifier not found; foobar"),
+                Test(input: "foobar;",
+                     expected: "identifier not found: foobar"),
+                Test(input: "let a = 5; foobar;",
+                     expected: "identifier not found: foobar"),
                 ]
 
         for t in testInput:
@@ -215,21 +217,22 @@ suite "REPL":
             check(evaluated.ErrMessage == t.expected)
 
 
-    # test "test letStatements":
-    #     type Test = object
-    #         input: string
-    #         expected: int
+    test "test letStatements":
+        type Test = object
+            input: string
+            expected: int
 
-    #     let testInput = @[
-    #             Test(input: """let a = 5; a;""", expected: 5),
-    #             Test(input: """let a = 5 * 5; 25;""", expected: 25),
-    #             Test(input: """let a = 5; let b = a; b;""", expected: 5),
-    #             Test(input: """let a = 5; let b = a; let c = a + b + 5; c;""", expected: 15),
-    #         ]
+        let testInput = @[
+                Test(input: "let a = 5; a;", expected: 5),
+                Test(input: "let a = 5 * 5; 25;", expected: 25),
+                Test(input: "let a = 5; let b = a; b;", expected: 5),
+                Test(input: "let a = 5; let b = a; let c = a + b + 5; c;", expected: 15),
+            ]
 
-    #     for t in testInput:
-    #         let evaluated = testEval(t.input)
-    #         check(evaluated.IntValue == t.expected)
+        for t in testInput:
+            let evaluated = testEval(t.input)
+            check(evaluated.IntValue == t.expected)
+
 
     # test "test functionObject":
     #     let

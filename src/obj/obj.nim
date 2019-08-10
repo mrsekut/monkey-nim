@@ -92,7 +92,7 @@ proc myType*(self: Object): ObjectType =
 
 
 proc newEnvironment*(): Environment =
-    Environment(store: initTable[string, Object](1))
+    Environment(store: initTable[string, Object](1)) # TODO: あってる？
 
 
 proc get*(self: Environment, name: string): Object =
@@ -101,6 +101,12 @@ proc get*(self: Environment, name: string): Object =
     # if self.outer != nil:
     #     obj = self.outer.get(name)
     return obj
+
+
+proc hasEnv*(self: Environment, name: string): bool =
+    if self.store.len() == 0:
+        return false
+    return self.store.hasKey(name)
 
 
 proc set*(self: Environment, name: string, val: Object) =
