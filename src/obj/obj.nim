@@ -67,7 +67,7 @@ proc inspect*(self: Object): string =
         var params: seq[string]
         for p in self.Parameters:
             params.add(p.astToString())
-        # NOTE:
+        # TODO:
         result = fmt"fn ({params}) " & "{" & fmt"{'\n'} {self.Body.astToString()} {'\n'}" & "}"
     of Error:
         result = fmt"ERROR: {self.ErrMessage}"
@@ -96,11 +96,12 @@ proc newEnvironment*(): Environment =
 
 
 proc get*(self: Environment, name: string): Object =
-    var obj = self.store[name]
-    # TODO:
-    # if self.outer != nil:
-    #     obj = self.outer.get(name)
-    return obj
+    if self == nil or self.store.len() == 0:
+        result =  Object(kind: Error)
+    elif self.store.hasKey(name):
+        result = self.store[name]
+    else:
+        result = self.outer.get(name)
 
 
 proc hasEnv*(self: Environment, name: string): bool =

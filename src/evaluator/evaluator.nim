@@ -25,10 +25,11 @@ proc evalBanOperationExpression(right: Object): Object
 
 proc nativeBoolToBooleanObject(input: bool): Object
 # proc evalStringInfixExpression(operator: string, left: Object, right: Object): Object
-# proc evalExpressions(exps: seq[PNode], env: Environment): seq[Object]
-# proc applyFunction(self: Object, args: seq[Object]): Object
-# proc extendFunctionEnv(self: Object, args: seq[Object]): Environment
-# proc unwrapReturnValue(self: Object): Object
+
+proc evalExpressions(exps: seq[PNode], env: Environment): seq[Object]
+proc applyFunction(self: Object, args: seq[Object]): Object
+proc extendFunctionEnv(self: Object, args: seq[Object]): Environment
+proc unwrapReturnValue(self: Object): Object
 
 proc isTruthy(obj: Object): bool
 
@@ -96,19 +97,19 @@ proc eval*(self: PNode, env: Environment): Object =
     of nkIFExpression:
         result = evalIfExpression(self, env)
 
+    of nkFunctionLiteral:
+        let
+            params = self.FnParameters
+            body = self.FnBody
+        return Object(kind: Function, Parameters: params, Body: body, Env: env)
 
-    # of nkFunctionLiteral:
-    #     let
-    #         params = self.FnParameters
-    #         body = self.FnBody
-    #     return Object(kind: Function, Parameters: params, Body: body, Env: env)
-
-    # of nkCallExpression:
-    #     let fn = eval(self.Function, env)
-    #     if isError(fn): return fn
-    #     let args = evalExpressions(self.Args, env)
-    #     if args.len == 1 and isError(args[0]): return args[0]
-    #     return applyFunction(fn, args)
+    of nkCallExpression:
+        let fn = eval(self.Function, env)
+        if isError(fn): return fn
+        let args = evalExpressions(self.Args, env)
+        if args.len == 1 and isError(args[0]):
+            return args[0]
+        return applyFunction(fn, args)
 
     else: discard
 
@@ -136,12 +137,10 @@ proc evalProgram(self: PNode, env: Environment): Object =
 
 
 proc evalIdentifier(self: PNode, env: Environment): Object =
-    if not env.hasEnv(self.IdentValue):
-        return newError("identifier not found: ", self.IdentValue)
-
     let val = env.get(self.IdentValue)
+    if val.kind == Error:
+        return newError("identifier not found: ", self.IdentValue)
     return val
-
 
 
 proc evalPrefixExpression(operator: string, right: Object): Object =
@@ -164,6 +163,15 @@ proc evalInfixExpression(operator: string, left: Object, right: Object): Object 
         return newError("type mismatch: ", left.myType(), operator, right.myType())
     else:
         return newError("unknown operator: ", left.myType(), operator, right.myType())
+
+
+proc evalStringInfixExpression(operator: string, left: Object, right: Object): Object =
+    if operator != "+":
+        return newError("unknown operator: ", left.myType(), operator, right.myType())
+
+    let leftVal = left.StringValue
+    let rightVal = right.StringValue
+    return Object(kind: String, StringValue: leftVal & rightVal)
 
 
 proc evalIfExpression(self: PNode, env: Environment): Object =
@@ -225,48 +233,40 @@ proc nativeBoolToBooleanObject(input: bool): Object =
     return FALSE
 
 
+proc evalExpressions(exps: seq[PNode], env: Environment): seq[Object] =
+    var r: seq[Object]
+    for e in exps:
+        let evaluated = eval(e, env)
+        # if isError(evaluated): return Object(evaluated) TODO:
+        r.add(evaluated)
+    return r
 
 
+proc applyFunction(self: Object, args: seq[Object]): Object =
+    if self == nil:
+        return newError("not a function ", self.myType())
+
+    let
+        fnArgL = self.Parameters.len()
+        argL = args.len()
+    if fnArgL != argL:
+        return newError(fmt"argment values do not match. expected: {fnArgL}, but got {argL}", "")
+
+    let extendedEnv = extendFunctionEnv(self, args)
+    let  evaluated = eval(self.Body, extendedEnv)
+    return unwrapReturnValue(evaluated)
 
 
-# proc evalStringInfixExpression(operator: string, left: Object, right: Object): Object =
-#     if operator != "+":
-#         return newError("unknown operator: ", left.myType(), operator, right.myType())
-
-#     let leftVal = left.StringValue
-#     let rightVal = right.StringValue
-#     return Object(kind: String, StringValue: leftVal & rightVal)
+proc extendFunctionEnv(self: Object, args: seq[Object]): Environment =
+    result = newEncloseEnvironment(self.Env)
+    for i, p in self.Parameters:
+        result.set(p.Token.Literal, args[i])
 
 
-
-
-# proc evalExpressions(exps: seq[PNode], env: Environment): seq[Object] =
-#     var r: seq[Object]
-#     for e in exps:
-#         let evaluated = eval(e, env)
-#         # if isError(evaluated): return Object(evaluated) TODO:
-#         r.add(evaluated)
-#     return r
-
-
-# proc applyFunction(self: Object, args: seq[Object]): Object =
-#     if self == nil: return newError("not a function ", self.myType())
-#     let extendedEnv = extendFunctionEnv(self, args)
-#     let  evaluated = eval(self.Body.Statements[0], extendedEnv) # TODO:
-#     return unwrapReturnValue(evaluated)
-
-
-# proc extendFunctionEnv(self: Object, args: seq[Object]): Environment =
-#     result = newEncloseEnvironment(self.Env)
-#     for i, p in self.Parameters:
-#         result.set(p.Token.Literal, args[i])
-
-
-# proc unwrapReturnValue(self: Object): Object =
-#     if self.kind == ReturnValue:
-#         return self.ReValue
-
-#     return self
+proc unwrapReturnValue(self: Object): Object =
+    if self.kind == ReturnValue:
+        return self.ReValue
+    return self
 
 
 proc isTruthy(obj: Object): bool =
@@ -309,6 +309,6 @@ proc isError(self: Object): bool =
     self.kind == Error
 
 
-# proc main() = discard
-# when isMainModule:
-#     main()
+proc main() = discard
+when isMainModule:
+    main()
