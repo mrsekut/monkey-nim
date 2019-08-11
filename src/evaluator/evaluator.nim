@@ -24,7 +24,7 @@ proc evalMinusPrefixOperatorExpression(right: Object): Object
 proc evalBanOperationExpression(right: Object): Object
 
 proc nativeBoolToBooleanObject(input: bool): Object
-# proc evalStringInfixExpression(operator: string, left: Object, right: Object): Object
+proc evalStringInfixExpression(operator: string, left: Object, right: Object): Object
 
 proc evalExpressions(exps: seq[PNode], env: Environment): seq[Object]
 proc applyFunction(self: Object, args: seq[Object]): Object
@@ -70,8 +70,8 @@ proc eval*(self: PNode, env: Environment): Object =
     of nkIntegerLiteral:
         result = Object(kind: Integer, IntValue: self.IntValue)
 
-    # of nkStringLiteral:
-    #     result = Object(kind: String, StringValue: self.StringValue)
+    of nkStringLiteral:
+        result = Object(kind: String, StringValue: self.StringValue)
 
     of nkBoolean:
         result = nativeBoolToBooleanObject(self.BlValue)
@@ -153,8 +153,8 @@ proc evalPrefixExpression(operator: string, right: Object): Object =
 proc evalInfixExpression(operator: string, left: Object, right: Object): Object =
     if left.myType() == obj.INTEGER_OBJ and right.myType() == obj.INTEGER_OBJ:
         return evalIntegerInfixExpression(operator, left, right)
-    # elif left.myType() == obj.STRING_OBJ and right.myType() == obj.STRING_OBJ:
-    #     return evalStringInfixExpression(operator, left, right)
+    elif left.myType() == obj.STRING_OBJ and right.myType() == obj.STRING_OBJ:
+        return evalStringInfixExpression(operator, left, right)
     elif operator == "==":
         return nativeBoolToBooleanObject(left == right)
     elif operator == "!=":

@@ -71,6 +71,56 @@ suite "REPL":
             check(testIntegerObject(evaluated, t.expected))
 
 
+    test "test eval StringLiteral":
+        type Test = object
+            input: string
+            expected: string
+
+        let testInput = @[
+                Test(
+                    input: """
+                        "hello world"
+                    """,
+                    expected: "hello world"),
+        ]
+
+        for t in testInput:
+            let evaluated = testEval(t.input)
+            check(evaluated.StringValue == t.expected)
+
+
+    test "test eval StringConcatenation":
+        type Test = object
+            input: string
+            expected: string
+
+        let testInput = @[
+                Test(
+                    input: """
+                        "hello" + " " + "world"
+                    """,
+                    expected: "hello world"),
+        ]
+
+        for t in testInput:
+            let evaluated = testEval(t.input)
+            echo repr evaluated
+            check(evaluated.StringValue == t.expected)
+
+        let errorTestInput = @[
+                Test(
+                    input: """
+                        "hello" - "world"
+                    """,
+                    expected: "unknown operator: STRING - STRING"),
+        ]
+
+        for t in errorTestInput:
+            let evaluated = testEval(t.input)
+            echo repr evaluated
+            check(evaluated.ErrMessage == t.expected)
+
+
     test "test eval BooleanExpression":
         type Test = object
             input: string

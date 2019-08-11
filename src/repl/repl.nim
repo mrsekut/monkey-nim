@@ -42,19 +42,19 @@ proc repl*() =
             printParserErrors(p.errors)
             continue
 
-        # compiler
-        let
-            comp = newCompiler()
-            errComp = comp.compile(program)
+        # compiler ==============
+        # let
+        #     comp = newCompiler()
+        #     errComp = comp.compile(program)
 
-        if errComp:
-            echo fmt"Woops! Compilation failed"
+        # if errComp:
+        #     echo fmt"Woops! Compilation failed"
 
-        let machine = newVm(comp.bytecode())
-        machine.runVm()
-        echo machine.stackTop().inspect()
+        # let machine = newVm(comp.bytecode())
+        # machine.runVm()
+        # echo machine.stackTop().inspect()
 
-        # interpreter
-        # let evaluated = evaluator.eval(program, env)
-        # if evaluated != nil:
-        #     echo evaluated.inspect()
+        # interpreter ================
+        let evaluated = evaluator.eval(program, env)
+        if evaluated != nil:
+            echo evaluated.inspect()

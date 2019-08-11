@@ -133,6 +133,22 @@ suite "Parser":
         check(literal == "5")
 
 
+    test "it should parse string expression":
+        let
+            input = """
+                "hello world";
+            """
+            l = newLexer(input)
+            p = newParser(l)
+            program = p.parseProgram()
+
+        checkParserError(p)
+        let statement = program.statements[0]
+        check(statement.kind == nkStringLiteral)
+        let value = statement.StringValue
+        check(value == "hello world")
+
+
     test "it should parse boolean expression":
         let input = "true;"
         let
