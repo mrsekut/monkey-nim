@@ -104,12 +104,6 @@ proc get*(self: Environment, name: string): Object =
         result = self.outer.get(name)
 
 
-proc hasEnv*(self: Environment, name: string): bool =
-    if self.store.len() == 0:
-        return false
-    return self.store.hasKey(name)
-
-
 proc set*(self: Environment, name: string, val: Object) =
     self.store[name] = val
 
