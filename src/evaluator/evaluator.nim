@@ -1,5 +1,5 @@
 import
-    strformat,
+    strformat, tables,
     ../parser/ast,
     ../obj/obj
 
@@ -33,12 +33,29 @@ proc unwrapReturnValue(self: Object): Object
 
 proc isTruthy(obj: Object): bool
 
+proc newError(format: string): Object
 proc newError(format: string, right: string): Object
 proc newError(format: string, right: ObjectType): Object
 proc newError(format: string, operator: string, right: ObjectType ): Object
 proc newError(format: string, left: ObjectType, operator: string, right: ObjectType ): Object
 proc isError(self: Object): bool
 
+
+# Builtin ======
+
+let builtins = {
+    "len": Object(
+        kind: Builtin,
+        Fn: proc(args: seq[Object]): Object =
+            if args.len != 1:
+                return newError(fmt"wrong number of arguments. got={args.len}, want=1")
+            case args[0].kind
+            of String:
+                return Object(kind: Integer, IntValue: args[0].StringValue.len)
+            else:
+                return newError(fmt"argument to `len` not supported, got {args[0].myType()}")
+    )
+}.toTable
 
 
 # implementation
@@ -137,10 +154,13 @@ proc evalProgram(self: PNode, env: Environment): Object =
 
 
 proc evalIdentifier(self: PNode, env: Environment): Object =
+    if builtins.hasKey(self.IdentValue):
+        return builtins[self.IdentValue]
+
     let val = env.get(self.IdentValue)
-    if val.kind == Error:
-        return newError("identifier not found: ", self.IdentValue)
-    return val
+    if val.kind != Error: return val
+
+    return newError("identifier not found: ", self.IdentValue)
 
 
 proc evalPrefixExpression(operator: string, right: Object): Object =
@@ -243,18 +263,23 @@ proc evalExpressions(exps: seq[PNode], env: Environment): seq[Object] =
 
 
 proc applyFunction(self: Object, args: seq[Object]): Object =
-    if self == nil:
+    case self.kind
+    of Function:
+        let
+            fnArgL = self.Parameters.len()
+            argL = args.len()
+        if fnArgL != argL:
+            return newError(fmt"argment values do not match. expected: {fnArgL}, but got {argL}", "")
+
+        let
+            extendedEnv = extendFunctionEnv(self, args)
+            evaluated = eval(self.Body, extendedEnv)
+        return unwrapReturnValue(evaluated)
+
+    of Builtin:
+        return self.Fn(args)
+    else:
         return newError("not a function ", self.myType())
-
-    let
-        fnArgL = self.Parameters.len()
-        argL = args.len()
-    if fnArgL != argL:
-        return newError(fmt"argment values do not match. expected: {fnArgL}, but got {argL}", "")
-
-    let extendedEnv = extendFunctionEnv(self, args)
-    let  evaluated = eval(self.Body, extendedEnv)
-    return unwrapReturnValue(evaluated)
 
 
 proc extendFunctionEnv(self: Object, args: seq[Object]): Environment =
@@ -280,6 +305,12 @@ proc isTruthy(obj: Object): bool =
 
 
 # Error ======
+
+proc newError(format: string): Object =
+    Object(
+        kind: Error,
+        ErrMessage: fmt"{format}")
+
 
 proc newError(format: string, right: string): Object =
     Object(

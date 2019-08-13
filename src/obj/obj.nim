@@ -11,11 +11,14 @@ type
         TNull
         ReturnValue
         Function
+        Builtin
         Error
 
     Environment* = ref object of RootObj
         store: Table[string, Object]
         outer: Environment
+
+    BuiltinFunction* = proc(args: seq[Object]): Object
 
     ObjectType* = enum
         INTEGER_OBJ = "INTEGER"
@@ -24,6 +27,7 @@ type
         NULL_OBJ = "NULL"
         RETURN_VALUE_OBJ = "RETURN_VALUE"
         FUNCTION_OBJ = "FUNCTION"
+        BUILTIN_OBJ = "BUILTIN"
         ERROR_OBJ="ERROR_OBJ"
 
     Object* = ref TObject
@@ -43,6 +47,8 @@ type
             Parameters*: seq[PNode]
             Body*: BlockStatements
             Env*: Environment
+        of Builtin:
+            Fn*: BuiltinFunction
         of Error:
             ErrMessage*: string
 
@@ -69,6 +75,8 @@ proc inspect*(self: Object): string =
             params.add(p.astToString())
         # TODO:
         result = fmt"fn ({params}) " & "{" & fmt"{'\n'} {self.Body.astToString()} {'\n'}" & "}"
+    of Builtin:
+        result = "builtin function"
     of Error:
         result = fmt"ERROR: {self.ErrMessage}"
 
@@ -87,6 +95,8 @@ proc myType*(self: Object): ObjectType =
         result = RETURN_VALUE_OBJ
     of Function:
         result = FUNCTION_OBJ
+    of Builtin:
+        result = BUILTIN_OBJ
     of Error:
         result = ERROR_OBJ
 

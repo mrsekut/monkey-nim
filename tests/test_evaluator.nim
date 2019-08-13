@@ -104,7 +104,6 @@ suite "REPL":
 
         for t in testInput:
             let evaluated = testEval(t.input)
-            echo repr evaluated
             check(evaluated.StringValue == t.expected)
 
         let errorTestInput = @[
@@ -117,7 +116,6 @@ suite "REPL":
 
         for t in errorTestInput:
             let evaluated = testEval(t.input)
-            echo repr evaluated
             check(evaluated.ErrMessage == t.expected)
 
 
@@ -327,6 +325,36 @@ suite "REPL":
                     input: "let add = fn(x, y) {x + y;}; add(5,6,4);",
                     expected: "argment values do not match. expected: 2, but got 3")
         ]
+
+        for t in errorTestInput:
+            let evaluated = testEval(t.input)
+            check(evaluated.ErrMessage == t.expected)
+
+
+    test "test bultin functions":
+        type Test = object
+            input: string
+            expected: int
+
+        let testInput = @[
+                Test(input: """len("")""", expected: 0),
+                Test(input: """len("four")""", expected: 4),
+                Test(input: """len("hello world")""", expected: 11),
+            ]
+
+        for t in testInput:
+            let evaluated = testEval(t.input)
+            check(evaluated.IntValue == t.expected)
+
+
+        type ErrorTest = object
+            input: string
+            expected: string
+
+        let errorTestInput = @[
+                ErrorTest(input: """len(1)""", expected: "argument to `len` not supported, got INTEGER"),
+                ErrorTest(input: """len("one", "two")""", expected: "wrong number of arguments. got=2, want=1"),
+            ]
 
         for t in errorTestInput:
             let evaluated = testEval(t.input)
