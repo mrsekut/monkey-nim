@@ -67,11 +67,6 @@ proc eval*(self: PNode, env: Environment): Object =
         return evalProgram(self, env)
 
 
-    # Statements ==
-
-    # of nkExpressionStatement:
-    #     result = eval(self.Expression, env)
-
     of nkReturnStatement:
         let val = eval(self.ReturnValue, env)
         if isError(val): return val
