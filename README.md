@@ -17,7 +17,7 @@ Implementing the Monkey language interpreter with Nim.
 
 ## Run
 
-- `$ ./moneky_nim`
+`$ ./moneky_nim`
 
 ## Test
 
@@ -25,4 +25,4 @@ Implementing the Monkey language interpreter with Nim.
 
 ## Run in developing
 
-- `$ nim c -r src/monkey_nim.nim`
+`$ nim c -r src/monkey_nim.nim`

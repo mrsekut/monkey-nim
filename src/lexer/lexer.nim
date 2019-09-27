@@ -139,6 +139,10 @@ proc nextToken*(self: var Lexer): token.Token =
         tok = newToken(LBRACE, self.ch)
     of '}':
         tok = newToken(RBRACE, self.ch)
+    of '[':
+        tok = newToken(LBRACKET, self.ch)
+    of ']':
+        tok = newToken(RBRACKET, self.ch)
     of '"':
         let t = STRING
         let l = self.readString()

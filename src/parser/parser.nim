@@ -31,9 +31,10 @@ proc parseBoolean(self: Parser): PNode
 proc parseGroupedExpression(self: Parser): PNode
 proc parseIfExpression(self: Parser): PNode
 proc parseFunctionLiteral(self: Parser): PNode
+proc parseArrayLiteral(self: Parser): PNode
 proc parseFunctionParameters(self: Parser): seq[PNode]
 proc parseCallExpression(self: Parser, function: PNode): PNode
-proc parseCallArgs(self: Parser): seq[PNode]
+proc parseExpressionList(self: Parser, endToken: token.TokenType): seq[PNode]
 proc parseBlockStatement(self: Parser): BlockStatements
 
 proc parsePrefixExpression(self: Parser): PNode
@@ -203,6 +204,13 @@ proc parseFunctionLiteral(self: Parser): PNode =
     result.FnBody = self.parseBlockStatement()
 
 
+proc parseArrayLiteral(self: Parser): PNode =
+    result = PNode(
+                kind: nkArrayLiteral,
+                Token: self.curToken)
+    result.ArrayElem = self.parseExpressionList(RBRACKET)
+
+
 proc parseFunctionParameters(self: Parser): seq[PNode] =
     var identifiers = newSeq[PNode]()
     if self.peekTokenIs(RPAREN):
@@ -234,26 +242,26 @@ proc parseCallExpression(self: Parser, function: PNode): PNode =
                 kind: nkCallExpression,
                 Token: self.curToken,
                 Function: function,
-                Args: self.parseCallArgs())
+                Args: self.parseExpressionList(RPAREN))
 
 
-proc parseCallArgs(self: Parser): seq[PNode] =
-    var args = newSeq[PNode]()
-    if self.peekTokenIs(RPAREN):
+proc parseExpressionList(self: Parser, endToken: token.TokenType): seq[PNode] =
+    var l = newSeq[PNode]()
+    if self.peekTokenIs(endToken):
         self.nextToken()
-        return args
+        return l
 
     self.nextToken()
-    self.nextToken()
-    args.add(self.parseExpression(Precedence.Lowest))
+    # self.nextToken() FIXME:
+    l.add(self.parseExpression(Precedence.Lowest))
 
     while self.peekTokenIs(COMMA):
         self.nextToken()
         self.nextToken()
-        args.add(self.parseExpression(Precedence.Lowest))
+        l.add(self.parseExpression(Precedence.Lowest))
 
-    if not self.expectPeek(RPAREN): return
-    args
+    if not self.expectPeek(endToken): return
+    l
 
 
 proc parseBlockStatement(self: Parser): BlockStatements =
@@ -319,6 +327,8 @@ proc parseExpression(self: Parser, precedence: Precedence): PNode =
         left = self.parseIfExpression()
     of FUNCTION:
         left = self.parseFunctionLiteral()
+    of LBRACKET:
+        left = self.parseArrayLiteral()
     else:
         self.noPrefixParseError()
         left = nil

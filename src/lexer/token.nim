@@ -46,6 +46,9 @@ const
     EQ*        = "=="
     NOT_EQ*    = "!="
 
+    LBRACKET*  = "["
+    RBRACKET*  = "]"
+
 
 var keywords = {
     "fn":     FUNCTION,

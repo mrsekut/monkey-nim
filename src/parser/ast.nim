@@ -57,6 +57,9 @@ type
         nkCallExpression
         nkBlockStatement
 
+        # Array
+        nkArrayLiteral
+
         Nil # TODO: 最終的に消す
 
 
@@ -104,6 +107,9 @@ type
         of nkCallExpression:
             Function*: PNode
             Args*: seq[PNode]
+
+        of nkArrayLiteral:
+            ArrayElem*: seq[PNode]
 
         of Nil: discard
         else: sons: TNodeSeq
@@ -176,6 +182,11 @@ proc astToString*(self: PNode): string =
         for arg in self.Args:
             args.add(arg.astToString())
         result = fmt"{self.Function.Token.Literal}({ args.foldr(a & ',' & ' ' & b) })"
+
+    of nkArrayLiteral:
+        let elems = self.ArrayElem.mapIt(it.astToString()).join(",")
+        result = fmt"[ {elems} ]"
+
 
     else: result = self.Token.Literal
 
