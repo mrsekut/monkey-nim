@@ -36,6 +36,7 @@ proc parseFunctionParameters(self: Parser): seq[PNode]
 proc parseCallExpression(self: Parser, function: PNode): PNode
 proc parseExpressionList(self: Parser, endToken: token.TokenType): seq[PNode]
 proc parseBlockStatement(self: Parser): BlockStatements
+proc parseIndexExpression(self: Parser, left: PNode): PNode
 
 proc parsePrefixExpression(self: Parser): PNode
 proc parseInfixExpression(self: Parser, left: PNode): PNode
@@ -56,6 +57,7 @@ proc peekError(self: Parser, t: token.TokenType)
 
 proc tokenToPrecedence(tok: Token): Precedence =
     case tok.Type
+    of LBRACKET: return Precedence.Index
     of LPAREN: return Precedence.Call
     of SLASH, ASTERISC: return Precedence.Product
     of PLUS, MINUS: return Precedence.Sum
@@ -92,12 +94,10 @@ proc expectPeek(self: Parser, t: token.TokenType): bool =
     return false
 
 
-proc curPrecedence(self: Parser): Precedence =
-    result = tokenToPrecedence(self.curToken)
+proc curPrecedence(self: Parser): Precedence = tokenToPrecedence(self.curToken)
 
 
-proc peekPrecedence(self: Parser): Precedence =
-    result = tokenToPrecedence(self.peekToken)
+proc peekPrecedence(self: Parser): Precedence = tokenToPrecedence(self.peekToken)
 
 
 
@@ -276,6 +276,17 @@ proc parseBlockStatement(self: Parser): BlockStatements =
         self.nextToken()
 
 
+proc parseIndexExpression(self: Parser, left: PNode): PNode =
+    result = PNode(
+                kind: nkIndexExpression,
+                Token: self.curToken,
+                ArrayLeft: left)
+
+    self.nextToken()
+    result.ArrayIndex = self.parseExpression(Lowest)
+    if not self.curTokenIs(RBRACKET): return nil
+
+
 proc parsePrefixExpression(self: Parser): PNode =
     let
         operator = self.curToken.Type
@@ -340,7 +351,9 @@ proc parseExpression(self: Parser, precedence: Precedence): PNode =
             self.nextToken()
             left = self.parseInfixExpression(left)
         of LPAREN:
-            left  = self.parseCallExpression(left)
+            left = self.parseCallExpression(left)
+        of LBRACKET:
+            left = self.parseIndexExpression(left)
         else:
             return left
 

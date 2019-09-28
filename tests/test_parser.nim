@@ -237,41 +237,29 @@ suite "Parser":
             TestOpPrecedence(input: "5 > 4 == 3 < 4", expected: "((5 > 4) == (3 < 4))"),
             TestOpPrecedence(input: "5 < 4 != 3 > 4", expected: "((5 < 4) != (3 > 4))"),
             TestOpPrecedence(input: "3 + 4 * 5 == 3 * 1 + 4 * 5", expected: "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"),
-        ]
 
-        for i in testInputs:
-            let
-                l = newLexer(i.input)
-                p = newParser(l)
-                program = p.parseProgram()
-                act = program.astToString()
-            checkParserError(p)
-            check(act == i.expected)
+            TestOpPrecedence(input: "true", expected: "true"),
+            TestOpPrecedence(input: "false", expected: "false"),
+            TestOpPrecedence(input: "3 < 5 == false", expected: "((3 < 5) == false)"),
+            TestOpPrecedence(input: "3 < 5 == true", expected: "((3 < 5) == true)"),
 
+            TestOpPrecedence(input: "true == true", expected: "(true == true)"),
+            TestOpPrecedence(input: "true != false", expected: "(true != false)"),
+            TestOpPrecedence(input: "false == false", expected: "(false == false)"),
 
-    test "test operator precedence parsing":
-        type TestOpPrecedence2 = object
-            input: string
-            expected: string
+            TestOpPrecedence(input: "!true;", expected: "(!true)"),
+            TestOpPrecedence(input: "!false;", expected: "(!false)"),
 
-        let testInputs = @[
-            TestOpPrecedence2(input: "true", expected: "true"),
-            TestOpPrecedence2(input: "false", expected: "false"),
-            TestOpPrecedence2(input: "3 < 5 == false", expected: "((3 < 5) == false)"),
-            TestOpPrecedence2(input: "3 < 5 == true", expected: "((3 < 5) == true)"),
+            TestOpPrecedence(input: "1 + (2 + 3) + 4", expected: "((1 + (2 + 3)) + 4)"),
+            TestOpPrecedence(input: "(5 + 5) * 2", expected: "((5 + 5) * 2)"),
+            TestOpPrecedence(input: "2 / (5 + 5);", expected: "(2 / (5 + 5))"),
+            TestOpPrecedence(input: "-(5 + 5);", expected: "(-(5 + 5))"),
+            TestOpPrecedence(input: "!(true == true);", expected: "(!(true == true))"),
 
-            TestOpPrecedence2(input: "true == true", expected: "(true == true)"),
-            TestOpPrecedence2(input: "true != false", expected: "(true != false)"),
-            TestOpPrecedence2(input: "false == false", expected: "(false == false)"),
-
-            TestOpPrecedence2(input: "!true;", expected: "(!true)"),
-            TestOpPrecedence2(input: "!false;", expected: "(!false)"),
-
-            TestOpPrecedence2(input: "1 + (2 + 3) + 4", expected: "((1 + (2 + 3)) + 4)"),
-            TestOpPrecedence2(input: "(5 + 5) * 2", expected: "((5 + 5) * 2)"),
-            TestOpPrecedence2(input: "2 / (5 + 5);", expected: "(2 / (5 + 5))"),
-            TestOpPrecedence2(input: "-(5 + 5);", expected: "(-(5 + 5))"),
-            TestOpPrecedence2(input: "!(true == true);", expected: "(!(true == true))"),
+            # FIXME:
+            TestOpPrecedence(input: "a + [1, 2, 3, 4][b * c]", expected: "(a + ([ 1,2,3,4 ][ (b * c) ]))"),
+            # TestOpPrecedence(input: "a + [1, 2, 3, 4][b * c] * d", expected: "((a * ([1, 2, 3, 4][(b * c)])) * d)"),
+            # TestOpPrecedence(input: "add(a * b[2], b[1], 2 * [1, 2][1])", expected: "add((a * (b[2])), (b[1]), (2 * ([1, 2][1])))"),
         ]
 
         for i in testInputs:
@@ -486,3 +474,21 @@ suite "Parser":
         check(testIntegerLiteral(e2.InLeft, 3))
         check(e2.InOperator == "*")
         check(testIntegerLiteral(e2.InRight, 3))
+
+
+    test "test parsing index expressions":
+        let
+            input = "myArray[1 + 1]"
+            l = newLexer(input)
+            p = newParser(l)
+            program = p.parseProgram()
+            indexExp = program.statements[0]
+        checkParserError(p)
+
+        check(indexExp.ArrayLeft.IdentValue == "myArray")
+
+        # TODO: use testInfixExpression
+        let a = indexExp.ArrayIndex.ArrayElem[0]
+        check(a.InLeft.IntValue == 1)
+        check(a.InOperator == "+")
+        check(a.InRight.IntValue == 1)

@@ -29,6 +29,7 @@ type
         Product,
         Prefix,
         Call
+        Index
 
 
 type
@@ -59,6 +60,7 @@ type
 
         # Array
         nkArrayLiteral
+        nkIndexExpression
 
         Nil # TODO: 最終的に消す
 
@@ -110,6 +112,9 @@ type
 
         of nkArrayLiteral:
             ArrayElem*: seq[PNode]
+        of nkIndexExpression:
+            ArrayLeft*: PNode
+            ArrayIndex*: PNode
 
         of Nil: discard
         else: sons: TNodeSeq
@@ -187,6 +192,8 @@ proc astToString*(self: PNode): string =
         let elems = self.ArrayElem.mapIt(it.astToString()).join(",")
         result = fmt"[ {elems} ]"
 
+    of nkIndexExpression:
+        result = fmt"({self.ArrayLeft.astToString()}{self.ArrayIndex.astToString()})"
 
     else: result = self.Token.Literal
 
