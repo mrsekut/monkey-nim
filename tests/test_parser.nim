@@ -356,7 +356,7 @@ suite "Parser":
         check(body[0].InRight.Token.Literal == "y")
 
 
-    test "test functionParameter parging":
+    test "test functionParameter parsing":
         type TestFuncParm = object
             input: string
             expected: seq[string]
@@ -380,52 +380,50 @@ suite "Parser":
                 check(params[idx].Token.Literal == e)
 
 
-    # FIXME:
-    # test "test callExpressions parging":
-    #     let input = "add(1, 2 * 3, 4 + 5)"
-    #     let
-    #         l = newLexer(input)
-    #         p = newParser(l)
-    #         statement = p.parseProgram().statements[0]
-    #     check(statement.kind == nkCallExpression)
+    test "test callExpressions parging":
+        let input = "add(1, 2 * 3, 4 + 5)"
+        let
+            l = newLexer(input)
+            p = newParser(l)
+            statement = p.parseProgram().statements[0]
+        check(statement.kind == nkCallExpression)
 
-    #     let fn = statement.Token.Literal
-    #     check(fn == "add")
+        let fn = statement.Token.Literal
+        check(fn == "add")
 
-    #     let args = statement.Args
-    #     check(args[0].Token.Literal == "1")
-    #     check(args[1].InLeft.Token.Literal == "2")
-    #     check(args[1].InOperator == "*")
-    #     check(args[1].InRight.Token.Literal == "3")
-    #     check(args[2].InLeft.Token.Literal == "4")
-    #     check(args[2].InOperator == "+")
-    #     check(args[2].InRight.Token.Literal == "5")
+        let args = statement.Args
+        check(args[0].Token.Literal == "1")
+        check(args[1].InLeft.Token.Literal == "2")
+        check(args[1].InOperator == "*")
+        check(args[1].InRight.Token.Literal == "3")
+        check(args[2].InLeft.Token.Literal == "4")
+        check(args[2].InOperator == "+")
+        check(args[2].InRight.Token.Literal == "5")
 
 
-    # FIXME:
-    # test "test operator precedence parsing":
-    #     type TestOpPrecedence3 = object
-    #         input: string
-    #         expected: string
+    test "test operator precedence parsing":
+        type TestOpPrecedence3 = object
+            input: string
+            expected: string
 
-    #     let testInputs = @[
-    #         TestOpPrecedence3(input: """a + add(b * c) + d""",
-    #              expected: """((a + add((b * c))) + d)"""),
-    #         TestOpPrecedence3(input: """add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))""",
-    #              expected: """add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))"""),
-    #         TestOpPrecedence3(input: """add(a + b + c * d / f + g)""",
-    #              expected: """add((((a + b) + ((c * d) / f)) + g))"""),
-    #     ]
+        let testInputs = @[
+            TestOpPrecedence3(input: """a + add(b * c) + d""",
+                 expected: """((a + add((b * c))) + d)"""),
+            TestOpPrecedence3(input: """add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))""",
+                 expected: """add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))"""),
+            TestOpPrecedence3(input: """add(a + b + c * d / f + g)""",
+                 expected: """add((((a + b) + ((c * d) / f)) + g))"""),
+        ]
 
-    #     for i in testInputs:
-    #         let
-    #             l = newLexer(i.input)
-    #             p = newParser(l)
-    #             program = p.parseProgram()
-    #         checkParserError(p)
+        for i in testInputs:
+            let
+                l = newLexer(i.input)
+                p = newParser(l)
+                program = p.parseProgram()
+            checkParserError(p)
 
-    #         let act = program.astToString()
-    #         check(act == i.expected)
+            let act = program.astToString()
+            check(act == i.expected)
 
 
     test "test let statement":

@@ -241,8 +241,9 @@ proc parseCallExpression(self: Parser, function: PNode): PNode =
     result = PNode(
                 kind: nkCallExpression,
                 Token: self.curToken,
-                Function: function,
-                Args: self.parseExpressionList(RPAREN))
+                Function: function)
+    self.nextToken()
+    result.Args = self.parseExpressionList(RPAREN)
 
 
 proc parseExpressionList(self: Parser, endToken: token.TokenType): seq[PNode] =
@@ -252,7 +253,6 @@ proc parseExpressionList(self: Parser, endToken: token.TokenType): seq[PNode] =
         return l
 
     self.nextToken()
-    # self.nextToken() FIXME:
     l.add(self.parseExpression(Precedence.Lowest))
 
     while self.peekTokenIs(COMMA):
