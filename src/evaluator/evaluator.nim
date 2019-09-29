@@ -31,6 +31,9 @@ proc applyFunction(self: Object, args: seq[Object]): Object
 proc extendFunctionEnv(self: Object, args: seq[Object]): Environment
 proc unwrapReturnValue(self: Object): Object
 
+proc evalIndexExpression(left: Object, index: Object): Object
+proc evalArrayIndexExpression(arr: Object, index: Object): Object
+
 proc isTruthy(obj: Object): bool
 
 proc newError(format: string): Object
@@ -122,6 +125,19 @@ proc eval*(self: PNode, env: Environment): Object =
         if args.len == 1 and isError(args[0]):
             return args[0]
         return applyFunction(fn, args)
+
+
+    of nkArrayLiteral:
+        let elems = evalExpressions(self.ArrayElem, env)
+        if len(elems) == 1 and isError(elems[0]):
+            return elems[0]
+        return Object(kind: Array, Elements: elems)
+
+    of nkIndexExpression:
+        let
+            left = eval(self.ArrayLeft, env)
+            index = eval(self.ArrayIndex, env)
+        return evalIndexExpression(left, index.Elements[0])
 
     else: discard
 
@@ -287,6 +303,25 @@ proc unwrapReturnValue(self: Object): Object =
     if self.kind == ReturnValue:
         return self.ReValue
     return self
+
+
+proc evalIndexExpression(left: Object, index: Object): Object =
+    if left.myType() == ARRAY_OBJ and index.myType() == INTEGER_OBJ:
+        return evalArrayIndexExpression(left, index)
+    else:
+        return newError(fmt"index operator not suppuroted: {left.myType()}")
+
+
+proc evalArrayIndexExpression(arr: Object, index: Object): Object =
+    let
+        elems = arr.Elements
+        idx = index.IntValue
+        max = elems.len - 1
+
+    if idx < 0 or idx > max:
+        return Object(kind: TNull, NilValue: -1)
+
+    return elems[idx]
 
 
 proc isTruthy(obj: Object): bool =

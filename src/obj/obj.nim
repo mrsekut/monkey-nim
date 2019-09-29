@@ -1,5 +1,5 @@
 import
-    strformat, tables, sequtils,
+    strformat, tables, sequtils, strutils,
     ../parser/ast
 
 
@@ -11,6 +11,7 @@ type
         TNull
         ReturnValue
         Function
+        Array
         Builtin
         Error
 
@@ -27,6 +28,7 @@ type
         NULL_OBJ = "NULL"
         RETURN_VALUE_OBJ = "RETURN_VALUE"
         FUNCTION_OBJ = "FUNCTION"
+        ARRAY_OBJ = "ARRAY"
         BUILTIN_OBJ = "BUILTIN"
         ERROR_OBJ="ERROR_OBJ"
 
@@ -40,13 +42,15 @@ type
         of Boolean:
             BoolValue*: bool
         of TNull:
-            discard
+            NilValue*: int
         of ReturnValue:
             ReValue*: Object
         of Function:
             Parameters*: seq[PNode]
             Body*: BlockStatements
             Env*: Environment
+        of Array:
+            Elements*: seq[Object]
         of Builtin:
             Fn*: BuiltinFunction
         of Error:
@@ -70,11 +74,10 @@ proc inspect*(self: Object): string =
     of ReturnValue:
         result = self.ReValue.inspect()
     of Function:
-        var params: seq[string]
-        for p in self.Parameters:
-            params.add(p.astToString())
-        # TODO:
-        result = fmt"fn ({params}) " & "{" & fmt"{'\n'} {self.Body.astToString()} {'\n'}" & "}"
+        let arg = self.Parameters.mapIt(it.astToString()).join(", ")
+        result = fmt"fn ({arg}) " & "{" & fmt"{'\n'} {self.Body.astToString()} {'\n'}" & "}"
+    of Array:
+        result = fmt"""[ {self.Elements.mapIt(it.inspect()).join(", ")} ]"""
     of Builtin:
         result = "builtin function"
     of Error:
@@ -95,6 +98,8 @@ proc myType*(self: Object): ObjectType =
         result = RETURN_VALUE_OBJ
     of Function:
         result = FUNCTION_OBJ
+    of Array:
+        result = ARRAY_OBJ
     of Builtin:
         result = BUILTIN_OBJ
     of Error:

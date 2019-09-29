@@ -352,10 +352,48 @@ suite "REPL":
             expected: string
 
         let errorTestInput = @[
-                ErrorTest(input: """len(1)""", expected: "argument to `len` not supported, got INTEGER"),
+                ErrorTest(input: "len(1)", expected: "argument to `len` not supported, got INTEGER"),
                 ErrorTest(input: """len("one", "two")""", expected: "wrong number of arguments. got=2, want=1"),
             ]
 
         for t in errorTestInput:
             let evaluated = testEval(t.input)
             check(evaluated.ErrMessage == t.expected)
+
+
+    test "test array literals":
+        let
+            input = "[1, 2 * 2, 3 + 3]"
+            evaluated = testEval(input)
+            elems = evaluated.Elements
+
+        check(elems[0].IntValue == 1)
+        check(elems[1].IntValue == 4)
+        check(elems[2].IntValue == 6)
+
+
+    test "test array index expressions":
+        type Test = object
+            input: string
+            expected: int
+
+        let testInput = @[
+                Test(input: "[1, 2, 3][0]", expected: 1),
+                Test(input: "[1, 2, 3][1]", expected: 2),
+                Test(input: "[1, 2, 3][2]", expected: 3),
+
+                Test(input: "let i = 0; [1][i]", expected: 1),
+                Test(input: "[1, 2, 3][1 + 1]", expected: 3),
+                Test(input: "let a = [1, 2, 3]; a[2];", expected: 3),
+                # Test(input: "let a = [1, 2, 3]; a[0] + a[1] + a[2];", expected: 6), FIXME:
+                Test(input: "let a = [1, 2, 3]; let i = a[0]; a[i];", expected: 2),
+
+                # FIXME:
+                # Test(input: "[1, 2, 3][3]", expected: -1),
+                # Test(input: "[1, 2, 3][-1]", expected: -1),
+            ]
+
+
+        for t in testInput:
+            let evaluated = testEval(t.input)
+            check(evaluated.IntValue == t.expected)
