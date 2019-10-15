@@ -38,14 +38,14 @@ proc lookup*(op: byte): Definition =
     try:
         var def = definitions[Opcode(op)]
         return def
-    except :
+    except:
         errorMessageWriter(fmt"opcode {op} undefined")
 
 
 proc putBigEndian16(arr: var seq[byte], index: int, operand: uint16) =
     if arr.len != index: arr.add(byte(0)) # FIXME:
 
-    let hex: string = toHex(int(operand), 4) # FFFE
+    let hex: string = toHex(int(operand), 4)             # FFFE
     for i in countup(0, len(hex)-1, 2):
         var bc = hex[i..i+1] # FF
         var c = fromHex[byte](bc) # 255
@@ -72,15 +72,15 @@ proc makeByte*(op: OpCode, operands: seq[int] = @[]): seq[byte] =
             offset += width
 
         return instruction
-    except :
+    except:
         errorMessageWriter(fmt"opcode {op} undefined")
 
 
 proc insToString*(ins: Instructions): string =
     result = ""
     var
-       i = 0
-       def: Definition
+        i = 0
+        def: Definition
     while i < len(ins):
         def = lookup(ins[i])
         # if def != nil:

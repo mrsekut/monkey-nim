@@ -1,5 +1,5 @@
 import
-    strutils, unittest, strformat, typetraits, typetraits,
+    unittest, strformat, typetraits, typetraits,
     ../src/lexer/lexer,
     ../src/parser/ast,
     ../src/parser/parser,
@@ -95,6 +95,9 @@ proc runCompilerTests[T](tests: seq[CompilerTestCase[T]]) =
             compiler = newCompiler()
             errCompilr = compiler.compile(program)
 
+        echo "in run compiler"
+        echo repr program
+
         if errCompilr:
             checkpoint(fmt"compiler error")
             fail()
@@ -106,28 +109,28 @@ proc runCompilerTests[T](tests: seq[CompilerTestCase[T]]) =
 
 
 
-# suite "Compiler":
-#     test "test integer arithmetic":
-#         let tests = @[
-#             CompilerTestCase[int](
-#                 input: "1 + 2",
-#                 expectedConstants: @[1, 2],
-#                 expectedInstructions: @[
-#                     makeByte(OpConstant, @[0]),
-#                     makeByte(OpConstant, @[1]),
-#                     makeByte(OpAdd),
-#                     makeByte(OpPop),
-#                 ]
-#             ),
-#             CompilerTestCase[int](
-#                 input: "1; 2",
-#                 expectedConstants: @[1, 2],
-#                 expectedInstructions: @[
-#                     makeByte(OpConstant, @[0]),
-#                     makeByte(OpPop),
-#                     makeByte(OpConstant, @[1]),
-#                     makeByte(OpPop),
-#                 ]
-#             )
-#         ]
-#         runCompilerTests(tests)
+suite "Compiler":
+    test "test integer arithmetic":
+        let tests = @[
+            CompilerTestCase[int](
+                input: "1 + 2;",
+                expectedConstants: @[1, 2],
+                expectedInstructions: @[
+                    makeByte(OpConstant, @[0]),
+                    makeByte(OpConstant, @[1]),
+                    makeByte(OpAdd),
+                    makeByte(OpPop)
+            ]
+        ),
+            CompilerTestCase[int](
+                    input: "1; 2",
+                    expectedConstants: @[1, 2],
+                    expectedInstructions: @[
+                        makeByte(OpConstant, @[0]),
+                        makeByte(OpPop),
+                        makeByte(OpConstant, @[1]),
+                        makeByte(OpPop),
+            ]
+        )
+        ]
+        runCompilerTests(tests)

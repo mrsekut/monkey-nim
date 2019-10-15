@@ -36,10 +36,10 @@ proc compile*(self: Compiler, node: PNode): bool =
     of Program:
         for _, s in node.statements:
             var err = self.compile(s)
+            self.emit(OpPop)
             if err: return err
 
     of nkExpressionStatement:
-        # TODO: きてない
         var err = self.compile(node.Expression)
         if err: return err
         self.emit(OpPop)
