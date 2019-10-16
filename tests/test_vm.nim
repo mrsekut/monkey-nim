@@ -57,7 +57,7 @@ proc runVmTests(tests: seq[VmTestCase]) =
         #     checkpoint("vm error")
         #     fail()
 
-        let stackElem = vm.stackTop()
+        let stackElem = vm.lastPoppedStackElm()
         testExpectedObject[int](test.expected, stackElem)
 
 

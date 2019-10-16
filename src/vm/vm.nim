@@ -1,6 +1,4 @@
-import
-    strformat,
-    ../compiler/compiler, ../code/code, ../obj/obj
+import ../compiler/compiler, ../code/code, ../obj/obj
 
 const STACK_SIZE = 2048
 
@@ -16,6 +14,7 @@ proc stackTop*(self: VM): Object
 proc runVm*(self: VM)
 proc push(self: VM, o: Object)
 proc pop(self: VM): Object
+proc lastPoppedStackElm*(self: VM): Object
 
 # implementation
 
@@ -52,6 +51,9 @@ proc runVm*(self: VM) =
                 rightValue = right.IntValue
                 res = leftValue + rightValue
             self.push(Object(kind: Integer, IntValue: res))
+        # FIXME: 未実装
+        # of OpPop:
+        #     let _ = self.pop()
         else:
             discard
         inc ip
@@ -66,7 +68,9 @@ proc push(self: VM, o: Object) =
     inc self.sp
 
 
-
 proc pop(self: VM): Object =
     dec self.sp
     self.stack.pop()
+
+
+proc lastPoppedStackElm*(self: VM): Object = self.stack[self.sp-1] # FIXME: 本来はself.sp?

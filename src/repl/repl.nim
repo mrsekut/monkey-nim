@@ -52,7 +52,7 @@ proc repl*() =
 
         # let machine = newVm(comp.bytecode())
         # machine.runVm()
-        # echo machine.stackTop().inspect()
+        # echo machine.lastPoppedStackElm().inspect()
 
         # interpreter ================
         let evaluated = evaluator.eval(program, env)

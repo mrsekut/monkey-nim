@@ -95,9 +95,6 @@ proc runCompilerTests[T](tests: seq[CompilerTestCase[T]]) =
             compiler = newCompiler()
             errCompilr = compiler.compile(program)
 
-        echo "in run compiler"
-        echo repr program
-
         if errCompilr:
             checkpoint(fmt"compiler error")
             fail()
