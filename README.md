@@ -1,6 +1,6 @@
 # Monkey-Nim
 
-Implementing the Monkey language interpreter with Nim.
+Implementing the Monkey language interpreter in Nim.
 
 ![sample](https://github.com/mrsekut/monkey-nim/blob/master/img/interp.gif)
 
